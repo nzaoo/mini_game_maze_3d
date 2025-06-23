@@ -13,6 +13,8 @@
 Players can move, jump, sprint, collect rewards, avoid traps, and navigate through dynamic levels. When the player reaches the exit, a new randomized map is loaded!
 
 ---
+# Maze Game - First Person 3D
+A simple maze game built with Three.js and Vite.
 
 ## 📷 Demo Screenshot
 
