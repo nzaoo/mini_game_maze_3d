@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
-  base: '/mini_game_maze_3d/', // đúng với tên repo GitHub
+  base: '/mini_game_maze_3d/', // Đúng tên repo GitHub Pages
   build: {
     outDir: 'dist',
     rollupOptions: {
