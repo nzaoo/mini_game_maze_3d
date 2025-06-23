@@ -47,4 +47,4 @@ npm install
 npm run dev
 
 # 3. Open in browser:
-http://localhost:5173
+https://nzaoo.github.io/mini_game_maze_3d/
