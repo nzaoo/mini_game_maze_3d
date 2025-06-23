@@ -7,7 +7,7 @@
     "preview": "vite preview",
     "deploy": "npm run build && git add dist && git commit -m 'update dist' && git subtree push --prefix dist origin gh-pages"
   },
-  "dependencies": {
+    "dependencies": {
     "three": "^0.160.0"
   },
   "devDependencies": {
