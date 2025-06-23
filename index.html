@@ -1,18 +1,18 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>Maze Game 3D</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/src/style.css" />
-  </head>
-  <body>
-    <!-- HUD hiển thị điểm số -->
+    </head>
+    <body>
     <div id="hud">
       <div>Score: <span id="score">0</span></div>
     </div>
 
-    <!-- Khởi chạy app -->
-    <script type="module" src="/src/main.js"></script>
+    <!-- Không dùng đường dẫn tới /src/, để Vite xử lý -->
+    <script type="module" src="./src/main.js"></script>
+    <link rel="stylesheet" href="./src/style.css" />
   </body>
 </html>

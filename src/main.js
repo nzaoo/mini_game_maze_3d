@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import './style.css'; // 
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { mazeMap } from './maze-data.js';
 
