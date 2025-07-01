@@ -135,12 +135,12 @@ class UIManager {
           fontSize: '18px',
           zIndex: '100',
           background:
-            'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%)',
+            'linear-gradient(135deg, #e0eafc 0%, #dbeafe 100%)',
           padding: '20px 30px',
           borderRadius: '15px',
           fontFamily: '"Orbitron", "Arial", sans-serif',
           border: '2px solid #4CAF50',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 20px rgba(76,175,80,0.3)',
+          boxShadow: '0 8px 32px rgba(250, 250, 250, 0.6), 0 0 20px rgba(225, 235, 225, 0.3)',
           backdropFilter: 'blur(10px)',
           minWidth: '300px',
         },
@@ -187,7 +187,7 @@ class UIManager {
       bottom: '20px',
       left: '20px',
       background:
-        'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%)',
+        'linear-gradient(135deg, #f5f5f5 0%, #e0eafc 100%)',
       border: '3px solid #4CAF50',
       borderRadius: '20px',
       zIndex: '150',
