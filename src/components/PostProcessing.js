@@ -9,7 +9,7 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 
 export class PostProcessing {
-  constructor(renderer, scene, camera) {
+  constructor (renderer, scene, camera) {
     this.renderer = renderer;
     this.scene = scene;
     this.camera = camera;
@@ -21,7 +21,7 @@ export class PostProcessing {
   }
   
   // Initialize post-processing pipeline
-  init() {
+  init () {
     // Create effect composer
     this.composer = new EffectComposer(this.renderer);
     
@@ -46,12 +46,12 @@ export class PostProcessing {
   }
   
   // Add bloom effect
-  addBloomPass() {
+  addBloomPass () {
     const bloomPass = new UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
       0.5,  // strength
       0.4,  // radius
-      0.85  // threshold
+      0.85,  // threshold
     );
     
     this.composer.addPass(bloomPass);
@@ -59,12 +59,12 @@ export class PostProcessing {
   }
   
   // Add vignette effect
-  addVignettePass() {
+  addVignettePass () {
     const vignetteShader = {
       uniforms: {
         'tDiffuse': { value: null },
         'offset': { value: 0.5 },
-        'darkness': { value: 0.3 }
+        'darkness': { value: 0.3 },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -84,7 +84,7 @@ export class PostProcessing {
           vec2 uv = (vUv - vec2(0.5)) * vec2(offset);
           gl_FragColor = vec4(mix(texel.rgb, vec3(1.0 - darkness), dot(uv, uv)), texel.a);
         }
-      `
+      `,
     };
     
     const vignettePass = new ShaderPass(vignetteShader);
@@ -93,14 +93,14 @@ export class PostProcessing {
   }
   
   // Add color correction
-  addColorCorrectionPass() {
+  addColorCorrectionPass () {
     const colorCorrectionShader = {
       uniforms: {
         'tDiffuse': { value: null },
         'brightness': { value: 0.0 },
         'contrast': { value: 1.0 },
         'saturation': { value: 1.0 },
-        'gamma': { value: 1.0 }
+        'gamma': { value: 1.0 },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -145,7 +145,7 @@ export class PostProcessing {
           
           gl_FragColor = vec4(color, texel.a);
         }
-      `
+      `,
     };
     
     const colorCorrectionPass = new ShaderPass(colorCorrectionShader);
@@ -154,11 +154,11 @@ export class PostProcessing {
   }
   
   // Add chromatic aberration
-  addChromaticAberrationPass() {
+  addChromaticAberrationPass () {
     const chromaticShader = {
       uniforms: {
         'tDiffuse': { value: null },
-        'offset': { value: 0.005 }
+        'offset': { value: 0.005 },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -183,7 +183,7 @@ export class PostProcessing {
           
           gl_FragColor = vec4(r, g, b, 1.0);
         }
-      `
+      `,
     };
     
     const chromaticPass = new ShaderPass(chromaticShader);
@@ -192,7 +192,7 @@ export class PostProcessing {
   }
   
   // Add motion blur
-  addMotionBlurPass() {
+  addMotionBlurPass () {
     const motionBlurShader = {
       uniforms: {
         'tDiffuse': { value: null },
@@ -204,7 +204,7 @@ export class PostProcessing {
         'viewMatrixInverse': { value: null },
         'prevViewMatrix': { value: null },
         'prevProjectionMatrix': { value: null },
-        'intensity': { value: 1.0 }
+        'intensity': { value: 1.0 },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -244,7 +244,7 @@ export class PostProcessing {
           
           gl_FragColor = color;
         }
-      `
+      `,
     };
     
     const motionBlurPass = new ShaderPass(motionBlurShader);
@@ -253,7 +253,7 @@ export class PostProcessing {
   }
   
   // Add depth of field
-  addDepthOfFieldPass() {
+  addDepthOfFieldPass () {
     const dofShader = {
       uniforms: {
         'tDiffuse': { value: null },
@@ -263,7 +263,7 @@ export class PostProcessing {
         'focalDepth': { value: 20 },
         'focalLength': { value: 35 },
         'fstop': { value: 2.8 },
-        'maxblur': { value: 1.0 }
+        'maxblur': { value: 1.0 },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -307,7 +307,7 @@ export class PostProcessing {
           
           gl_FragColor = color / total;
         }
-      `
+      `,
     };
     
     const dofPass = new ShaderPass(dofShader);
@@ -316,8 +316,8 @@ export class PostProcessing {
   }
   
   // Update post-processing effects
-  update(deltaTime) {
-    if (!this.enabled || !this.composer) return;
+  update (_deltaTime) {
+    if (!this.enabled || !this.composer) {return;}
     
     // Update bloom intensity based on time
     if (this.passes.bloom) {
@@ -333,7 +333,7 @@ export class PostProcessing {
   }
   
   // Render with post-processing
-  render() {
+  render () {
     if (this.enabled && this.composer) {
       this.composer.render();
     } else {
@@ -342,7 +342,7 @@ export class PostProcessing {
   }
   
   // Set effect parameters
-  setBloomParameters(strength, radius, threshold) {
+  setBloomParameters (strength, radius, threshold) {
     if (this.passes.bloom) {
       this.passes.bloom.strength = strength;
       this.passes.bloom.radius = radius;
@@ -350,14 +350,14 @@ export class PostProcessing {
     }
   }
   
-  setVignetteParameters(offset, darkness) {
+  setVignetteParameters (offset, darkness) {
     if (this.passes.vignette) {
       this.passes.vignette.uniforms.offset.value = offset;
       this.passes.vignette.uniforms.darkness.value = darkness;
     }
   }
   
-  setColorCorrectionParameters(brightness, contrast, saturation, gamma) {
+  setColorCorrectionParameters (brightness, contrast, saturation, gamma) {
     if (this.passes.colorCorrection) {
       this.passes.colorCorrection.uniforms.brightness.value = brightness;
       this.passes.colorCorrection.uniforms.contrast.value = contrast;
@@ -367,26 +367,26 @@ export class PostProcessing {
   }
   
   // Enable/disable effects
-  setEffectEnabled(effectName, enabled) {
+  setEffectEnabled (effectName, enabled) {
     if (this.passes[effectName]) {
       this.passes[effectName].enabled = enabled;
     }
   }
   
   // Enable/disable all post-processing
-  setEnabled(enabled) {
+  setEnabled (enabled) {
     this.enabled = enabled;
   }
   
   // Handle window resize
-  onWindowResize(width, height) {
+  onWindowResize (width, height) {
     if (this.composer) {
       this.composer.setSize(width, height);
     }
   }
   
   // Dispose of resources
-  dispose() {
+  dispose () {
     if (this.composer) {
       this.composer.dispose();
       this.composer = null;

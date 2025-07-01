@@ -2,7 +2,7 @@
 // Advanced audio management system for game sounds
 
 export class AudioManager {
-  constructor() {
+  constructor () {
     this.context = null;
     this.masterGain = null;
     this.musicGain = null;
@@ -13,7 +13,7 @@ export class AudioManager {
     this.volume = {
       master: 0.5,
       music: 0.3,
-      sfx: 0.7
+      sfx: 0.7,
     };
     this.spatialAudio = true;
     this.listener = null;
@@ -22,7 +22,7 @@ export class AudioManager {
   }
   
   // Initialize audio context
-  async init() {
+  async init () {
     try {
       // Create audio context
       this.context = new (window.AudioContext || window.webkitAudioContext)();
@@ -54,7 +54,7 @@ export class AudioManager {
   }
   
   // Load audio file
-  async loadSound(id, url, options = {}) {
+  async loadSound (id, url, options = {}) {
     try {
       const response = await fetch(url);
       const arrayBuffer = await response.arrayBuffer();
@@ -68,8 +68,8 @@ export class AudioManager {
           spatial: false,
           maxDistance: 50,
           rolloffFactor: 1,
-          ...options
-        }
+          ...options,
+        },
       });
       
       return true;
@@ -80,16 +80,16 @@ export class AudioManager {
   }
   
   // Load multiple sounds
-  async loadSounds(soundList) {
+  async loadSounds (soundList) {
     const promises = soundList.map(sound => 
-      this.loadSound(sound.id, sound.url, sound.options)
+      this.loadSound(sound.id, sound.url, sound.options),
     );
     
     return Promise.all(promises);
   }
   
   // Play sound
-  playSound(id, options = {}) {
+  playSound (id, options = {}) {
     const sound = this.sounds.get(id);
     if (!sound) {
       console.warn(`Sound ${id} not found`);
@@ -138,7 +138,7 @@ export class AudioManager {
         },
         setVolume: (volume) => {
           gainNode.gain.value = volume * this.volume.sfx;
-        }
+        },
       };
     } catch (error) {
       console.warn(`Failed to play sound ${id}:`, error);
@@ -147,7 +147,7 @@ export class AudioManager {
   }
   
   // Play music
-  async playMusic(id, fadeIn = true) {
+  async playMusic (id, fadeIn = true) {
     // Stop current music
     if (this.currentMusic) {
       this.stopMusic(fadeIn);
@@ -184,7 +184,7 @@ export class AudioManager {
           gainNode.gain.setValueAtTime(0, this.context.currentTime);
           gainNode.gain.linearRampToValueAtTime(
             sound.options.volume * this.volume.music,
-            this.context.currentTime + 2
+            this.context.currentTime + 2,
           );
         },
         fadeOut: () => {
@@ -197,7 +197,7 @@ export class AudioManager {
           } catch (error) {
             // Music already stopped
           }
-        }
+        },
       };
       
       // Fade in if requested
@@ -213,7 +213,7 @@ export class AudioManager {
   }
   
   // Stop music
-  stopMusic(fadeOut = true) {
+  stopMusic (fadeOut = true) {
     if (this.currentMusic) {
       if (fadeOut) {
         this.currentMusic.fadeOut();
@@ -229,13 +229,13 @@ export class AudioManager {
   }
   
   // Set master volume
-  setMasterVolume(volume) {
+  setMasterVolume (volume) {
     this.volume.master = Math.max(0, Math.min(1, volume));
     this.masterGain.gain.value = this.volume.master;
   }
   
   // Set music volume
-  setMusicVolume(volume) {
+  setMusicVolume (volume) {
     this.volume.music = Math.max(0, Math.min(1, volume));
     if (this.currentMusic) {
       this.currentMusic.gain.gain.value = this.volume.music;
@@ -243,55 +243,55 @@ export class AudioManager {
   }
   
   // Set SFX volume
-  setSFXVolume(volume) {
+  setSFXVolume (volume) {
     this.volume.sfx = Math.max(0, Math.min(1, volume));
   }
   
   // Get volume levels
-  getVolume() {
+  getVolume () {
     return { ...this.volume };
   }
   
   // Update listener position for spatial audio
-  updateListenerPosition(position, orientation) {
+  updateListenerPosition (position, orientation) {
     if (this.listener && this.spatialAudio) {
       this.listener.setPosition(position.x, position.y, position.z);
       if (orientation) {
         this.listener.setOrientation(
           orientation.forward.x, orientation.forward.y, orientation.forward.z,
-          orientation.up.x, orientation.up.y, orientation.up.z
+          orientation.up.x, orientation.up.y, orientation.up.z,
         );
       }
     }
   }
   
   // Create spatial sound
-  createSpatialSound(id, position, options = {}) {
+  createSpatialSound (id, position, options = {}) {
     return this.playSound(id, {
       ...options,
       position,
-      spatial: true
+      spatial: true,
     });
   }
   
   // Create ambient sound
-  createAmbientSound(id, options = {}) {
+  createAmbientSound (id, options = {}) {
     return this.playSound(id, {
       ...options,
-      spatial: false
+      spatial: false,
     });
   }
   
   // Create looping sound
-  createLoopingSound(id, options = {}) {
+  createLoopingSound (id, options = {}) {
     return this.playSound(id, {
       ...options,
-      loop: true
+      loop: true,
     });
   }
   
   // Stop all sounds
-  stopAllSounds() {
+  stopAllSounds () {
     // Stop current music
     this.stopMusic(false);
     
@@ -300,32 +300,32 @@ export class AudioManager {
   }
   
   // Pause audio context
-  pause() {
+  pause () {
     if (this.context && this.context.state === 'running') {
       this.context.suspend();
     }
   }
   
   // Resume audio context
-  resume() {
+  resume () {
     if (this.context && this.context.state === 'suspended') {
       this.context.resume();
     }
   }
   
   // Check if audio is supported
-  isSupported() {
+  isSupported () {
     return !!(window.AudioContext || window.webkitAudioContext);
   }
   
   // Get audio context state
-  getState() {
+  getState () {
     return this.context ? this.context.state : 'unsupported';
   }
   
   // Create audio visualization
-  createVisualizer(canvas) {
-    if (!this.context) return null;
+  createVisualizer (canvas) {
+    if (!this.context) {return null;}
     
     const analyser = this.context.createAnalyser();
     analyser.fftSize = 256;
@@ -372,12 +372,12 @@ export class AudioManager {
         // Reconnect master gain directly to destination
         this.masterGain.disconnect();
         this.masterGain.connect(this.context.destination);
-      }
+      },
     };
   }
   
   // Create audio effects
-  createEffects() {
+  createEffects () {
     const effects = {};
     
     // Reverb effect
@@ -396,7 +396,7 @@ export class AudioManager {
   }
   
   // Apply effect to sound
-  applyEffect(sound, effect) {
+  applyEffect (sound, effect) {
     if (sound && effect) {
       // Disconnect from current output
       sound.disconnect();
@@ -408,7 +408,7 @@ export class AudioManager {
   }
   
   // Remove effect from sound
-  removeEffect(sound) {
+  removeEffect (sound) {
     if (sound) {
       // Disconnect from effect
       sound.disconnect();
@@ -419,10 +419,10 @@ export class AudioManager {
   }
   
   // Save audio settings
-  saveSettings() {
+  saveSettings () {
     const settings = {
       volume: this.volume,
-      spatialAudio: this.spatialAudio
+      spatialAudio: this.spatialAudio,
     };
     
     try {
@@ -435,7 +435,7 @@ export class AudioManager {
   }
   
   // Load audio settings
-  loadSettings() {
+  loadSettings () {
     try {
       const data = localStorage.getItem('maze_game_audio_settings');
       if (data) {
@@ -459,7 +459,7 @@ export class AudioManager {
   }
   
   // Dispose of audio resources
-  dispose() {
+  dispose () {
     if (this.currentMusic) {
       this.stopMusic(false);
     }

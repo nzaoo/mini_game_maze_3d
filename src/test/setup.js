@@ -7,29 +7,29 @@ vi.mock('three', () => ({
     add: vi.fn(),
     remove: vi.fn(),
     clear: vi.fn(),
-    background: null
+    background: null,
   })),
   PerspectiveCamera: vi.fn(() => ({
     position: { set: vi.fn() },
     aspect: 1,
-    updateProjectionMatrix: vi.fn()
+    updateProjectionMatrix: vi.fn(),
   })),
   WebGLRenderer: vi.fn(() => ({
     setSize: vi.fn(),
     render: vi.fn(),
     dispose: vi.fn(),
     domElement: document.createElement('canvas'),
-    shadowMap: { enabled: false, type: null }
+    shadowMap: { enabled: false, type: null },
   })),
   AmbientLight: vi.fn(() => ({})),
   DirectionalLight: vi.fn(() => ({
     position: { set: vi.fn() },
     castShadow: false,
-    shadow: { mapSize: { width: 0, height: 0 } }
+    shadow: { mapSize: { width: 0, height: 0 } },
   })),
   SpotLight: vi.fn(() => ({
     position: { set: vi.fn() },
-    target: { position: { set: vi.fn() } }
+    target: { position: { set: vi.fn() } },
   })),
   PlaneGeometry: vi.fn(() => ({})),
   BoxGeometry: vi.fn(() => ({})),
@@ -44,7 +44,7 @@ vi.mock('three', () => ({
     castShadow: false,
     receiveShadow: false,
     material: {},
-    userData: {}
+    userData: {},
   })),
   Vector3: vi.fn(() => ({
     set: vi.fn(),
@@ -54,18 +54,18 @@ vi.mock('three', () => ({
     multiplyScalar: vi.fn(() => ({})),
     normalize: vi.fn(),
     cross: vi.fn(() => ({})),
-    distanceTo: vi.fn(() => 0)
+    distanceTo: vi.fn(() => 0),
   })),
   Color: vi.fn(() => ({})),
   Clock: vi.fn(() => ({
-    getDelta: vi.fn(() => 0.016)
+    getDelta: vi.fn(() => 0.016),
   })),
   Raycaster: vi.fn(() => ({})),
   Group: vi.fn(() => ({
     add: vi.fn(),
-    children: []
+    children: [],
   })),
-  PCFSoftShadowMap: 'PCFSoftShadowMap'
+  PCFSoftShadowMap: 'PCFSoftShadowMap',
 }));
 
 // Mock PointerLockControls
@@ -75,10 +75,10 @@ vi.mock('three/examples/jsm/controls/PointerLockControls.js', () => ({
     unlock: vi.fn(),
     isLocked: false,
     getObject: vi.fn(() => ({
-      position: { x: 0, y: 0, z: 0, set: vi.fn(), clone: vi.fn(() => ({ x: 0, y: 0, z: 0 })) }
+      position: { x: 0, y: 0, z: 0, set: vi.fn(), clone: vi.fn(() => ({ x: 0, y: 0, z: 0 })) },
     })),
-    getDirection: vi.fn(() => ({ x: 0, y: 0, z: -1 }))
-  }))
+    getDirection: vi.fn(() => ({ x: 0, y: 0, z: -1 })),
+  })),
 }));
 
 // Mock Audio API
@@ -87,7 +87,7 @@ global.Audio = vi.fn(() => ({
   pause: vi.fn(),
   load: vi.fn(),
   volume: 0.5,
-  currentTime: 0
+  currentTime: 0,
 }));
 
 // Mock requestAnimationFrame
@@ -98,7 +98,7 @@ global.requestAnimationFrame = vi.fn((callback) => {
 
 // Mock performance API
 global.performance = {
-  now: vi.fn(() => Date.now())
+  now: vi.fn(() => Date.now()),
 };
 
 // Mock localStorage
@@ -106,7 +106,7 @@ global.localStorage = {
   getItem: vi.fn(),
   setItem: vi.fn(),
   removeItem: vi.fn(),
-  clear: vi.fn()
+  clear: vi.fn(),
 };
 
 // Mock sessionStorage
@@ -114,7 +114,7 @@ global.sessionStorage = {
   getItem: vi.fn(),
   setItem: vi.fn(),
   removeItem: vi.fn(),
-  clear: vi.fn()
+  clear: vi.fn(),
 };
 
 // Mock WebGL context
@@ -148,7 +148,7 @@ const mockWebGLContext = {
   bindTexture: vi.fn(),
   texImage2D: vi.fn(),
   texParameteri: vi.fn(),
-  generateMipmap: vi.fn()
+  generateMipmap: vi.fn(),
 };
 
 // Mock canvas getContext
@@ -158,36 +158,36 @@ HTMLCanvasElement.prototype.getContext = vi.fn(() => mockWebGLContext);
 global.ResizeObserver = vi.fn(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
-  disconnect: vi.fn()
+  disconnect: vi.fn(),
 }));
 
 // Mock IntersectionObserver
 global.IntersectionObserver = vi.fn(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
-  disconnect: vi.fn()
+  disconnect: vi.fn(),
 }));
 
 // Mock matchMedia
 global.matchMedia = vi.fn(() => ({
   matches: false,
   addListener: vi.fn(),
-  removeListener: vi.fn()
+  removeListener: vi.fn(),
 }));
 
 // Mock devicePixelRatio
 Object.defineProperty(window, 'devicePixelRatio', {
   value: 1,
-  writable: true
+  writable: true,
 });
 
 // Mock innerWidth and innerHeight
 Object.defineProperty(window, 'innerWidth', {
   value: 1920,
-  writable: true
+  writable: true,
 });
 
 Object.defineProperty(window, 'innerHeight', {
   value: 1080,
-  writable: true
+  writable: true,
 }); 
