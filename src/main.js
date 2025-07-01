@@ -372,11 +372,11 @@ class UIManager {
 class PhysicsManager {
   constructor (gameState) {
     this.gameState = gameState;
-    this.normalSpeed = 35;
-    this.runMultiplier = 1.8;
-    this.jumpPower = 8;
-    this.gravity = 35;
-    this.friction = 12;
+    this.normalSpeed = 4;
+    this.runMultiplier = 1.7;
+    this.jumpPower = 6;
+    this.gravity = 18;
+    this.friction = 8;
   }
   
   isWall (x, z) {
@@ -788,6 +788,42 @@ class MazeGame {
       1.6,
       start.z * this.gameState.tileSize + this.gameState.tileSize / 2,
     );
+
+    // Floor - procedural checkerboard
+    const size = 200;
+    const tile = 2; // mỗi ô gạch 2x2 đơn vị
+    const tiles = size / tile;
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    for (let y = 0; y < tiles; y++) {
+      for (let x = 0; x < tiles; x++) {
+        ctx.fillStyle = (x + y) % 2 === 0 ? '#bca16b' : '#7c5e3c';
+        ctx.fillRect(x * (512 / tiles), y * (512 / tiles), (512 / tiles), (512 / tiles));
+      }
+    }
+    const checkerTexture = new THREE.CanvasTexture(canvas);
+    checkerTexture.wrapS = checkerTexture.wrapT = THREE.RepeatWrapping;
+    checkerTexture.repeat.set(1, 1);
+    const floorGeometry = new THREE.PlaneGeometry(size, size);
+    const floorMaterial = new THREE.MeshLambertMaterial({ map: checkerTexture });
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    this.gameState.scene.add(floor);
+
+    // Sky gradient background
+    const skyCanvas = document.createElement('canvas');
+    skyCanvas.width = 1024;
+    skyCanvas.height = 512;
+    const skyCtx = skyCanvas.getContext('2d');
+    const grad = skyCtx.createLinearGradient(0, 0, 0, 512);
+    grad.addColorStop(0, '#87ceeb'); // xanh trời
+    grad.addColorStop(1, '#e0eafc'); // trắng nhạt
+    skyCtx.fillStyle = grad;
+    skyCtx.fillRect(0, 0, 1024, 512);
+    const skyTexture = new THREE.CanvasTexture(skyCanvas);
+    this.gameState.scene.background = skyTexture;
   }
   
   loadLevel (levelIdx) {
