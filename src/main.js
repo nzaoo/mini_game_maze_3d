@@ -1,468 +1,1090 @@
 import * as THREE from 'three';
-import './style.css'; // 
+import './style.css';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { mazeMaps } from './maze-data.js';
 
-// Đảm bảo các biến toàn cục có thể gán lại đều là let
-let scene, camera, renderer, controls, rewards, traps, endPosition, score, isGameOver, isGameWin, tileSize;
-let currentLevel = 0;
+// Import new components and utilities
+import { configManager, GameConfig } from './config/game-config.js';
+import { MathUtils } from './utils/math-utils.js';
+import { ParticleSystem } from './components/ParticleSystem.js';
+import { PostProcessing } from './components/PostProcessing.js';
+import { InventorySystem } from './components/InventorySystem.js';
+import { AchievementSystem } from './components/AchievementSystem.js';
+import { AudioManager } from './utils/AudioManager.js';
 
-// Thêm biến cho đèn pin
-let flashlight;
 
-// HUD hướng dẫn
-const hud = document.getElementById('hud');
-const scoreSpan = document.getElementById('score');
-const guide = document.createElement('div');
-guide.innerHTML = `Điều khiển: W/A/S/D di chuyển, Chuột để nhìn, Nhấn giữ chuột trái để chạy, Space để nhảy`;
-guide.style.fontSize = '14px';
-guide.style.marginTop = '8px';
-hud.appendChild(guide);
 
-// === Timer ===
-let timeLeft = 90; // 90 giây cho mỗi màn
-const timerDiv = document.createElement('div');
-timerDiv.style.fontSize = '20px';
-timerDiv.style.marginTop = '8px';
-timerDiv.style.color = '#fff';
-timerDiv.innerText = '⏰ 90';
-hud.appendChild(timerDiv);
-let timerInterval;
-function startTimer() {
-  clearInterval(timerInterval);
-  timeLeft = 90;
-  timerDiv.innerText = '⏰ ' + timeLeft;
-  timerInterval = setInterval(() => {
-    if (isGameOver || isGameWin) return;
-    timeLeft--;
-    timerDiv.innerText = '⏰ ' + timeLeft;
-    if (timeLeft <= 0) {
-      isGameOver = true;
-      loseAudio.currentTime = 0; loseAudio.play();
-      showMessage('Hết giờ! Bạn đã thua!');
-      setTimeout(() => loadLevel(currentLevel), 2500);
-      clearInterval(timerInterval);
-    }
-  }, 1000);
-}
-
-// Scene setup
-scene = new THREE.Scene();
-
-// Camera & renderer
-camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
-// Lighting
-scene.add(new THREE.AmbientLight(0x222233, 0.5));
-const light = new THREE.DirectionalLight(0xffffff, 1.2);
-light.position.set(5, 10, 7.5);
-scene.add(light);
-
-// Bỏ hoàn toàn code skybox, chỉ dùng màu nền trời đơn giản
-
-// Floor
-const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(100, 100),
-  new THREE.MeshStandardMaterial({ color: 0x444444 })
-);
-floor.rotation.x = -Math.PI / 2;
-scene.add(floor);
-
-// Controls
-controls = new PointerLockControls(camera, document.body);
-document.addEventListener('click', () => controls.lock());
-scene.add(controls.getObject());
-camera.position.set(1.5, 1.6, 1.5);
-
-// Brick texture for walls
-// Không dùng texture ngoài, chỉ dùng màu gạch sáng
-
-// Maze rendering
-tileSize = 3;
-score = 0;
-isGameOver = false;
-isGameWin = false;
-rewards = [];
-traps = [];
-endPosition = { x: (mazeMaps[0][0].length - 2) * tileSize, z: (mazeMaps[0].length - 2) * tileSize };
-
-// === Minimap ===
-const minimapCanvas = document.createElement('canvas');
-minimapCanvas.width = 180;
-minimapCanvas.height = 180;
-minimapCanvas.style.position = 'fixed';
-minimapCanvas.style.bottom = '20px';
-minimapCanvas.style.left = '20px';
-minimapCanvas.style.background = 'rgba(0,0,0,0.7)';
-minimapCanvas.style.border = '2px solid #fff';
-minimapCanvas.style.borderRadius = '10px';
-minimapCanvas.style.zIndex = '150';
-document.body.appendChild(minimapCanvas);
-const minimapCtx = minimapCanvas.getContext('2d');
-
-function drawMinimap(mazeMap, playerPos) {
-  const w = minimapCanvas.width;
-  const h = minimapCanvas.height;
-  minimapCtx.clearRect(0, 0, w, h);
-  const rows = mazeMap.length;
-  const cols = mazeMap[0].length;
-  const cellW = w / cols;
-  const cellH = h / rows;
-  // Vẽ mê cung
-  for (let z = 0; z < rows; z++) {
-    for (let x = 0; x < cols; x++) {
-      if (mazeMap[z][x] === '1') {
-        minimapCtx.fillStyle = '#444';
-        minimapCtx.fillRect(x * cellW, z * cellH, cellW, cellH);
-      } else if (mazeMap[z][x] === 'R') {
-        minimapCtx.fillStyle = '#ff0';
-        minimapCtx.beginPath();
-        minimapCtx.arc((x+0.5)*cellW, (z+0.5)*cellH, cellW/4, 0, 2*Math.PI);
-        minimapCtx.fill();
-      } else if (mazeMap[z][x] === 'T') {
-        minimapCtx.fillStyle = '#f00';
-        minimapCtx.fillRect(x * cellW + cellW/4, z * cellH + cellH/4, cellW/2, cellH/2);
+// =============== ENHANCED GAME STATE MANAGEMENT ===============
+class GameState {
+  constructor() {
+    this.scene = null;
+    this.camera = null;
+    this.renderer = null;
+    this.controls = null;
+    this.rewards = [];
+    this.traps = [];
+    this.walls = [];
+    this.endPosition = { x: 0, z: 0 };
+    this.score = 0;
+    this.isGameOver = false;
+    this.isGameWin = false;
+    this.currentLevel = 0;
+    this.tileSize = 3;
+    this.timeLeft = 90;
+    this.timerInterval = null;
+    this.flashlight = null;
+    this.mazeMap = null;
+    
+    // Enhanced player physics
+    this.velocity = new THREE.Vector3();
+    this.direction = new THREE.Vector3();
+    this.move = { forward: false, backward: false, left: false, right: false };
+    this.canJump = false;
+    this.mouseDown = false;
+    this.playerRadius = configManager.get('physics.playerRadius');
+    
+    // Performance
+    this.clock = new THREE.Clock();
+    this.raycaster = new THREE.Raycaster();
+    
+    // Animation
+    this.jumpAnim = 0;
+    this.runAnim = 0;
+    
+    // New systems
+    this.particleSystem = null;
+    this.postProcessing = null;
+    this.inventory = null;
+    this.achievements = null;
+    this.audioManager = null;
+    
+    // Statistics
+    this.statistics = {
+      totalPlayTime: 0,
+      levelsCompleted: 0,
+      totalScore: 0,
+      rewardsCollected: 0,
+      trapsHit: 0,
+      deaths: 0,
+      jumps: 0,
+      distanceTraveled: 0,
+      perfectLevels: 0,
+      speedRuns: 0
+    };
+    
+    // Level tracking
+    this.levelStartTime = 0;
+    this.levelPerfect = true;
+  }
+  
+  reset() {
+    this.rewards = [];
+    this.traps = [];
+    this.walls = [];
+    this.score = 0;
+    this.isGameOver = false;
+    this.isGameWin = false;
+    this.velocity.set(0, 0, 0);
+    this.jumpAnim = 0;
+    this.runAnim = 0;
+    this.canJump = false;
+    this.levelPerfect = true;
+    clearInterval(this.timerInterval);
+  }
+  
+  dispose() {
+    if (this.renderer) {
+      this.renderer.dispose();
+      if (this.renderer.domElement.parentNode) {
+        this.renderer.domElement.parentNode.removeChild(this.renderer.domElement);
       }
     }
-  }
-  // Vẽ điểm kết thúc
-  minimapCtx.fillStyle = '#0f0';
-  minimapCtx.fillRect((cols-2)*cellW+cellW/4, (rows-2)*cellH+cellH/4, cellW/2, cellH/2);
-  // Vẽ người chơi
-  minimapCtx.fillStyle = '#0af';
-  const px = playerPos.x / tileSize;
-  const pz = playerPos.z / tileSize;
-  minimapCtx.beginPath();
-  minimapCtx.arc((px+0.5)*cellW, (pz+0.5)*cellH, cellW/4, 0, 2*Math.PI);
-  minimapCtx.fill();
-}
-
-// === Thêm UI chọn màn chơi ===
-function createLevelSelector() {
-  const selector = document.createElement('div');
-  selector.style.position = 'fixed';
-  selector.style.top = '20px';
-  selector.style.right = '20px';
-  selector.style.zIndex = '200';
-  selector.style.background = 'rgba(0,0,0,0.7)';
-  selector.style.color = '#fff';
-  selector.style.padding = '10px 20px';
-  selector.style.borderRadius = '10px';
-  selector.style.fontSize = '18px';
-  selector.innerHTML = 'Chọn màn: ';
-  mazeMaps.forEach((_, i) => {
-    const btn = document.createElement('button');
-    btn.innerText = i + 1;
-    btn.style.margin = '0 4px';
-    btn.onclick = () => { loadLevel(i); };
-    selector.appendChild(btn);
-  });
-  document.body.appendChild(selector);
-}
-createLevelSelector();
-
-// Movement logic
-const velocity = new THREE.Vector3();
-const direction = new THREE.Vector3();
-const move = { forward: false, backward: false, left: false, right: false };
-let canJump = false;
-let mouseDown = false;
-const normalSpeed = 30;
-const runMultiplier = 2;
-
-// Sử dụng âm thanh nội bộ (bạn cần đặt file vào public/audio/)
-const rewardAudio = new Audio('/audio/reward.mp3');
-const trapAudio = new Audio('/audio/trap.mp3');
-const winAudio = new Audio('/audio/win.mp3');
-const loseAudio = new Audio('/audio/lose.mp3');
-
-// Thông báo thắng/thua
-const messageDiv = document.createElement('div');
-messageDiv.style.position = 'fixed';
-messageDiv.style.top = '50%';
-messageDiv.style.left = '50%';
-messageDiv.style.transform = 'translate(-50%, -50%)';
-messageDiv.style.fontSize = '40px';
-messageDiv.style.color = '#fff';
-messageDiv.style.background = 'rgba(0,0,0,0.8)';
-messageDiv.style.padding = '30px 60px';
-messageDiv.style.borderRadius = '20px';
-messageDiv.style.display = 'none';
-messageDiv.style.zIndex = '999';
-document.body.appendChild(messageDiv);
-
-document.addEventListener('keydown', (e) => {
-  switch (e.code) {
-    case 'KeyW': move.forward = true; break;
-    case 'KeyS': move.backward = true; break;
-    case 'KeyA': move.left = true; break;
-    case 'KeyD': move.right = true; break;
-    case 'Space':
-      if (canJump) {
-        velocity.y += 7;
-        canJump = false;
-      }
-      break;
-  }
-});
-document.addEventListener('keyup', (e) => {
-  switch (e.code) {
-    case 'KeyW': move.forward = false; break;
-    case 'KeyS': move.backward = false; break;
-    case 'KeyA': move.left = false; break;
-    case 'KeyD': move.right = false; break;
-  }
-});
-document.addEventListener('mousedown', () => { mouseDown = true; });
-document.addEventListener('mouseup', () => { mouseDown = false; });
-
-const clock = new THREE.Clock();
-
-// Animation chuyển động mượt hơn
-let jumpAnim = 0;
-let runAnim = 0;
-
-let mazeMap = null; // Khai báo toàn cục
-
-const playerRadius = 0.3; // bán kính người chơi
-
-// Đơn giản hóa kiểm tra va chạm
-function isWallSimple(x, z) {
-  if (!mazeMap) return false;
-  const col = Math.floor(x / tileSize);
-  const row = Math.floor(z / tileSize);
-  if (row < 0 || row >= mazeMap.length || col < 0 || col >= mazeMap[0].length) return true;
-  return mazeMap[row][col] === '1';
-}
-
-function animate() {
-  if (isGameOver || isGameWin) return;
-  const delta = clock.getDelta();
-  const speed = normalSpeed * (mouseDown ? runMultiplier : 1.0);
-
-  velocity.x -= velocity.x * 10.0 * delta;
-  velocity.z -= velocity.z * 10.0 * delta;
-  velocity.y -= 30.0 * delta; // gravity
-
-  direction.z = Number(move.forward) - Number(move.backward);
-  direction.x = Number(move.right) - Number(move.left);
-  direction.normalize();
-
-  if (controls.isLocked) {
-    // Tính toán vị trí mới
-    let moveX = 0, moveZ = 0;
-    if (move.forward || move.backward) moveZ -= direction.z * speed * delta;
-    if (move.left || move.right) moveX -= direction.x * speed * delta;
-    // Kiểm tra va chạm tường đơn giản
-    const obj = controls.getObject();
-    const nextX = obj.position.x + moveX;
-    const nextZ = obj.position.z + moveZ;
-    if (!isWallSimple(nextX, obj.position.z)) obj.position.x += moveX;
-    if (!isWallSimple(obj.position.x, nextZ)) obj.position.z += moveZ;
-    obj.position.y += velocity.y * delta;
-    // Prevent falling below floor
-    if (obj.position.y < 1.6) {
-      velocity.y = 0;
-      obj.position.y = 1.6;
-      canJump = true;
+    if (this.scene) {
+      this.scene.clear();
     }
-
-    // Kiểm tra va chạm phần thưởng
-    for (let i = rewards.length - 1; i >= 0; i--) {
-      if (checkCollision(controls.getObject(), rewards[i])) {
-        scene.remove(rewards[i]);
-        rewards.splice(i, 1);
-        score += 10;
-        scoreSpan.innerText = score;
-        rewardAudio.currentTime = 0; rewardAudio.play();
-      }
+    if (this.particleSystem) {
+      this.particleSystem.dispose();
     }
-    // Kiểm tra va chạm bẫy
-    for (let i = 0; i < traps.length; i++) {
-      if (checkCollision(controls.getObject(), traps[i], 1.5)) {
-        isGameOver = true;
-        loseAudio.currentTime = 0; loseAudio.play();
-        showMessage('Bạn đã thua!');
-        setTimeout(() => loadLevel(currentLevel), 2500);
-        return;
-      }
+    if (this.postProcessing) {
+      this.postProcessing.dispose();
     }
-    // Kiểm tra thắng
-    if (checkEnd()) {
-      isGameWin = true;
-      winAudio.currentTime = 0; winAudio.play();
-      showMessage('Bạn đã thắng!');
-      setTimeout(() => loadLevel((currentLevel + 1) % mazeMaps.length), 2500);
-      return;
+    if (this.audioManager) {
+      this.audioManager.dispose();
     }
+    clearInterval(this.timerInterval);
   }
-
-  // Vẽ minimap và các logic khác chỉ khi mazeMap đã có
-  if (mazeMap) {
-    drawMinimap(mazeMap, controls.getObject().position);
-  }
-
-  renderer.render(scene, camera);
-
-  // Cập nhật vị trí đèn pin theo camera
-  if (flashlight) {
-    flashlight.position.copy(camera.position);
-    const dir = new THREE.Vector3();
-    camera.getWorldDirection(dir);
-    flashlight.target.position.copy(camera.position.clone().add(dir.multiplyScalar(10)));
-  }
-
-  // Animation khi nhảy
-  if (!canJump) {
-    jumpAnim += 0.15;
-    camera.position.y += Math.sin(jumpAnim) * 0.03;
-  } else {
-    jumpAnim = 0;
-  }
-  // Animation khi chạy
-  if (mouseDown && (move.forward || move.backward || move.left || move.right)) {
-    runAnim += 0.25;
-    camera.position.x += Math.sin(runAnim) * 0.03;
-  } else {
-    runAnim = 0;
-  }
-
-  requestAnimationFrame(animate);
 }
 
-function checkCollision(obj1, obj2, threshold = 1.2) {
-  return obj1.position.distanceTo(obj2.position) < threshold;
-}
-
-function checkEnd() {
-  const playerPos = controls.getObject().position;
-  return (
-    Math.abs(playerPos.x - endPosition.x) < 1.5 &&
-    Math.abs(playerPos.z - endPosition.z) < 1.5
-  );
-}
-
-function showMessage(msg, color = '#fff') {
-  messageDiv.innerText = msg;
-  messageDiv.style.color = color;
-  messageDiv.style.display = 'block';
-}
-
-function hideMessage() {
-  messageDiv.style.display = 'none';
-}
-
-// Đặt tileSize mặc định
-function getTileSize() {
-  return 3;
-}
-
-function loadLevel(levelIdx) {
-  // Xóa scene cũ nếu có
-  if (renderer) {
-    renderer.dispose && renderer.dispose();
-    renderer.domElement.remove();
+// =============== UI MANAGER ===============
+class UIManager {
+  constructor(gameState, audioManager) {
+    this.gameState = gameState;
+    this.audioManager = audioManager;
+    this.init();
   }
-  // Reset biến
-  tileSize = getTileSize();
-  score = 0;
-  isGameOver = false;
-  isGameWin = false;
-  rewards = [];
-  traps = [];
-  currentLevel = levelIdx;
-  if (scoreSpan) scoreSpan.innerText = score;
-  hideMessage && hideMessage();
-
-  // Khởi tạo lại scene
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  renderer = new THREE.WebGLRenderer();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
-
-  // Lighting
-  scene.add(new THREE.AmbientLight(0x222233, 0.5));
-  const light = new THREE.DirectionalLight(0xffffff, 0.7);
-  light.position.set(5, 10, 7.5);
-  scene.add(light);
-
-  // Đèn pin gắn vào camera
-  flashlight = new THREE.SpotLight(0xffffff, 3, 30, Math.PI / 6, 0.5, 1.5);
-  flashlight.position.set(0, 0, 0);
-  flashlight.target.position.set(0, 0, -1);
-  camera.add(flashlight);
-  camera.add(flashlight.target);
-  scene.add(camera);
-
-  // KHÔNG dùng skybox, chỉ dùng màu nền
-  scene.background = new THREE.Color(0x87ceeb);
-
-  // Floor
-  const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(100, 100),
-    new THREE.MeshStandardMaterial({ color: 0x444444 })
-  );
-  floor.rotation.x = -Math.PI / 2;
-  scene.add(floor);
-
-  // Controls
-  controls = new PointerLockControls(camera, document.body);
-  document.addEventListener('click', () => controls.lock());
-  scene.add(controls.getObject());
-  camera.position.set(1.5, 1.6, 1.5);
-
-  // Maze rendering
-  mazeMap = mazeMaps[levelIdx];
-  endPosition = { x: (mazeMap[0].length - 2) * tileSize, z: (mazeMap.length - 2) * tileSize };
-  mazeMap.forEach((row, z) => {
-    row.forEach((tile, x) => {
-      const posX = x * tileSize;
-      const posZ = z * tileSize;
-      if (tile === '1') {
-        const wall = new THREE.Mesh(
-          new THREE.BoxGeometry(tileSize, 3, tileSize),
-          new THREE.MeshStandardMaterial({ color: 0xf5e1b0, roughness: 0.4, metalness: 0.1 })
-        );
-        wall.position.set(posX, 1.5, posZ);
-        scene.add(wall);
-      }
-      if (tile === 'R') {
-        const reward = new THREE.Mesh(
-          new THREE.SphereGeometry(0.5, 16, 16),
-          new THREE.MeshStandardMaterial({ color: 0xffff00 })
-        );
-        reward.position.set(posX, 0.5, posZ);
-        scene.add(reward);
-        rewards.push(reward);
-      }
-      if (tile === 'T') {
-        const trap = new THREE.Mesh(
-          new THREE.BoxGeometry(tileSize, 0.1, tileSize),
-          new THREE.MeshStandardMaterial({ color: 0xff0000 })
-        );
-        trap.position.set(posX, 0.05, posZ);
-        scene.add(trap);
-        traps.push(trap);
+  
+  init() {
+    this.createHUD();
+    this.createMinimap();
+    this.createLevelSelector();
+    this.createMessage();
+    this.createSettings();
+  }
+  
+  createHUD() {
+    this.hud = document.getElementById('hud') || this.createElement('div', {
+      id: 'hud',
+      style: {
+        position: 'fixed',
+        top: '20px',
+        left: '20px',
+        color: '#fff',
+        fontSize: '20px',
+        zIndex: '100',
+        background: 'rgba(0,0,0,0.7)',
+        padding: '15px 25px',
+        borderRadius: '10px',
+        fontFamily: 'monospace'
       }
     });
-  });
-
-  // Lưu mazeMap ra biến toàn cục để minimap dùng
-  window.mazeMap = mazeMap;
-
-  // Khởi động lại animate
-  animate();
-
-  // Trong loadLevel, sau khi animate:
-  startTimer();
-
-  // Trong loadLevel, sau khi tạo scene:
-  scene.background = new THREE.Color(0x87ceeb);
+    
+    this.hud.innerHTML = `
+      <div>🏆 Điểm: <span id="score">0</span></div>
+      <div id="timer">⏰ 90</div>
+      <div style="font-size: 14px; margin-top: 8px;">
+        W/A/S/D: Di chuyển | Chuột: Nhìn | Giữ chuột trái: Chạy | Space: Nhảy
+      </div>
+    `;
+    
+    if (!document.body.contains(this.hud)) {
+      document.body.appendChild(this.hud);
+    }
+    
+    this.scoreSpan = document.getElementById('score');
+    this.timerDiv = document.getElementById('timer');
+  }
+  
+  createMinimap() {
+    this.minimapCanvas = document.createElement('canvas');
+    Object.assign(this.minimapCanvas, {
+      width: 200,
+      height: 200
+    });
+    Object.assign(this.minimapCanvas.style, {
+      position: 'fixed',
+      bottom: '20px',
+      left: '20px',
+      background: 'rgba(0,0,0,0.8)',
+      border: '3px solid #fff',
+      borderRadius: '15px',
+      zIndex: '150'
+    });
+    document.body.appendChild(this.minimapCanvas);
+    this.minimapCtx = this.minimapCanvas.getContext('2d');
+  }
+  
+  createLevelSelector() {
+    const selector = this.createElement('div', {
+      style: {
+        position: 'fixed',
+        top: '20px',
+        right: '20px',
+        zIndex: '200',
+        background: 'rgba(0,0,0,0.8)',
+        color: '#fff',
+        padding: '15px 25px',
+        borderRadius: '15px',
+        fontSize: '16px',
+        fontFamily: 'monospace'
+      }
+    });
+    
+    selector.innerHTML = '<div style="margin-bottom: 10px;">🎮 Chọn màn:</div>';
+    
+    const buttonContainer = this.createElement('div', {
+      style: { display: 'flex', gap: '8px', flexWrap: 'wrap' }
+    });
+    
+    mazeMaps.forEach((_, i) => {
+      const btn = this.createElement('button', {
+        textContent: (i + 1).toString(),
+        style: {
+          padding: '8px 12px',
+          backgroundColor: '#4CAF50',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
+          fontSize: '14px',
+          transition: 'background-color 0.3s'
+        }
+      });
+      
+      btn.addEventListener('mouseover', () => btn.style.backgroundColor = '#45a049');
+      btn.addEventListener('mouseout', () => btn.style.backgroundColor = '#4CAF50');
+      btn.addEventListener('click', () => game.loadLevel(i));
+      
+      buttonContainer.appendChild(btn);
+    });
+    
+    selector.appendChild(buttonContainer);
+    document.body.appendChild(selector);
+  }
+  
+  createMessage() {
+    this.messageDiv = this.createElement('div', {
+      style: {
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        fontSize: '48px',
+        color: '#fff',
+        background: 'rgba(0,0,0,0.9)',
+        padding: '40px 80px',
+        borderRadius: '25px',
+        display: 'none',
+        zIndex: '999',
+        textAlign: 'center',
+        fontFamily: 'Arial, sans-serif',
+        textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+        border: '3px solid #fff'
+      }
+    });
+    document.body.appendChild(this.messageDiv);
+  }
+  
+  createSettings() {
+    const settings = this.createElement('div', {
+      style: {
+        position: 'fixed',
+        top: '50%',
+        right: '20px',
+        transform: 'translateY(-50%)',
+        background: 'rgba(0,0,0,0.8)',
+        color: '#fff',
+        padding: '20px',
+        borderRadius: '15px',
+        fontSize: '14px',
+        zIndex: '180'
+      }
+    });
+    
+    settings.innerHTML = `
+      <div style="margin-bottom: 15px; font-weight: bold;">⚙️ Cài đặt</div>
+      <div style="margin-bottom: 10px;">
+        <label>🔊 Âm lượng:</label>
+        <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.5">
+      </div>
+      <div>
+        <button id="pauseBtn" style="padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">⏸️ Tạm dừng</button>
+      </div>
+    `;
+    
+    document.body.appendChild(settings);
+    
+    // Event listeners
+    document.getElementById('volumeSlider').addEventListener('input', (e) => {
+      this.audioManager.setVolume(parseFloat(e.target.value));
+    });
+    
+    document.getElementById('pauseBtn').addEventListener('click', () => {
+      game.togglePause();
+    });
+  }
+  
+  createElement(tag, options = {}) {
+    const element = document.createElement(tag);
+    if (options.textContent) element.textContent = options.textContent;
+    if (options.innerHTML) element.innerHTML = options.innerHTML;
+    if (options.id) element.id = options.id;
+    if (options.style) Object.assign(element.style, options.style);
+    return element;
+  }
+  
+  updateScore(score) {
+    if (this.scoreSpan) this.scoreSpan.textContent = score;
+  }
+  
+  updateTimer(time) {
+    if (this.timerDiv) this.timerDiv.textContent = `⏰ ${time}`;
+  }
+  
+  showMessage(msg, color = '#fff', duration = 2500) {
+    this.messageDiv.textContent = msg;
+    this.messageDiv.style.color = color;
+    this.messageDiv.style.display = 'block';
+    
+    if (duration > 0) {
+      setTimeout(() => this.hideMessage(), duration);
+    }
+  }
+  
+  hideMessage() {
+    this.messageDiv.style.display = 'none';
+  }
+  
+  drawMinimap(mazeMap, playerPos) {
+    const w = this.minimapCanvas.width;
+    const h = this.minimapCanvas.height;
+    this.minimapCtx.clearRect(0, 0, w, h);
+    
+    if (!mazeMap) return;
+    
+    const rows = mazeMap.length;
+    const cols = mazeMap[0].length;
+    const cellW = w / cols;
+    const cellH = h / rows;
+    
+    // Draw maze
+    for (let z = 0; z < rows; z++) {
+      for (let x = 0; x < cols; x++) {
+        const cell = mazeMap[z][x];
+        if (cell === '1') {
+          this.minimapCtx.fillStyle = '#555';
+          this.minimapCtx.fillRect(x * cellW, z * cellH, cellW, cellH);
+        } else if (cell === 'R') {
+          this.minimapCtx.fillStyle = '#FFD700';
+          this.minimapCtx.beginPath();
+          this.minimapCtx.arc((x + 0.5) * cellW, (z + 0.5) * cellH, cellW / 3, 0, 2 * Math.PI);
+          this.minimapCtx.fill();
+        } else if (cell === 'T') {
+          this.minimapCtx.fillStyle = '#FF4444';
+          this.minimapCtx.fillRect(x * cellW + cellW / 4, z * cellH + cellH / 4, cellW / 2, cellH / 2);
+        }
+      }
+    }
+    
+    // Draw finish
+    this.minimapCtx.fillStyle = '#00FF00';
+    this.minimapCtx.fillRect((cols - 2) * cellW + cellW / 4, (rows - 2) * cellH + cellH / 4, cellW / 2, cellH / 2);
+    
+    // Draw player
+    this.minimapCtx.fillStyle = '#00BFFF';
+    const px = playerPos.x / this.gameState.tileSize;
+    const pz = playerPos.z / this.gameState.tileSize;
+    this.minimapCtx.beginPath();
+    this.minimapCtx.arc((px + 0.5) * cellW, (pz + 0.5) * cellH, cellW / 3, 0, 2 * Math.PI);
+    this.minimapCtx.fill();
+    
+    // Add border
+    this.minimapCtx.strokeStyle = '#FFF';
+    this.minimapCtx.lineWidth = 2;
+    this.minimapCtx.strokeRect(1, 1, w - 2, h - 2);
+  }
 }
 
-// Gọi loadLevel(0) khi khởi động
-loadLevel(0);
+// =============== PHYSICS MANAGER ===============
+class PhysicsManager {
+  constructor(gameState) {
+    this.gameState = gameState;
+    this.normalSpeed = 35;
+    this.runMultiplier = 1.8;
+    this.jumpPower = 8;
+    this.gravity = 35;
+    this.friction = 12;
+  }
+  
+  isWall(x, z) {
+    if (!this.gameState.mazeMap) return false;
+    const col = Math.floor(x / this.gameState.tileSize);
+    const row = Math.floor(z / this.gameState.tileSize);
+    if (row < 0 || row >= this.gameState.mazeMap.length || 
+        col < 0 || col >= this.gameState.mazeMap[0].length) return true;
+    return this.gameState.mazeMap[row][col] === '1';
+  }
+  
+  checkWallCollision(position, radius = 0.3) {
+    const points = [
+      { x: position.x + radius, z: position.z },
+      { x: position.x - radius, z: position.z },
+      { x: position.x, z: position.z + radius },
+      { x: position.x, z: position.z - radius },
+      { x: position.x + radius * 0.7, z: position.z + radius * 0.7 },
+      { x: position.x - radius * 0.7, z: position.z - radius * 0.7 },
+      { x: position.x + radius * 0.7, z: position.z - radius * 0.7 },
+      { x: position.x - radius * 0.7, z: position.z + radius * 0.7 }
+    ];
+    
+    return points.some(point => this.isWall(point.x, point.z));
+  }
+  
+  updateMovement(delta) {
+    const { velocity, direction, move, controls, mouseDown, canJump } = this.gameState;
+    const speed = this.normalSpeed * (mouseDown ? this.runMultiplier : 1.0);
+    
+    // Apply friction
+    velocity.x *= Math.max(0, 1 - this.friction * delta);
+    velocity.z *= Math.max(0, 1 - this.friction * delta);
+    velocity.y -= this.gravity * delta; // gravity
+    
+    // Calculate movement direction
+    direction.z = Number(move.forward) - Number(move.backward);
+    direction.x = Number(move.right) - Number(move.left);
+    direction.normalize();
+    
+    if (controls.isLocked) {
+      const obj = controls.getObject();
+      const currentPos = obj.position.clone();
+      
+      // Calculate intended movement
+      const moveVector = new THREE.Vector3();
+      if (move.forward || move.backward) {
+        const forward = new THREE.Vector3();
+        controls.getDirection(forward);
+        forward.y = 0;
+        forward.normalize();
+        moveVector.add(forward.multiplyScalar(-direction.z * speed * delta));
+      }
+      if (move.left || move.right) {
+        const right = new THREE.Vector3();
+        controls.getDirection(right);
+        right.y = 0;
+        right.cross(new THREE.Vector3(0, 1, 0));
+        right.normalize();
+        moveVector.add(right.multiplyScalar(-direction.x * speed * delta));
+      }
+      
+      // Check collision for X movement
+      const nextX = currentPos.x + moveVector.x;
+      if (!this.checkWallCollision(new THREE.Vector3(nextX, currentPos.y, currentPos.z))) {
+        obj.position.x = nextX;
+      }
+      
+      // Check collision for Z movement
+      const nextZ = currentPos.z + moveVector.z;
+      if (!this.checkWallCollision(new THREE.Vector3(obj.position.x, currentPos.y, nextZ))) {
+        obj.position.z = nextZ;
+      }
+      
+      // Handle jumping and vertical movement
+      obj.position.y += velocity.y * delta;
+      
+      // Ground collision
+      if (obj.position.y < 1.6) {
+        velocity.y = 0;
+        obj.position.y = 1.6;
+        this.gameState.canJump = true;
+      }
+    }
+  }
+  
+  jump() {
+    if (this.gameState.canJump) {
+      this.gameState.velocity.y = this.jumpPower;
+      this.gameState.canJump = false;
+    }
+  }
+}
+
+// =============== COLLISION MANAGER ===============
+class CollisionManager {
+  constructor(gameState, audioManager) {
+    this.gameState = gameState;
+    this.audioManager = audioManager;
+  }
+  
+  checkCollision(obj1, obj2, threshold = 1.2) {
+    return obj1.position.distanceTo(obj2.position) < threshold;
+  }
+  
+  checkRewards() {
+    const player = this.gameState.controls.getObject();
+    for (let i = this.gameState.rewards.length - 1; i >= 0; i--) {
+      if (this.checkCollision(player, this.gameState.rewards[i])) {
+        // Remove from scene and array
+        this.gameState.scene.remove(this.gameState.rewards[i]);
+        this.gameState.rewards.splice(i, 1);
+        
+        // Update score
+        this.gameState.score += 10;
+        this.audioManager.play('reward');
+        
+        // Add particle effect
+        this.createParticleEffect(player.position, 0xFFD700);
+        
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  checkTraps() {
+    const player = this.gameState.controls.getObject();
+    for (const trap of this.gameState.traps) {
+      if (this.checkCollision(player, trap, 1.5)) {
+        this.audioManager.play('trap');
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  checkWin() {
+    const playerPos = this.gameState.controls.getObject().position;
+    const endPos = this.gameState.endPosition;
+    return Math.abs(playerPos.x - endPos.x) < 1.5 && 
+           Math.abs(playerPos.z - endPos.z) < 1.5;
+  }
+  
+  createParticleEffect(position, color) {
+    const particleCount = 20;
+    const particles = new THREE.Group();
+    
+    for (let i = 0; i < particleCount; i++) {
+      const particle = new THREE.Mesh(
+        new THREE.SphereGeometry(0.1, 4, 4),
+        new THREE.MeshBasicMaterial({ color })
+      );
+      
+      particle.position.copy(position);
+      particle.userData.velocity = new THREE.Vector3(
+        (Math.random() - 0.5) * 10,
+        Math.random() * 10 + 5,
+        (Math.random() - 0.5) * 10
+      );
+      
+      particles.add(particle);
+    }
+    
+    this.gameState.scene.add(particles);
+    
+    // Animate particles
+    const startTime = Date.now();
+    const animateParticles = () => {
+      const elapsed = Date.now() - startTime;
+      if (elapsed > 1000) {
+        this.gameState.scene.remove(particles);
+        return;
+      }
+      
+      particles.children.forEach(particle => {
+        particle.position.add(particle.userData.velocity.clone().multiplyScalar(0.016));
+        particle.userData.velocity.y -= 20 * 0.016; // gravity
+        particle.material.opacity = 1 - elapsed / 1000;
+      });
+      
+      requestAnimationFrame(animateParticles);
+    };
+    animateParticles();
+  }
+}
+
+// =============== MAIN GAME CLASS ===============
+class MazeGame {
+  constructor() {
+    this.gameState = new GameState();
+    this.audioManager = new AudioManager();
+    this.ui = new UIManager(this.gameState, this.audioManager);
+    this.physics = new PhysicsManager(this.gameState);
+    this.collision = new CollisionManager(this.gameState, this.audioManager);
+    this.isPaused = false;
+    
+    this.init();
+  }
+  
+  init() {
+    this.setupEventListeners();
+    this.loadLevel(0);
+  }
+  
+  setupEventListeners() {
+    // Keyboard events
+    document.addEventListener('keydown', (e) => this.onKeyDown(e));
+    document.addEventListener('keyup', (e) => this.onKeyUp(e));
+    
+    // Mouse events
+    document.addEventListener('mousedown', () => { this.gameState.mouseDown = true; });
+    document.addEventListener('mouseup', () => { this.gameState.mouseDown = false; });
+    
+    // Window resize
+    window.addEventListener('resize', () => this.onWindowResize());
+    
+    // Prevent context menu
+    document.addEventListener('contextmenu', e => e.preventDefault());
+  }
+  
+  onKeyDown(e) {
+    if (this.gameState.isGameOver || this.gameState.isGameWin) return;
+    
+    switch (e.code) {
+      case 'KeyW': this.gameState.move.forward = true; break;
+      case 'KeyS': this.gameState.move.backward = true; break;
+      case 'KeyA': this.gameState.move.left = true; break;
+      case 'KeyD': this.gameState.move.right = true; break;
+      case 'Space':
+        e.preventDefault();
+        this.physics.jump();
+        break;
+      case 'Escape':
+        this.togglePause();
+        break;
+    }
+  }
+  
+  onKeyUp(e) {
+    switch (e.code) {
+      case 'KeyW': this.gameState.move.forward = false; break;
+      case 'KeyS': this.gameState.move.backward = false; break;
+      case 'KeyA': this.gameState.move.left = false; break;
+      case 'KeyD': this.gameState.move.right = false; break;
+    }
+  }
+  
+  onWindowResize() {
+    if (!this.gameState.camera || !this.gameState.renderer) return;
+    
+    this.gameState.camera.aspect = window.innerWidth / window.innerHeight;
+    this.gameState.camera.updateProjectionMatrix();
+    this.gameState.renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+  
+  togglePause() {
+    this.isPaused = !this.isPaused;
+    const btn = document.getElementById('pauseBtn');
+    if (btn) {
+      btn.textContent = this.isPaused ? '▶️ Tiếp tục' : '⏸️ Tạm dừng';
+    }
+    
+    if (this.isPaused) {
+      clearInterval(this.gameState.timerInterval);
+      this.ui.showMessage('⏸️ TẠM DỪNG', '#FFF', 0);
+    } else {
+      this.startTimer();
+      this.ui.hideMessage();
+      this.animate();
+    }
+  }
+  
+  startTimer() {
+    clearInterval(this.gameState.timerInterval);
+    this.gameState.timeLeft = 90;
+    this.ui.updateTimer(this.gameState.timeLeft);
+    
+    this.gameState.timerInterval = setInterval(() => {
+      if (this.gameState.isGameOver || this.gameState.isGameWin || this.isPaused) return;
+      
+      this.gameState.timeLeft--;
+      this.ui.updateTimer(this.gameState.timeLeft);
+      
+      if (this.gameState.timeLeft <= 0) {
+        this.gameOver('⏰ Hết giờ! Bạn đã thua!');
+      }
+    }, 1000);
+  }
+  
+  gameOver(message) {
+    this.gameState.isGameOver = true;
+    this.audioManager.play('lose');
+    this.ui.showMessage(message, '#FF4444');
+    setTimeout(() => this.loadLevel(this.gameState.currentLevel), 2500);
+    clearInterval(this.gameState.timerInterval);
+  }
+  
+  gameWin() {
+    this.gameState.isGameWin = true;
+    this.audioManager.play('win');
+    this.ui.showMessage('🎉 Bạn đã thắng!', '#00FF00');
+    setTimeout(() => {
+      const nextLevel = (this.gameState.currentLevel + 1) % mazeMaps.length;
+      this.loadLevel(nextLevel);
+    }, 2500);
+    clearInterval(this.gameState.timerInterval);
+  }
+  
+  createScene() {
+    // Scene
+    this.gameState.scene = new THREE.Scene();
+    this.gameState.scene.background = new THREE.Color(0x87CEEB);
+    
+    // Camera
+    this.gameState.camera = new THREE.PerspectiveCamera(
+      75, 
+      window.innerWidth / window.innerHeight, 
+      0.1, 
+      1000
+    );
+    
+    // Renderer
+    this.gameState.renderer = new THREE.WebGLRenderer({ 
+      antialias: true,
+      powerPreference: "high-performance"
+    });
+    this.gameState.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.gameState.renderer.shadowMap.enabled = true;
+    this.gameState.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    document.body.appendChild(this.gameState.renderer.domElement);
+    
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+    this.gameState.scene.add(ambientLight);
+    
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(10, 20, 10);
+    directionalLight.castShadow = true;
+    directionalLight.shadow.mapSize.width = 2048;
+    directionalLight.shadow.mapSize.height = 2048;
+    this.gameState.scene.add(directionalLight);
+    
+    // Flashlight
+    this.gameState.flashlight = new THREE.SpotLight(0xffffff, 2, 25, Math.PI / 8, 0.3, 1.5);
+    this.gameState.flashlight.position.set(0, 0, 0);
+    this.gameState.flashlight.target.position.set(0, 0, -1);
+    this.gameState.camera.add(this.gameState.flashlight);
+    this.gameState.camera.add(this.gameState.flashlight.target);
+    this.gameState.scene.add(this.gameState.camera);
+    
+    // Floor
+    const floorGeometry = new THREE.PlaneGeometry(200, 200);
+    const floorMaterial = new THREE.MeshLambertMaterial({ color: 0x444444 });
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    this.gameState.scene.add(floor);
+    
+    // Controls
+    this.gameState.controls = new PointerLockControls(this.gameState.camera, document.body);
+    document.addEventListener('click', () => {
+      if (!this.isPaused) this.gameState.controls.lock();
+    });
+    this.gameState.scene.add(this.gameState.controls.getObject());
+    this.gameState.camera.position.set(1.5, 1.6, 1.5);
+  }
+  
+  loadLevel(levelIdx) {
+    // Cleanup
+    this.gameState.dispose();
+    this.gameState.reset();
+    this.gameState.currentLevel = levelIdx;
+    
+    // Create new scene
+    this.createScene();
+    
+    // Load maze
+    this.gameState.mazeMap = mazeMaps[levelIdx];
+    this.gameState.endPosition = {
+      x: (this.gameState.mazeMap[0].length - 2) * this.gameState.tileSize,
+      z: (this.gameState.mazeMap.length - 2) * this.gameState.tileSize
+    };
+    
+    this.buildMaze();
+    this.ui.updateScore(this.gameState.score);
+    this.startTimer();
+    this.animate();
+  }
+  
+  buildMaze() {
+    const wallMaterial = new THREE.MeshLambertMaterial({ 
+      color: 0xCD853F,
+      roughness: 0.8
+    });
+    
+    const rewardMaterial = new THREE.MeshStandardMaterial({ 
+      color: 0xFFD700,
+      emissive: 0x444400,
+      metalness: 0.1,
+      roughness: 0.3
+    });
+    
+    const trapMaterial = new THREE.MeshLambertMaterial({ 
+      color: 0xFF4444,
+      emissive: 0x440000
+    });
+    
+    // Use instanced rendering for walls for better performance
+    const wallGeometry = new THREE.BoxGeometry(this.gameState.tileSize, 3, this.gameState.tileSize);
+    const rewardGeometry = new THREE.SphereGeometry(0.4, 12, 8);
+    const trapGeometry = new THREE.BoxGeometry(this.gameState.tileSize * 0.8, 0.2, this.gameState.tileSize * 0.8);
+    
+    this.gameState.mazeMap.forEach((row, z) => {
+      row.forEach((tile, x) => {
+        const posX = x * this.gameState.tileSize;
+        const posZ = z * this.gameState.tileSize;
+        
+        if (tile === '1') {
+          const wall = new THREE.Mesh(wallGeometry, wallMaterial);
+          wall.position.set(posX, 1.5, posZ);
+          wall.castShadow = true;
+          wall.receiveShadow = true;
+          this.gameState.scene.add(wall);
+          this.gameState.walls.push(wall);
+        }
+        
+        if (tile === 'R') {
+          const reward = new THREE.Mesh(rewardGeometry, rewardMaterial);
+          reward.position.set(posX, 0.6, posZ);
+          reward.castShadow = true;
+          // Add floating animation
+          reward.userData.originalY = 0.6;
+          reward.userData.floatSpeed = Math.random() * 2 + 1;
+          this.gameState.scene.add(reward);
+          this.gameState.rewards.push(reward);
+        }
+        
+        if (tile === 'T') {
+          const trap = new THREE.Mesh(trapGeometry, trapMaterial);
+          trap.position.set(posX, 0.1, posZ);
+          trap.receiveShadow = true;
+          // Add pulsing animation
+          trap.userData.pulseSpeed = Math.random() * 3 + 2;
+          this.gameState.scene.add(trap);
+          this.gameState.traps.push(trap);
+        }
+      });
+    });
+    
+    // Add finish marker
+    const finishGeometry = new THREE.CylinderGeometry(0.8, 0.8, 0.3, 8);
+    const finishMaterial = new THREE.MeshStandardMaterial({ 
+      color: 0x00FF00,
+      emissive: 0x004400,
+      metalness: 0.2,
+      roughness: 0.4
+    });
+    const finish = new THREE.Mesh(finishGeometry, finishMaterial);
+    finish.position.set(this.gameState.endPosition.x, 0.15, this.gameState.endPosition.z);
+    finish.castShadow = true;
+    this.gameState.scene.add(finish);
+  }
+  
+  animate() {
+    if (this.isPaused || this.gameState.isGameOver || this.gameState.isGameWin) return;
+    
+    const delta = this.gameState.clock.getDelta();
+    
+    // Update physics
+    this.physics.updateMovement(delta);
+    
+    // Update flashlight
+    if (this.gameState.flashlight && this.gameState.camera) {
+      this.gameState.flashlight.position.copy(this.gameState.camera.position);
+      const direction = new THREE.Vector3();
+      this.gameState.camera.getWorldDirection(direction);
+      this.gameState.flashlight.target.position.copy(
+        this.gameState.camera.position.clone().add(direction.multiplyScalar(15))
+      );
+    }
+    
+    // Animate rewards (floating)
+    this.gameState.rewards.forEach(reward => {
+      if (reward.userData.originalY !== undefined) {
+        reward.position.y = reward.userData.originalY + 
+          Math.sin(Date.now() * 0.001 * reward.userData.floatSpeed) * 0.3;
+        reward.rotation.y += 0.02;
+      }
+    });
+    
+    // Animate traps (pulsing)
+    this.gameState.traps.forEach(trap => {
+      if (trap.userData.pulseSpeed !== undefined) {
+        const pulse = Math.sin(Date.now() * 0.001 * trap.userData.pulseSpeed) * 0.5 + 0.5;
+        trap.material.emissive.setRGB(0.2 + pulse * 0.3, 0, 0);
+      }
+    });
+    
+    // Camera animations
+    this.updateCameraEffects(delta);
+    
+    // Check collisions
+    if (this.collision.checkRewards()) {
+      this.ui.updateScore(this.gameState.score);
+    }
+    
+    if (this.collision.checkTraps()) {
+      this.gameOver('💀 Bạn đã bị bẫy!');
+      return;
+    }
+    
+    if (this.collision.checkWin()) {
+      this.gameWin();
+      return;
+    }
+    
+    // Update minimap
+    this.ui.drawMinimap(this.gameState.mazeMap, this.gameState.controls.getObject().position);
+    
+    // Render
+    this.gameState.renderer.render(this.gameState.scene, this.gameState.camera);
+    
+    requestAnimationFrame(() => this.animate());
+  }
+  
+  updateCameraEffects(delta) {
+    const { move, canJump, mouseDown, camera } = this.gameState;
+    
+    // Jump animation
+    if (!canJump) {
+      this.gameState.jumpAnim += delta * 8;
+      const jumpOffset = Math.sin(this.gameState.jumpAnim) * 0.02;
+      camera.position.y += jumpOffset;
+    } else {
+      this.gameState.jumpAnim = 0;
+    }
+    
+    // Running animation (head bob)
+    const isMoving = move.forward || move.backward || move.left || move.right;
+    if (mouseDown && isMoving && canJump) {
+      this.gameState.runAnim += delta * 15;
+      const bobX = Math.sin(this.gameState.runAnim) * 0.015;
+      const bobY = Math.abs(Math.sin(this.gameState.runAnim * 2)) * 0.01;
+      camera.position.x += bobX;
+      camera.position.y += bobY;
+    } else {
+      this.gameState.runAnim = 0;
+    }
+    
+    // Walking animation (subtle bob)
+    if (isMoving && canJump && !mouseDown) {
+      this.gameState.runAnim += delta * 8;
+      const walkBobY = Math.abs(Math.sin(this.gameState.runAnim)) * 0.005;
+      camera.position.y += walkBobY;
+    }
+  }
+}
+
+// =============== PERFORMANCE OPTIMIZATION ===============
+class PerformanceMonitor {
+  constructor() {
+    this.frameCount = 0;
+    this.lastTime = performance.now();
+    this.fps = 60;
+    this.createFPSDisplay();
+  }
+  
+  createFPSDisplay() {
+    this.fpsDisplay = document.createElement('div');
+    Object.assign(this.fpsDisplay.style, {
+      position: 'fixed',
+      top: '20px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      background: 'rgba(0,0,0,0.7)',
+      color: '#fff',
+      padding: '8px 16px',
+      borderRadius: '8px',
+      fontSize: '14px',
+      fontFamily: 'monospace',
+      zIndex: '100'
+    });
+    document.body.appendChild(this.fpsDisplay);
+  }
+  
+  update() {
+    this.frameCount++;
+    const now = performance.now();
+    if (now >= this.lastTime + 1000) {
+      this.fps = Math.round((this.frameCount * 1000) / (now - this.lastTime));
+      this.frameCount = 0;
+      this.lastTime = now;
+      
+      const color = this.fps >= 50 ? '#00ff00' : this.fps >= 30 ? '#ffff00' : '#ff0000';
+      this.fpsDisplay.innerHTML = `📊 FPS: <span style="color: ${color}">${this.fps}</span>`;
+    }
+  }
+}
+
+// =============== ENHANCED MAZE DATA (if not exists) ===============
+// Fallback maze data in case maze-data.js is not available
+const fallbackMazeMaps = [
+  [
+    "111111111111111111111111111111",
+    "100000000000000000000000000001",
+    "101110111011101110111011101101",
+    "100R00100010001000100010001001",
+    "111011101110111011101110111011",
+    "100000000000000000000000000001",
+    "101110111011101110111011101101",
+    "100010001000R00100010001000101",
+    "111011101110111011101110111011",
+    "100000000000000000000000000001",
+    "101110111011101110111011101101",
+    "100010001000100T00010001000101",
+    "111011101110111011101110111011",
+    "100000000000000000000000000001",
+    "101110111011101110111011101101",
+    "100010001000100010001R001000101",
+    "111011101110111011101110111011",
+    "100000000000000000000000000001",
+    "101110111011101110111011101101",
+    "100010001000100010001000100T01",
+    "111011101110111011101110111011",
+    "100000000000000000000000000001",
+    "101110111011101110111011101101",
+    "100010001000100010001000100001",
+    "111011101110111011101110111011",
+    "100000000000000000000000000001",
+    "101110111011101110111011101101",
+    "100010001000100010001000100001",
+    "111111111111111111111111111101",
+    "111111111111111111111111111111"
+  ]
+];
+
+// Initialize game
+let game;
+document.addEventListener('DOMContentLoaded', () => {
+  // Check if mazeMaps exists, otherwise use fallback
+  if (typeof mazeMaps === 'undefined') {
+    window.mazeMaps = fallbackMazeMaps;
+  }
+  
+  // Create performance monitor
+  const perfMonitor = new PerformanceMonitor();
+  
+  // Override requestAnimationFrame to include performance monitoring
+  const originalRAF = window.requestAnimationFrame;
+  window.requestAnimationFrame = function(callback) {
+    return originalRAF.call(window, function(time) {
+      perfMonitor.update();
+      callback(time);
+    });
+  };
+  
+  // Initialize game
+  game = new MazeGame();
+  
+  // Add loading screen
+  const loadingScreen = document.createElement('div');
+  Object.assign(loadingScreen.style, {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100%',
+    height: '100%',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#fff',
+    fontSize: '24px',
+    fontFamily: 'Arial, sans-serif',
+    zIndex: '9999'
+  });
+  loadingScreen.innerHTML = `
+    <div style="text-align: center;">
+      <div style="font-size: 48px; margin-bottom: 20px;">🏃‍♂️</div>
+      <div>Đang tải trò chơi mê cung...</div>
+      <div style="margin-top: 20px;">
+        <div style="width: 200px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px;">
+          <div style="width: 0%; height: 100%; background: #fff; border-radius: 2px; animation: loading 2s ease-in-out infinite;"></div>
+        </div>
+      </div>
+    </div>
+    <style>
+      @keyframes loading {
+        0% { width: 0%; }
+        50% { width: 70%; }
+        100% { width: 100%; }
+      }
+    </style>
+  `;
+  document.body.appendChild(loadingScreen);
+  
+  // Remove loading screen after game loads
+  setTimeout(() => {
+    document.body.removeChild(loadingScreen);
+  }, 2000);
+});
+
+// Export for debugging
+window.game = game;
