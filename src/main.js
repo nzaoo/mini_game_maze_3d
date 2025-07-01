@@ -89,7 +89,8 @@ camera.position.set(1.5, 1.6, 1.5);
 
 // Brick texture for walls
 const textureLoader = new THREE.TextureLoader();
-const brickTexture = textureLoader.load('https://threejs.org/examples/textures/brick_diffuse.jpg');
+// Dùng texture gạch sáng hơn từ Unsplash
+const brickTexture = textureLoader.load('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=256&q=80');
 brickTexture.wrapS = THREE.RepeatWrapping;
 brickTexture.wrapT = THREE.RepeatWrapping;
 brickTexture.repeat.set(1, 1);
@@ -415,13 +416,6 @@ function loadLevel(levelIdx) {
   scene.add(controls.getObject());
   camera.position.set(1.5, 1.6, 1.5);
 
-  // Brick texture for walls
-  const textureLoader = new THREE.TextureLoader();
-  const brickTexture = textureLoader.load('https://threejs.org/examples/textures/brick_diffuse.jpg');
-  brickTexture.wrapS = THREE.RepeatWrapping;
-  brickTexture.wrapT = THREE.RepeatWrapping;
-  brickTexture.repeat.set(1, 1);
-
   // Maze rendering
   mazeMap = mazeMaps[levelIdx];
   endPosition = { x: (mazeMap[0].length - 2) * tileSize, z: (mazeMap.length - 2) * tileSize };
@@ -432,7 +426,7 @@ function loadLevel(levelIdx) {
       if (tile === '1') {
         const wall = new THREE.Mesh(
           new THREE.BoxGeometry(tileSize, 3, tileSize),
-          new THREE.MeshStandardMaterial({ map: brickTexture })
+          new THREE.MeshStandardMaterial({ map: brickTexture, color: 0xf5e1b0, roughness: 0.4, metalness: 0.1 })
         );
         wall.position.set(posX, 1.5, posZ);
         scene.add(wall);
