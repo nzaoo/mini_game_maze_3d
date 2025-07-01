@@ -240,6 +240,7 @@ let jumpAnim = 0;
 let runAnim = 0;
 
 let mazeMap = null; // Khai báo toàn cục
+let deadEndCooldown = 0; // Khai báo toàn cục, tránh lỗi ReferenceError
 
 function animate() {
   if (isGameOver || isGameWin) return;
@@ -496,4 +497,3 @@ function isDeadEnd(mazeMap, px, pz) {
   }
   return count === 1;
 }
-let deadEndCooldown = 0;
