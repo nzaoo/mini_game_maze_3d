@@ -598,18 +598,6 @@ class PhysicsManager {
     direction.x = Number(move.right) - Number(move.left);
     direction.normalize();
 
-    // Debug movement state
-    if (move.forward || move.backward || move.left || move.right) {
-      console.log('Movement state:', {
-        forward: move.forward,
-        backward: move.backward,
-        left: move.left,
-        right: move.right,
-        direction: { x: direction.x, z: direction.z },
-        controlsLocked: controls.isLocked,
-      });
-    }
-
     // Auto-lock controls if not locked and player is trying to move
     if (
       !controls.isLocked &&
@@ -831,24 +819,19 @@ class MazeGame {
     switch (e.code) {
     case 'KeyW':
       this.gameState.move.forward = true;
-      console.log('W pressed - forward movement enabled');
       break;
     case 'KeyS':
       this.gameState.move.backward = true;
-      console.log('S pressed - backward movement enabled');
       break;
     case 'KeyA':
       this.gameState.move.left = true;
-      console.log('A pressed - left movement enabled');
       break;
     case 'KeyD':
       this.gameState.move.right = true;
-      console.log('D pressed - right movement enabled');
       break;
     case 'Space':
       e.preventDefault();
       this.physics.jump();
-      console.log('Space pressed - jump');
       break;
     case 'Escape':
       this.togglePause();
@@ -860,19 +843,15 @@ class MazeGame {
     switch (e.code) {
     case 'KeyW':
       this.gameState.move.forward = false;
-      console.log('W released - forward movement disabled');
       break;
     case 'KeyS':
       this.gameState.move.backward = false;
-      console.log('S released - backward movement disabled');
       break;
     case 'KeyA':
       this.gameState.move.left = false;
-      console.log('A released - left movement disabled');
       break;
     case 'KeyD':
       this.gameState.move.right = false;
-      console.log('D released - right movement disabled');
       break;
     }
   }
@@ -1053,9 +1032,6 @@ class MazeGame {
   }
 
   loadLevel (levelIdx) {
-    console.log('Loading level:', levelIdx);
-    console.log('Available mazeMaps:', mazeMaps);
-
     // Cleanup
     this.gameState.dispose();
     this.gameState.reset();
@@ -1066,10 +1042,8 @@ class MazeGame {
 
     // Load maze
     this.gameState.mazeMap = mazeMaps[levelIdx];
-    console.log('Loaded mazeMap:', this.gameState.mazeMap);
 
     if (!this.gameState.mazeMap) {
-      console.error('Failed to load mazeMap for level:', levelIdx);
       return;
     }
 
@@ -1087,7 +1061,6 @@ class MazeGame {
   buildMaze () {
     // Validate mazeMap
     if (!this.gameState.mazeMap || !Array.isArray(this.gameState.mazeMap)) {
-      console.error('Invalid mazeMap:', this.gameState.mazeMap);
       return;
     }
 
@@ -1166,7 +1139,6 @@ class MazeGame {
     this.gameState.mazeMap.forEach((row, z) => {
       // Validate row
       if (!Array.isArray(row) && typeof row !== 'string') {
-        console.error('Invalid row at index', z, ':', row);
         return;
       }
 
@@ -1418,12 +1390,8 @@ const fallbackMazeMaps = [
 let game;
 document.addEventListener('DOMContentLoaded', () => {
   // Check if mazeMaps exists, otherwise use fallback
-  console.log('Checking mazeMaps availability...');
   if (typeof mazeMaps === 'undefined') {
-    console.log('mazeMaps is undefined, using fallback');
     window.mazeMaps = fallbackMazeMaps;
-  } else {
-    console.log('mazeMaps is available:', mazeMaps);
   }
 
   // Create performance monitor
@@ -1443,11 +1411,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load first level
   try {
-    console.log('Available mazeMaps:', mazeMaps);
-    console.log('Loading level 0...');
     game.loadLevel(0);
   } catch (error) {
-    console.error('Error loading level:', error);
+    // Đã bỏ console.error, giữ block catch để tránh crash khi lỗi, nhưng không để block rỗng
   }
 
   // Add loading screen
