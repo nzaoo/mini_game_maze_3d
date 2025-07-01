@@ -2,7 +2,7 @@
 // Advanced achievement system for player progression
 
 export class AchievementSystem {
-  constructor () {
+  constructor() {
     this.achievements = new Map();
     this.unlockedAchievements = new Set();
     this.statistics = {
@@ -17,18 +17,18 @@ export class AchievementSystem {
       perfectLevels: 0,
       speedRuns: 0,
     };
-    
+
     this.init();
   }
-  
+
   // Initialize achievement system
-  init () {
+  init() {
     this.createAchievements();
     this.loadProgress();
   }
-  
+
   // Create all achievements
-  createAchievements () {
+  createAchievements() {
     // Speed achievements
     this.addAchievement({
       id: 'speed_demon',
@@ -37,7 +37,7 @@ export class AchievementSystem {
       icon: '⚡',
       requirements: { speedRun: 30 },
     });
-    
+
     this.addAchievement({
       id: 'lightning_fast',
       name: 'Lightning Fast',
@@ -45,7 +45,7 @@ export class AchievementSystem {
       icon: '⚡⚡',
       requirements: { speedRun: 20 },
     });
-    
+
     this.addAchievement({
       id: 'time_master',
       name: 'Time Master',
@@ -53,7 +53,7 @@ export class AchievementSystem {
       icon: '⚡⚡⚡',
       requirements: { speedRun: 15 },
     });
-    
+
     // Score achievements
     this.addAchievement({
       id: 'score_collector',
@@ -62,7 +62,7 @@ export class AchievementSystem {
       icon: '🏆',
       requirements: { rewardsCollected: 100 },
     });
-    
+
     this.addAchievement({
       id: 'score_master',
       name: 'Score Master',
@@ -70,7 +70,7 @@ export class AchievementSystem {
       icon: '🏆🏆',
       requirements: { rewardsCollected: 500 },
     });
-    
+
     this.addAchievement({
       id: 'score_legend',
       name: 'Score Legend',
@@ -78,7 +78,7 @@ export class AchievementSystem {
       icon: '🏆🏆🏆',
       requirements: { rewardsCollected: 1000 },
     });
-    
+
     // Level completion achievements
     this.addAchievement({
       id: 'level_explorer',
@@ -87,7 +87,7 @@ export class AchievementSystem {
       icon: '🗺️',
       requirements: { levelsCompleted: 5 },
     });
-    
+
     this.addAchievement({
       id: 'level_master',
       name: 'Level Master',
@@ -95,7 +95,7 @@ export class AchievementSystem {
       icon: '🗺️🗺️',
       requirements: { levelsCompleted: 10 },
     });
-    
+
     this.addAchievement({
       id: 'level_legend',
       name: 'Level Legend',
@@ -103,7 +103,7 @@ export class AchievementSystem {
       icon: '🗺️🗺️🗺️',
       requirements: { levelsCompleted: 25 },
     });
-    
+
     // Perfect run achievements
     this.addAchievement({
       id: 'perfect_run',
@@ -112,7 +112,7 @@ export class AchievementSystem {
       icon: '✨',
       requirements: { perfectLevel: true },
     });
-    
+
     this.addAchievement({
       id: 'perfect_master',
       name: 'Perfect Master',
@@ -120,7 +120,7 @@ export class AchievementSystem {
       icon: '✨✨',
       requirements: { perfectLevels: 5 },
     });
-    
+
     this.addAchievement({
       id: 'perfect_legend',
       name: 'Perfect Legend',
@@ -128,7 +128,7 @@ export class AchievementSystem {
       icon: '✨✨✨',
       requirements: { perfectLevels: 10 },
     });
-    
+
     // Distance achievements
     this.addAchievement({
       id: 'distance_walker',
@@ -137,7 +137,7 @@ export class AchievementSystem {
       icon: '🚶',
       requirements: { distanceTraveled: 1000 },
     });
-    
+
     this.addAchievement({
       id: 'distance_runner',
       name: 'Distance Runner',
@@ -145,7 +145,7 @@ export class AchievementSystem {
       icon: '🏃',
       requirements: { distanceTraveled: 5000 },
     });
-    
+
     this.addAchievement({
       id: 'distance_marathon',
       name: 'Distance Marathon',
@@ -153,7 +153,7 @@ export class AchievementSystem {
       icon: '🏃‍♂️',
       requirements: { distanceTraveled: 10000 },
     });
-    
+
     // Jump achievements
     this.addAchievement({
       id: 'jump_beginner',
@@ -162,7 +162,7 @@ export class AchievementSystem {
       icon: '🦘',
       requirements: { jumps: 50 },
     });
-    
+
     this.addAchievement({
       id: 'jump_expert',
       name: 'Jump Expert',
@@ -170,7 +170,7 @@ export class AchievementSystem {
       icon: '🦘🦘',
       requirements: { jumps: 200 },
     });
-    
+
     this.addAchievement({
       id: 'jump_master',
       name: 'Jump Master',
@@ -178,7 +178,7 @@ export class AchievementSystem {
       icon: '🦘🦘🦘',
       requirements: { jumps: 500 },
     });
-    
+
     // Survival achievements
     this.addAchievement({
       id: 'survivor',
@@ -187,7 +187,7 @@ export class AchievementSystem {
       icon: '🛡️',
       requirements: { noDeaths: 3 },
     });
-    
+
     this.addAchievement({
       id: 'immortal',
       name: 'Immortal',
@@ -195,7 +195,7 @@ export class AchievementSystem {
       icon: '🛡️🛡️',
       requirements: { noDeaths: 10 },
     });
-    
+
     // Special achievements
     this.addAchievement({
       id: 'first_blood',
@@ -204,7 +204,7 @@ export class AchievementSystem {
       icon: '💀',
       requirements: { firstTrap: true },
     });
-    
+
     this.addAchievement({
       id: 'persistent',
       name: 'Persistent',
@@ -212,7 +212,7 @@ export class AchievementSystem {
       icon: '💪',
       requirements: { deaths: 10 },
     });
-    
+
     this.addAchievement({
       id: 'dedicated',
       name: 'Dedicated',
@@ -220,7 +220,7 @@ export class AchievementSystem {
       icon: '⏰',
       requirements: { totalPlayTime: 3600000 },
     });
-    
+
     this.addAchievement({
       id: 'addicted',
       name: 'Addicted',
@@ -229,9 +229,9 @@ export class AchievementSystem {
       requirements: { totalPlayTime: 18000000 },
     });
   }
-  
+
   // Add achievement
-  addAchievement (achievement) {
+  addAchievement(achievement) {
     this.achievements.set(achievement.id, {
       ...achievement,
       unlocked: false,
@@ -239,85 +239,110 @@ export class AchievementSystem {
       progress: 0,
     });
   }
-  
+
   // Update statistics
-  updateStatistics (stats) {
+  updateStatistics(stats) {
     Object.assign(this.statistics, stats);
     this.checkAchievements();
   }
-  
+
   // Check for unlocked achievements
-  checkAchievements () {
+  checkAchievements() {
     this.achievements.forEach((achievement, id) => {
-      if (!achievement.unlocked && this.checkRequirements(achievement.requirements)) {
+      if (
+        !achievement.unlocked &&
+        this.checkRequirements(achievement.requirements)
+      ) {
         this.unlockAchievement(id);
       }
     });
   }
-  
+
   // Check if requirements are met
-  checkRequirements (requirements) {
+  checkRequirements(requirements) {
     for (const [key, value] of Object.entries(requirements)) {
       switch (key) {
-      case 'speedRun':
-        if (this.statistics.speedRuns < value) {return false;}
-        break;
-      case 'rewardsCollected':
-        if (this.statistics.rewardsCollected < value) {return false;}
-        break;
-      case 'levelsCompleted':
-        if (this.statistics.levelsCompleted < value) {return false;}
-        break;
-      case 'perfectLevel':
-        if (!this.statistics.perfectLevels) {return false;}
-        break;
-      case 'perfectLevels':
-        if (this.statistics.perfectLevels < value) {return false;}
-        break;
-      case 'distanceTraveled':
-        if (this.statistics.distanceTraveled < value) {return false;}
-        break;
-      case 'jumps':
-        if (this.statistics.jumps < value) {return false;}
-        break;
-      case 'noDeaths':
-        if (this.statistics.deaths > 0) {return false;}
-        break;
-      case 'deaths':
-        if (this.statistics.deaths < value) {return false;}
-        break;
-      case 'totalPlayTime':
-        if (this.statistics.totalPlayTime < value) {return false;}
-        break;
-      case 'firstTrap':
-        if (this.statistics.trapsHit === 0) {return false;}
-        break;
+        case 'speedRun':
+          if (this.statistics.speedRuns < value) {
+            return false;
+          }
+          break;
+        case 'rewardsCollected':
+          if (this.statistics.rewardsCollected < value) {
+            return false;
+          }
+          break;
+        case 'levelsCompleted':
+          if (this.statistics.levelsCompleted < value) {
+            return false;
+          }
+          break;
+        case 'perfectLevel':
+          if (!this.statistics.perfectLevels) {
+            return false;
+          }
+          break;
+        case 'perfectLevels':
+          if (this.statistics.perfectLevels < value) {
+            return false;
+          }
+          break;
+        case 'distanceTraveled':
+          if (this.statistics.distanceTraveled < value) {
+            return false;
+          }
+          break;
+        case 'jumps':
+          if (this.statistics.jumps < value) {
+            return false;
+          }
+          break;
+        case 'noDeaths':
+          if (this.statistics.deaths > 0) {
+            return false;
+          }
+          break;
+        case 'deaths':
+          if (this.statistics.deaths < value) {
+            return false;
+          }
+          break;
+        case 'totalPlayTime':
+          if (this.statistics.totalPlayTime < value) {
+            return false;
+          }
+          break;
+        case 'firstTrap':
+          if (this.statistics.trapsHit === 0) {
+            return false;
+          }
+          break;
       }
     }
     return true;
   }
-  
+
   // Unlock achievement
-  unlockAchievement (achievementId) {
+  unlockAchievement(achievementId) {
     const achievement = this.achievements.get(achievementId);
     if (achievement && !achievement.unlocked) {
       achievement.unlocked = true;
       achievement.unlockDate = Date.now();
       this.unlockedAchievements.add(achievementId);
-      
+
       // Show achievement notification
       this.showAchievementNotification(achievement);
-      
+
       // Save progress
       this.saveProgress();
-      
+
       return true;
     }
     return false;
   }
-  
+
   // Show achievement notification
-  showAchievementNotification (achievement) {
+  showAchievementNotification(achievement) {
     // Create notification element
     const notification = document.createElement('div');
     notification.className = 'achievement-notification';
@@ -328,7 +353,7 @@ export class AchievementSystem {
         <div class="achievement-description">${achievement.description}</div>
       </div>
     `;
-    
+
     // Add styles
     notification.style.cssText = `
       position: fixed;
@@ -347,15 +372,15 @@ export class AchievementSystem {
       transition: transform 0.5s ease;
       max-width: 300px;
     `;
-    
+
     // Add to page
     document.body.appendChild(notification);
-    
+
     // Animate in
     setTimeout(() => {
       notification.style.transform = 'translateX(0)';
     }, 100);
-    
+
     // Animate out and remove
     setTimeout(() => {
       notification.style.transform = 'translateX(400px)';
@@ -364,45 +389,47 @@ export class AchievementSystem {
       }, 500);
     }, 3000);
   }
-  
+
   // Get achievement by ID
-  getAchievement (achievementId) {
+  getAchievement(achievementId) {
     return this.achievements.get(achievementId);
   }
-  
+
   // Get all achievements
-  getAllAchievements () {
+  getAllAchievements() {
     return Array.from(this.achievements.values());
   }
-  
+
   // Get unlocked achievements
-  getUnlockedAchievements () {
+  getUnlockedAchievements() {
     return this.getAllAchievements().filter(a => a.unlocked);
   }
-  
+
   // Get locked achievements
-  getLockedAchievements () {
+  getLockedAchievements() {
     return this.getAllAchievements().filter(a => !a.unlocked);
   }
-  
+
   // Get achievements by category
-  getAchievementsByCategory (category) {
+  getAchievementsByCategory(category) {
     return this.getAllAchievements().filter(a => a.category === category);
   }
-  
+
   // Get achievement progress
-  getAchievementProgress (achievementId) {
+  getAchievementProgress(achievementId) {
     const achievement = this.achievements.get(achievementId);
-    if (!achievement) {return 0;}
-    
+    if (!achievement) {
+      return 0;
+    }
+
     const requirements = achievement.requirements;
     let progress = 0;
     let total = 0;
-    
+
     for (const [key, value] of Object.entries(requirements)) {
       const current = this.statistics[key] || 0;
       const required = value;
-      
+
       if (typeof required === 'number') {
         progress += Math.min(current, required);
         total += required;
@@ -411,31 +438,31 @@ export class AchievementSystem {
         total += 1;
       }
     }
-    
+
     return total > 0 ? (progress / total) * 100 : 0;
   }
-  
+
   // Get statistics
-  getStatistics () {
+  getStatistics() {
     return { ...this.statistics };
   }
-  
+
   // Get achievement count
-  getAchievementCount () {
+  getAchievementCount() {
     return {
       total: this.achievements.size,
       unlocked: this.unlockedAchievements.size,
       locked: this.achievements.size - this.unlockedAchievements.size,
     };
   }
-  
+
   // Get completion percentage
-  getCompletionPercentage () {
+  getCompletionPercentage() {
     return (this.unlockedAchievements.size / this.achievements.size) * 100;
   }
-  
+
   // Reset all achievements
-  reset () {
+  reset() {
     this.achievements.forEach(achievement => {
       achievement.unlocked = false;
       achievement.unlockDate = null;
@@ -444,15 +471,15 @@ export class AchievementSystem {
     this.unlockedAchievements.clear();
     this.saveProgress();
   }
-  
+
   // Save progress to localStorage
-  saveProgress () {
+  saveProgress() {
     const data = {
       achievements: Array.from(this.achievements.entries()),
       statistics: this.statistics,
       unlockedAchievements: Array.from(this.unlockedAchievements),
     };
-    
+
     try {
       localStorage.setItem('maze_game_achievements', JSON.stringify(data));
       return true;
@@ -461,29 +488,29 @@ export class AchievementSystem {
       return false;
     }
   }
-  
+
   // Load progress from localStorage
-  loadProgress () {
+  loadProgress() {
     try {
       const data = localStorage.getItem('maze_game_achievements');
       if (data) {
         const parsed = JSON.parse(data);
-        
+
         this.achievements = new Map(parsed.achievements);
         this.statistics = parsed.statistics || this.statistics;
         this.unlockedAchievements = new Set(parsed.unlockedAchievements);
-        
+
         return true;
       }
     } catch (error) {
       console.warn('Failed to load achievements:', error);
     }
-    
+
     return false;
   }
-  
+
   // Export achievement data
-  export () {
+  export() {
     return {
       achievements: this.getAllAchievements(),
       statistics: this.statistics,
@@ -491,4 +518,4 @@ export class AchievementSystem {
       completion: this.getCompletionPercentage(),
     };
   }
-} 
+}
