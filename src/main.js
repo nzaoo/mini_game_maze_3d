@@ -61,17 +61,27 @@ const light = new THREE.DirectionalLight(0xffffff, 1.2);
 light.position.set(5, 10, 7.5);
 scene.add(light);
 
-// Skybox
-const loader = new THREE.CubeTextureLoader();
-const skyTexture = loader.load([
-  'https://threejs.org/examples/textures/cube/skybox/px.jpg',
-  'https://threejs.org/examples/textures/cube/skybox/nx.jpg',
-  'https://threejs.org/examples/textures/cube/skybox/py.jpg',
-  'https://threejs.org/examples/textures/cube/skybox/ny.jpg',
-  'https://threejs.org/examples/textures/cube/skybox/pz.jpg',
-  'https://threejs.org/examples/textures/cube/skybox/nz.jpg',
-]);
-scene.background = skyTexture;
+// Bầu trời đẹp bằng skybox Poly Haven
+function setSkybox(scene) {
+  const loader = new THREE.CubeTextureLoader();
+  const urls = [
+    'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/venice_sunset_1k_px.hdr',
+    'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/venice_sunset_1k_nx.hdr',
+    'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/venice_sunset_1k_py.hdr',
+    'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/venice_sunset_1k_ny.hdr',
+    'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/venice_sunset_1k_pz.hdr',
+    'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/venice_sunset_1k_nz.hdr',
+  ];
+  try {
+    const skyTexture = loader.load(urls, () => {}, undefined, () => {
+      // fallback nếu lỗi
+      scene.background = new THREE.Color(0x87ceeb);
+    });
+    scene.background = skyTexture;
+  } catch {
+    scene.background = new THREE.Color(0x87ceeb);
+  }
+}
 
 // Floor
 const floor = new THREE.Mesh(
@@ -460,6 +470,9 @@ function loadLevel(levelIdx) {
 
   // Trong loadLevel, sau khi animate:
   startTimer();
+
+  // Trong loadLevel, sau khi tạo scene:
+  setSkybox(scene);
 }
 
 // Gọi loadLevel(0) khi khởi động
