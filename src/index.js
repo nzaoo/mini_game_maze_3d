@@ -34,4 +34,4 @@ export * from './constants/game-constants.js';
 export * from './types/game-types.js';
 
 // Main game initialization
-export { initGame } from './main.js'; 
+export { initGame } from './main.js';

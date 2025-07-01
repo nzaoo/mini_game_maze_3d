@@ -35,7 +35,7 @@ export const mazeMaps = [
     '111111111111111111111111111101',
     '111111111111111111111111111111',
   ],
-  
+
   // Level 2 - Intermediate (More complex)
   [
     '111111111111111111111111111111111111111111111111',
@@ -72,7 +72,7 @@ export const mazeMaps = [
     '100010001000100010001000100010001000100010001000101',
     '111111111111111111111111111111111111111111111111',
   ],
-  
+
   // Level 3 - Advanced (Complex maze with many rewards)
   [
     '111111111111111111111111111111111111111111111111111111111111111111',
@@ -117,7 +117,7 @@ export const mazeMaps = [
     '10001000100010001000100010001000100010001000100010001000100010000100010001000100010001000100010001000101',
     '111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111',
   ],
-  
+
   // Level 4 - Expert (Very challenging)
   [
     '111111111111111111111111111111111111111111111111111111111111111111111111111111111111',
@@ -154,7 +154,7 @@ export const mazeMaps = [
     '100010001000100010001000100010001000100010001000100010001000100001000100010001000100101',
     '111111111111111111111111111111111111111111111111111111111111111111111111111111111111',
   ],
-  
+
   // Level 5 - Master (Ultimate challenge)
   [
     '111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111',
@@ -202,16 +202,16 @@ export const mazeConfig = {
   TRAP: 'T',
   START: 'S',
   END: 'E',
-  
+
   // Level settings
   levelSettings: [
     { timeLimit: 120, rewardValue: 10, trapDamage: 1 }, // Level 1
     { timeLimit: 150, rewardValue: 15, trapDamage: 1 }, // Level 2
     { timeLimit: 180, rewardValue: 20, trapDamage: 2 }, // Level 3
     { timeLimit: 200, rewardValue: 25, trapDamage: 2 }, // Level 4
-    { timeLimit: 240, rewardValue: 30, trapDamage: 3 },  // Level 5
+    { timeLimit: 240, rewardValue: 30, trapDamage: 3 }, // Level 5
   ],
-  
+
   // Difficulty multipliers
   difficultyMultipliers: {
     easy: 1.0,
@@ -224,61 +224,79 @@ export const mazeConfig = {
 // =============== MAZE UTILITIES ===============
 export class MazeUtils {
   // Get maze dimensions
-  static getMazeDimensions (mazeMap) {
-    if (!mazeMap || mazeMap.length === 0) {return { width: 0, height: 0 };}
+  static getMazeDimensions(mazeMap) {
+    if (!mazeMap || mazeMap.length === 0) {
+      return { width: 0, height: 0 };
+    }
     return {
       width: mazeMap[0].length,
       height: mazeMap.length,
     };
   }
-  
+
   // Count rewards in maze
-  static countRewards (mazeMap) {
-    if (!mazeMap) {return 0;}
+  static countRewards(mazeMap) {
+    if (!mazeMap) {
+      return 0;
+    }
     return mazeMap.flat().filter(tile => tile === 'R').length;
   }
-  
+
   // Count traps in maze
-  static countTraps (mazeMap) {
-    if (!mazeMap) {return 0;}
+  static countTraps(mazeMap) {
+    if (!mazeMap) {
+      return 0;
+    }
     return mazeMap.flat().filter(tile => tile === 'T').length;
   }
-  
+
   // Validate maze structure
-  static validateMaze (mazeMap) {
-    if (!mazeMap || mazeMap.length === 0) {return false;}
-    
+  static validateMaze(mazeMap) {
+    if (!mazeMap || mazeMap.length === 0) {
+      return false;
+    }
+
     const firstRowLength = mazeMap[0].length;
     return mazeMap.every(row => row.length === firstRowLength);
   }
-  
+
   // Get start position (always 1,1)
-  static getStartPosition () {
+  static getStartPosition() {
     return { x: 1, z: 1 };
   }
-  
+
   // Get end position (bottom-right corner)
-  static getEndPosition (mazeMap) {
-    if (!mazeMap || mazeMap.length === 0) {return { x: 0, z: 0 };}
+  static getEndPosition(mazeMap) {
+    if (!mazeMap || mazeMap.length === 0) {
+      return { x: 0, z: 0 };
+    }
     return {
       x: mazeMap[0].length - 2,
       z: mazeMap.length - 2,
     };
   }
-  
+
   // Check if position is valid (within bounds and not a wall)
-  static isValidPosition (mazeMap, x, z) {
-    if (!mazeMap || z < 0 || z >= mazeMap.length || x < 0 || x >= mazeMap[0].length) {
+  static isValidPosition(mazeMap, x, z) {
+    if (
+      !mazeMap ||
+      z < 0 ||
+      z >= mazeMap.length ||
+      x < 0 ||
+      x >= mazeMap[0].length
+    ) {
       return false;
     }
     return mazeMap[z][x] !== '1';
   }
-  
+
   // Get all reward positions
-  static getRewardPositions (mazeMap) {
+  static getRewardPositions(mazeMap) {
     const positions = [];
-    if (!mazeMap) {return positions;}
-    
+    if (!mazeMap) {
+      return positions;
+    }
+
     for (let z = 0; z < mazeMap.length; z++) {
       for (let x = 0; x < mazeMap[z].length; x++) {
         if (mazeMap[z][x] === 'R') {
@@ -288,12 +306,14 @@ export class MazeUtils {
     }
     return positions;
   }
-  
+
   // Get all trap positions
-  static getTrapPositions (mazeMap) {
+  static getTrapPositions(mazeMap) {
     const positions = [];
-    if (!mazeMap) {return positions;}
-    
+    if (!mazeMap) {
+      return positions;
+    }
+
     for (let z = 0; z < mazeMap.length; z++) {
       for (let x = 0; x < mazeMap[z].length; x++) {
         if (mazeMap[z][x] === 'T') {

@@ -7,11 +7,9 @@ import { mazeMaps, MazeUtils } from './maze-data.js';
 import { configManager } from './config/game-config.js';
 import { AudioManager } from './managers/AudioManager.js';
 
-
-
 // =============== ENHANCED GAME STATE MANAGEMENT ===============
 class GameState {
-  constructor () {
+  constructor() {
     this.scene = null;
     this.camera = null;
     this.renderer = null;
@@ -29,7 +27,7 @@ class GameState {
     this.timerInterval = null;
     this.flashlight = null;
     this.mazeMap = null;
-    
+
     // Enhanced player physics
     this.velocity = new THREE.Vector3();
     this.direction = new THREE.Vector3();
@@ -37,22 +35,22 @@ class GameState {
     this.canJump = false;
     this.mouseDown = false;
     this.playerRadius = configManager.get('physics.playerRadius');
-    
+
     // Performance
     this.clock = new THREE.Clock();
     this.raycaster = new THREE.Raycaster();
-    
+
     // Animation
     this.jumpAnim = 0;
     this.runAnim = 0;
-    
+
     // New systems
     this.particleSystem = null;
     this.postProcessing = null;
     this.inventory = null;
     this.achievements = null;
     this.audioManager = null;
-    
+
     // Statistics
     this.statistics = {
       totalPlayTime: 0,
@@ -66,13 +64,13 @@ class GameState {
       perfectLevels: 0,
       speedRuns: 0,
     };
-    
+
     // Level tracking
     this.levelStartTime = 0;
     this.levelPerfect = true;
   }
-  
-  reset () {
+
+  reset() {
     this.rewards = [];
     this.traps = [];
     this.walls = [];
@@ -86,12 +84,14 @@ class GameState {
     this.levelPerfect = true;
     clearInterval(this.timerInterval);
   }
-  
-  dispose () {
+
+  dispose() {
     if (this.renderer) {
       this.renderer.dispose();
       if (this.renderer.domElement.parentNode) {
-        this.renderer.domElement.parentNode.removeChild(this.renderer.domElement);
+        this.renderer.domElement.parentNode.removeChild(
+          this.renderer.domElement,
+        );
       }
     }
     if (this.scene) {
@@ -112,7 +112,7 @@ class GameState {
 
 // =============== UI MANAGER ===============
 class UIManager {
-  constructor (gameState, audioManager) {
+  constructor(gameState, audioManager) {
     this.gameState = gameState;
     this.audioManager = audioManager;
     this.createHUD();
@@ -121,28 +121,31 @@ class UIManager {
     this.createMessage();
     this.createSettings();
   }
-  
-  createHUD () {
-    this.hud = document.getElementById('hud') || this.createElement('div', {
-      id: 'hud',
-      style: {
-        position: 'fixed',
-        top: '20px',
-        left: '20px',
-        color: '#fff',
-        fontSize: '18px',
-        zIndex: '100',
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%)',
-        padding: '20px 30px',
-        borderRadius: '15px',
-        fontFamily: '"Orbitron", "Arial", sans-serif',
-        border: '2px solid #4CAF50',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 20px rgba(76,175,80,0.3)',
-        backdropFilter: 'blur(10px)',
-        minWidth: '300px',
-      },
-    });
-    
+
+  createHUD() {
+    this.hud =
+      document.getElementById('hud') ||
+      this.createElement('div', {
+        id: 'hud',
+        style: {
+          position: 'fixed',
+          top: '20px',
+          left: '20px',
+          color: '#fff',
+          fontSize: '18px',
+          zIndex: '100',
+          background:
+            'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%)',
+          padding: '20px 30px',
+          borderRadius: '15px',
+          fontFamily: '"Orbitron", "Arial", sans-serif',
+          border: '2px solid #4CAF50',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 20px rgba(76,175,80,0.3)',
+          backdropFilter: 'blur(10px)',
+          minWidth: '300px',
+        },
+      });
+
     this.hud.innerHTML = `
       <div style="text-align: center; margin-bottom: 15px; font-size: 22px; font-weight: bold; color: #4CAF50; text-shadow: 0 0 10px rgba(76,175,80,0.5);">
         🏰 MAZE RUNNER
@@ -164,16 +167,16 @@ class UIManager {
         💡 Click để bắt đầu chơi
       </div>
     `;
-    
+
     if (!document.body.contains(this.hud)) {
       document.body.appendChild(this.hud);
     }
-    
+
     this.scoreSpan = document.getElementById('score');
     this.timerDiv = document.getElementById('timer');
   }
-  
-  createMinimap () {
+
+  createMinimap() {
     this.minimapCanvas = document.createElement('canvas');
     Object.assign(this.minimapCanvas, {
       width: 220,
@@ -183,14 +186,15 @@ class UIManager {
       position: 'fixed',
       bottom: '20px',
       left: '20px',
-      background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%)',
+      background:
+        'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%)',
       border: '3px solid #4CAF50',
       borderRadius: '20px',
       zIndex: '150',
       boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 20px rgba(76,175,80,0.3)',
       backdropFilter: 'blur(10px)',
     });
-    
+
     // Add minimap title
     const minimapContainer = this.createElement('div', {
       style: {
@@ -200,11 +204,12 @@ class UIManager {
         zIndex: '150',
       },
     });
-    
+
     const minimapTitle = this.createElement('div', {
       textContent: '🗺️ BẢN ĐỒ',
       style: {
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%)',
+        background:
+          'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%)',
         color: '#4CAF50',
         padding: '8px 15px',
         borderRadius: '10px 10px 0 0',
@@ -217,21 +222,22 @@ class UIManager {
         textShadow: '0 0 10px rgba(76,175,80,0.5)',
       },
     });
-    
+
     minimapContainer.appendChild(minimapTitle);
     minimapContainer.appendChild(this.minimapCanvas);
     document.body.appendChild(minimapContainer);
     this.minimapCtx = this.minimapCanvas.getContext('2d');
   }
-  
-  createLevelSelector () {
+
+  createLevelSelector() {
     const selector = this.createElement('div', {
       style: {
         position: 'fixed',
         top: '20px',
         right: '20px',
         zIndex: '200',
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%)',
+        background:
+          'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%)',
         color: '#fff',
         padding: '20px 25px',
         borderRadius: '15px',
@@ -243,22 +249,22 @@ class UIManager {
         minWidth: '200px',
       },
     });
-    
+
     selector.innerHTML = `
       <div style="text-align: center; margin-bottom: 15px; font-size: 18px; font-weight: bold; color: #4CAF50; text-shadow: 0 0 10px rgba(76,175,80,0.5);">
         🎮 CHỌN MÀN
       </div>
     `;
-    
+
     const buttonContainer = this.createElement('div', {
-      style: { 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(3, 1fr)', 
+      style: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
         gap: '8px',
         maxWidth: '180px',
       },
     });
-    
+
     mazeMaps.forEach((_, i) => {
       const btn = this.createElement('button', {
         textContent: (i + 1).toString(),
@@ -276,27 +282,29 @@ class UIManager {
           textShadow: '0 1px 2px rgba(0,0,0,0.5)',
         },
       });
-      
+
       btn.addEventListener('mouseover', () => {
-        btn.style.background = 'linear-gradient(135deg, #45a049 0%, #4CAF50 100%)';
+        btn.style.background =
+          'linear-gradient(135deg, #45a049 0%, #4CAF50 100%)';
         btn.style.transform = 'translateY(-2px)';
         btn.style.boxShadow = '0 6px 20px rgba(76,175,80,0.5)';
       });
       btn.addEventListener('mouseout', () => {
-        btn.style.background = 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)';
+        btn.style.background =
+          'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)';
         btn.style.transform = 'translateY(0)';
         btn.style.boxShadow = '0 4px 15px rgba(76,175,80,0.3)';
       });
       btn.addEventListener('click', () => game.loadLevel(i));
-      
+
       buttonContainer.appendChild(btn);
     });
-    
+
     selector.appendChild(buttonContainer);
     document.body.appendChild(selector);
   }
-  
-  createMessage () {
+
+  createMessage() {
     this.messageDiv = this.createElement('div', {
       style: {
         position: 'fixed',
@@ -305,7 +313,8 @@ class UIManager {
         transform: 'translate(-50%, -50%)',
         fontSize: '48px',
         color: '#fff',
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(20,20,40,0.98) 100%)',
+        background:
+          'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(20,20,40,0.98) 100%)',
         padding: '50px 100px',
         borderRadius: '30px',
         display: 'none',
@@ -322,15 +331,16 @@ class UIManager {
     });
     document.body.appendChild(this.messageDiv);
   }
-  
-  createSettings () {
+
+  createSettings() {
     const settings = this.createElement('div', {
       style: {
         position: 'fixed',
         top: '50%',
         right: '20px',
         transform: 'translateY(-50%)',
-        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%)',
+        background:
+          'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%)',
         color: '#fff',
         padding: '25px',
         borderRadius: '15px',
@@ -343,7 +353,7 @@ class UIManager {
         fontFamily: '"Orbitron", "Arial", sans-serif',
       },
     });
-    
+
     settings.innerHTML = `
       <div style="text-align: center; margin-bottom: 20px; font-size: 16px; font-weight: bold; color: #4CAF50; text-shadow: 0 0 10px rgba(76,175,80,0.5);">
         ⚙️ CÀI ĐẶT
@@ -388,22 +398,24 @@ class UIManager {
         ">⏸️ TẠM DỪNG</button>
       </div>
     `;
-    
+
     document.body.appendChild(settings);
-    
+
     // Event listeners
-    document.getElementById('volumeSlider').addEventListener('input', (e) => {
+    document.getElementById('volumeSlider').addEventListener('input', e => {
       this.audioManager.setVolume(parseFloat(e.target.value));
     });
-    
+
     const pauseBtn = document.getElementById('pauseBtn');
     pauseBtn.addEventListener('mouseover', () => {
-      pauseBtn.style.background = 'linear-gradient(135deg, #1976D2 0%, #2196F3 100%)';
+      pauseBtn.style.background =
+        'linear-gradient(135deg, #1976D2 0%, #2196F3 100%)';
       pauseBtn.style.transform = 'translateY(-2px)';
       pauseBtn.style.boxShadow = '0 6px 20px rgba(33,150,243,0.5)';
     });
     pauseBtn.addEventListener('mouseout', () => {
-      pauseBtn.style.background = 'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)';
+      pauseBtn.style.background =
+        'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)';
       pauseBtn.style.transform = 'translateY(0)';
       pauseBtn.style.boxShadow = '0 4px 15px rgba(33,150,243,0.3)';
     });
@@ -411,50 +423,64 @@ class UIManager {
       game.togglePause();
     });
   }
-  
-  createElement (tag, options = {}) {
+
+  createElement(tag, options = {}) {
     const element = document.createElement(tag);
-    if (options.textContent) {element.textContent = options.textContent;}
-    if (options.innerHTML) {element.innerHTML = options.innerHTML;}
-    if (options.id) {element.id = options.id;}
-    if (options.style) {Object.assign(element.style, options.style);}
+    if (options.textContent) {
+      element.textContent = options.textContent;
+    }
+    if (options.innerHTML) {
+      element.innerHTML = options.innerHTML;
+    }
+    if (options.id) {
+      element.id = options.id;
+    }
+    if (options.style) {
+      Object.assign(element.style, options.style);
+    }
     return element;
   }
-  
-  updateScore (score) {
-    if (this.scoreSpan) {this.scoreSpan.textContent = score;}
+
+  updateScore(score) {
+    if (this.scoreSpan) {
+      this.scoreSpan.textContent = score;
+    }
   }
-  
-  updateTimer (time) {
-    if (this.timerDiv) {this.timerDiv.textContent = `⏰ ${time}`;}
+
+  updateTimer(time) {
+    if (this.timerDiv) {
+      this.timerDiv.textContent = `⏰ ${time}`;
+    }
   }
-  
-  showMessage (msg, color = '#fff', duration = 2500) {
+
+  showMessage(msg, color = '#fff', duration = 2500) {
     this.messageDiv.textContent = msg;
     this.messageDiv.style.color = color;
     this.messageDiv.style.display = 'block';
-    
+
     if (duration > 0) {
       setTimeout(() => this.hideMessage(), duration);
     }
   }
-  
-  hideMessage () {
+
+  hideMessage() {
     this.messageDiv.style.display = 'none';
   }
-  
-  drawMinimap (mazeMap, playerPos) {
+
+  drawMinimap(mazeMap, playerPos) {
     const w = this.minimapCanvas.width;
     const h = this.minimapCanvas.height;
     this.minimapCtx.clearRect(0, 0, w, h);
-    
-    if (!mazeMap) {return;}
-    
+
+    if (!mazeMap) {
+      return;
+    }
+
     const rows = mazeMap.length;
     const cols = mazeMap[0].length;
     const cellW = w / cols;
     const cellH = h / rows;
-    
+
     // Draw maze
     for (let z = 0; z < rows; z++) {
       for (let x = 0; x < cols; x++) {
@@ -465,27 +491,49 @@ class UIManager {
         } else if (cell === 'R') {
           this.minimapCtx.fillStyle = '#FFD700';
           this.minimapCtx.beginPath();
-          this.minimapCtx.arc((x + 0.5) * cellW, (z + 0.5) * cellH, cellW / 3, 0, 2 * Math.PI);
+          this.minimapCtx.arc(
+            (x + 0.5) * cellW,
+            (z + 0.5) * cellH,
+            cellW / 3,
+            0,
+            2 * Math.PI,
+          );
           this.minimapCtx.fill();
         } else if (cell === 'T') {
           this.minimapCtx.fillStyle = '#FF4444';
-          this.minimapCtx.fillRect(x * cellW + cellW / 4, z * cellH + cellH / 4, cellW / 2, cellH / 2);
+          this.minimapCtx.fillRect(
+            x * cellW + cellW / 4,
+            z * cellH + cellH / 4,
+            cellW / 2,
+            cellH / 2,
+          );
         }
       }
     }
-    
+
     // Draw finish
     this.minimapCtx.fillStyle = '#00FF00';
-    this.minimapCtx.fillRect((cols - 2) * cellW + cellW / 4, (rows - 2) * cellH + cellH / 4, cellW / 2, cellH / 2);
-    
+    this.minimapCtx.fillRect(
+      (cols - 2) * cellW + cellW / 4,
+      (rows - 2) * cellH + cellH / 4,
+      cellW / 2,
+      cellH / 2,
+    );
+
     // Draw player
     this.minimapCtx.fillStyle = '#00BFFF';
     const px = playerPos.x / this.gameState.tileSize;
     const pz = playerPos.z / this.gameState.tileSize;
     this.minimapCtx.beginPath();
-    this.minimapCtx.arc((px + 0.5) * cellW, (pz + 0.5) * cellH, cellW / 3, 0, 2 * Math.PI);
+    this.minimapCtx.arc(
+      (px + 0.5) * cellW,
+      (pz + 0.5) * cellH,
+      cellW / 3,
+      0,
+      2 * Math.PI,
+    );
     this.minimapCtx.fill();
-    
+
     // Add border
     this.minimapCtx.strokeStyle = '#FFF';
     this.minimapCtx.lineWidth = 2;
@@ -495,7 +543,7 @@ class UIManager {
 
 // =============== PHYSICS MANAGER ===============
 class PhysicsManager {
-  constructor (gameState) {
+  constructor(gameState) {
     this.gameState = gameState;
     this.normalSpeed = 4;
     this.runMultiplier = 1.7;
@@ -503,17 +551,25 @@ class PhysicsManager {
     this.gravity = 18;
     this.friction = 8;
   }
-  
-  isWall (x, z) {
-    if (!this.gameState.mazeMap) {return false;}
+
+  isWall(x, z) {
+    if (!this.gameState.mazeMap) {
+      return false;
+    }
     const col = Math.floor(x / this.gameState.tileSize);
     const row = Math.floor(z / this.gameState.tileSize);
-    if (row < 0 || row >= this.gameState.mazeMap.length || 
-        col < 0 || col >= this.gameState.mazeMap[0].length) {return true;}
+    if (
+      row < 0 ||
+      row >= this.gameState.mazeMap.length ||
+      col < 0 ||
+      col >= this.gameState.mazeMap[0].length
+    ) {
+      return true;
+    }
     return this.gameState.mazeMap[row][col] === '1';
   }
-  
-  checkWallCollision (position, radius = 0.3) {
+
+  checkWallCollision(position, radius = 0.3) {
     const points = [
       { x: position.x + radius, z: position.z },
       { x: position.x - radius, z: position.z },
@@ -524,24 +580,24 @@ class PhysicsManager {
       { x: position.x + radius * 0.7, z: position.z - radius * 0.7 },
       { x: position.x - radius * 0.7, z: position.z + radius * 0.7 },
     ];
-    
+
     return points.some(point => this.isWall(point.x, point.z));
   }
-  
-  updateMovement (delta) {
+
+  updateMovement(delta) {
     const { velocity, direction, move, controls, mouseDown } = this.gameState;
     const speed = this.normalSpeed * (mouseDown ? this.runMultiplier : 1.0);
-    
+
     // Apply friction
     velocity.x *= Math.max(0, 1 - this.friction * delta);
     velocity.z *= Math.max(0, 1 - this.friction * delta);
     velocity.y -= this.gravity * delta; // gravity
-    
+
     // Calculate movement direction
     direction.z = Number(move.forward) - Number(move.backward);
     direction.x = Number(move.right) - Number(move.left);
     direction.normalize();
-    
+
     // Debug movement state
     if (move.forward || move.backward || move.left || move.right) {
       console.log('Movement state:', {
@@ -553,17 +609,19 @@ class PhysicsManager {
         controlsLocked: controls.isLocked,
       });
     }
-    
+
     // Auto-lock controls if not locked and player is trying to move
-    if (!controls.isLocked && (move.forward || move.backward || move.left || move.right)) {
-      
+    if (
+      !controls.isLocked &&
+      (move.forward || move.backward || move.left || move.right)
+    ) {
       controls.lock();
     }
-    
+
     // Allow movement even if controls are not locked (for testing)
     const obj = controls.getObject();
     const currentPos = obj.position.clone();
-    
+
     // Calculate intended movement
     const moveVector = new THREE.Vector3();
     if (move.forward || move.backward) {
@@ -591,22 +649,30 @@ class PhysicsManager {
       right.normalize();
       moveVector.add(right.multiplyScalar(-direction.x * speed * delta));
     }
-    
+
     // Check collision for X movement
     const nextX = currentPos.x + moveVector.x;
-    if (!this.checkWallCollision(new THREE.Vector3(nextX, currentPos.y, currentPos.z))) {
+    if (
+      !this.checkWallCollision(
+        new THREE.Vector3(nextX, currentPos.y, currentPos.z),
+      )
+    ) {
       obj.position.x = nextX;
     }
-    
+
     // Check collision for Z movement
     const nextZ = currentPos.z + moveVector.z;
-    if (!this.checkWallCollision(new THREE.Vector3(obj.position.x, currentPos.y, nextZ))) {
+    if (
+      !this.checkWallCollision(
+        new THREE.Vector3(obj.position.x, currentPos.y, nextZ),
+      )
+    ) {
       obj.position.z = nextZ;
     }
-    
+
     // Handle jumping and vertical movement
     obj.position.y += velocity.y * delta;
-    
+
     // Ground collision
     if (obj.position.y < 1.6) {
       velocity.y = 0;
@@ -614,8 +680,8 @@ class PhysicsManager {
       this.gameState.canJump = true;
     }
   }
-  
-  jump () {
+
+  jump() {
     if (this.gameState.canJump) {
       this.gameState.velocity.y = this.jumpPower;
       this.gameState.canJump = false;
@@ -625,37 +691,37 @@ class PhysicsManager {
 
 // =============== COLLISION MANAGER ===============
 class CollisionManager {
-  constructor (gameState, audioManager) {
+  constructor(gameState, audioManager) {
     this.gameState = gameState;
     this.audioManager = audioManager;
   }
-  
-  checkCollision (obj1, obj2, threshold = 1.2) {
+
+  checkCollision(obj1, obj2, threshold = 1.2) {
     return obj1.position.distanceTo(obj2.position) < threshold;
   }
-  
-  checkRewards () {
+
+  checkRewards() {
     const player = this.gameState.controls.getObject();
     for (let i = this.gameState.rewards.length - 1; i >= 0; i--) {
       if (this.checkCollision(player, this.gameState.rewards[i])) {
         // Remove from scene and array
         this.gameState.scene.remove(this.gameState.rewards[i]);
         this.gameState.rewards.splice(i, 1);
-        
+
         // Update score
         this.gameState.score += 10;
         this.audioManager.play('reward');
-        
+
         // Add particle effect
-        this.createParticleEffect(player.position, 0xFFD700);
-        
+        this.createParticleEffect(player.position, 0xffd700);
+
         return true;
       }
     }
     return false;
   }
-  
-  checkTraps () {
+
+  checkTraps() {
     const player = this.gameState.controls.getObject();
     for (const trap of this.gameState.traps) {
       if (this.checkCollision(player, trap, 1.5)) {
@@ -665,36 +731,38 @@ class CollisionManager {
     }
     return false;
   }
-  
-  checkWin () {
+
+  checkWin() {
     const playerPos = this.gameState.controls.getObject().position;
     const endPos = this.gameState.endPosition;
-    return Math.abs(playerPos.x - endPos.x) < 1.5 && 
-           Math.abs(playerPos.z - endPos.z) < 1.5;
+    return (
+      Math.abs(playerPos.x - endPos.x) < 1.5 &&
+      Math.abs(playerPos.z - endPos.z) < 1.5
+    );
   }
-  
-  createParticleEffect (position, color) {
+
+  createParticleEffect(position, color) {
     const particleCount = 20;
     const particles = new THREE.Group();
-    
+
     for (let i = 0; i < particleCount; i++) {
       const particle = new THREE.Mesh(
         new THREE.SphereGeometry(0.1, 4, 4),
         new THREE.MeshBasicMaterial({ color }),
       );
-      
+
       particle.position.copy(position);
       particle.userData.velocity = new THREE.Vector3(
         (Math.random() - 0.5) * 10,
         Math.random() * 10 + 5,
         (Math.random() - 0.5) * 10,
       );
-      
+
       particles.add(particle);
     }
-    
+
     this.gameState.scene.add(particles);
-    
+
     // Animate particles
     const startTime = Date.now();
     const animateParticles = () => {
@@ -703,13 +771,15 @@ class CollisionManager {
         this.gameState.scene.remove(particles);
         return;
       }
-      
+
       particles.children.forEach(particle => {
-        particle.position.add(particle.userData.velocity.clone().multiplyScalar(0.016));
+        particle.position.add(
+          particle.userData.velocity.clone().multiplyScalar(0.016),
+        );
         particle.userData.velocity.y -= 20 * 0.016; // gravity
         particle.material.opacity = 1 - elapsed / 1000;
       });
-      
+
       requestAnimationFrame(animateParticles);
     };
     animateParticles();
@@ -718,104 +788,112 @@ class CollisionManager {
 
 // =============== MAIN GAME CLASS ===============
 class MazeGame {
-  constructor () {
+  constructor() {
     this.gameState = new GameState();
     this.audioManager = new AudioManager();
     this.ui = new UIManager(this.gameState, this.audioManager);
     this.physics = new PhysicsManager(this.gameState);
     this.collision = new CollisionManager(this.gameState, this.audioManager);
     this.isPaused = false;
-    
+
     this.init();
   }
-  
-  init () {
+
+  init() {
     this.setupEventListeners();
   }
-  
-  setupEventListeners () {
+
+  setupEventListeners() {
     // Keyboard events
-    document.addEventListener('keydown', (e) => this.onKeyDown(e));
-    document.addEventListener('keyup', (e) => this.onKeyUp(e));
-    
+    document.addEventListener('keydown', e => this.onKeyDown(e));
+    document.addEventListener('keyup', e => this.onKeyUp(e));
+
     // Mouse events
-    document.addEventListener('mousedown', () => { this.gameState.mouseDown = true; });
-    document.addEventListener('mouseup', () => { this.gameState.mouseDown = false; });
-    
+    document.addEventListener('mousedown', () => {
+      this.gameState.mouseDown = true;
+    });
+    document.addEventListener('mouseup', () => {
+      this.gameState.mouseDown = false;
+    });
+
     // Window resize
     window.addEventListener('resize', () => this.onWindowResize());
-    
+
     // Prevent context menu
     document.addEventListener('contextmenu', e => e.preventDefault());
   }
-  
-  onKeyDown (e) {
-    if (this.gameState.isGameOver || this.gameState.isGameWin) {return;}
-    
+
+  onKeyDown(e) {
+    if (this.gameState.isGameOver || this.gameState.isGameWin) {
+      return;
+    }
+
     switch (e.code) {
-    case 'KeyW': 
-      this.gameState.move.forward = true; 
-      console.log('W pressed - forward movement enabled');
-      break;
-    case 'KeyS': 
-      this.gameState.move.backward = true; 
-      console.log('S pressed - backward movement enabled');
-      break;
-    case 'KeyA': 
-      this.gameState.move.left = true; 
-      console.log('A pressed - left movement enabled');
-      break;
-    case 'KeyD': 
-      this.gameState.move.right = true; 
-      console.log('D pressed - right movement enabled');
-      break;
-    case 'Space':
-      e.preventDefault();
-      this.physics.jump();
-      console.log('Space pressed - jump');
-      break;
-    case 'Escape':
-      this.togglePause();
-      break;
+      case 'KeyW':
+        this.gameState.move.forward = true;
+        console.log('W pressed - forward movement enabled');
+        break;
+      case 'KeyS':
+        this.gameState.move.backward = true;
+        console.log('S pressed - backward movement enabled');
+        break;
+      case 'KeyA':
+        this.gameState.move.left = true;
+        console.log('A pressed - left movement enabled');
+        break;
+      case 'KeyD':
+        this.gameState.move.right = true;
+        console.log('D pressed - right movement enabled');
+        break;
+      case 'Space':
+        e.preventDefault();
+        this.physics.jump();
+        console.log('Space pressed - jump');
+        break;
+      case 'Escape':
+        this.togglePause();
+        break;
     }
   }
-  
-  onKeyUp (e) {
+
+  onKeyUp(e) {
     switch (e.code) {
-    case 'KeyW': 
-      this.gameState.move.forward = false; 
-      console.log('W released - forward movement disabled');
-      break;
-    case 'KeyS': 
-      this.gameState.move.backward = false; 
-      console.log('S released - backward movement disabled');
-      break;
-    case 'KeyA': 
-      this.gameState.move.left = false; 
-      console.log('A released - left movement disabled');
-      break;
-    case 'KeyD': 
-      this.gameState.move.right = false; 
-      console.log('D released - right movement disabled');
-      break;
+      case 'KeyW':
+        this.gameState.move.forward = false;
+        console.log('W released - forward movement disabled');
+        break;
+      case 'KeyS':
+        this.gameState.move.backward = false;
+        console.log('S released - backward movement disabled');
+        break;
+      case 'KeyA':
+        this.gameState.move.left = false;
+        console.log('A released - left movement disabled');
+        break;
+      case 'KeyD':
+        this.gameState.move.right = false;
+        console.log('D released - right movement disabled');
+        break;
     }
   }
-  
-  onWindowResize () {
-    if (!this.gameState.camera || !this.gameState.renderer) {return;}
-    
+
+  onWindowResize() {
+    if (!this.gameState.camera || !this.gameState.renderer) {
+      return;
+    }
+
     this.gameState.camera.aspect = window.innerWidth / window.innerHeight;
     this.gameState.camera.updateProjectionMatrix();
     this.gameState.renderer.setSize(window.innerWidth, window.innerHeight);
   }
-  
-  togglePause () {
+
+  togglePause() {
     this.isPaused = !this.isPaused;
     const btn = document.getElementById('pauseBtn');
     if (btn) {
       btn.textContent = this.isPaused ? '▶️ Tiếp tục' : '⏸️ Tạm dừng';
     }
-    
+
     if (this.isPaused) {
       clearInterval(this.gameState.timerInterval);
       this.ui.showMessage('⏸️ TẠM DỪNG', '#FFF', 0);
@@ -825,33 +903,39 @@ class MazeGame {
       this.animate();
     }
   }
-  
-  startTimer () {
+
+  startTimer() {
     clearInterval(this.gameState.timerInterval);
     this.gameState.timeLeft = 90;
     this.ui.updateTimer(this.gameState.timeLeft);
-    
+
     this.gameState.timerInterval = setInterval(() => {
-      if (this.gameState.isGameOver || this.gameState.isGameWin || this.isPaused) {return;}
-      
+      if (
+        this.gameState.isGameOver ||
+        this.gameState.isGameWin ||
+        this.isPaused
+      ) {
+        return;
+      }
+
       this.gameState.timeLeft--;
       this.ui.updateTimer(this.gameState.timeLeft);
-      
+
       if (this.gameState.timeLeft <= 0) {
         this.gameOver('⏰ Hết giờ! Bạn đã thua!');
       }
     }, 1000);
   }
-  
-  gameOver (message) {
+
+  gameOver(message) {
     this.gameState.isGameOver = true;
     this.audioManager.play('lose');
     this.ui.showMessage(message, '#FF4444');
     setTimeout(() => this.loadLevel(this.gameState.currentLevel), 2500);
     clearInterval(this.gameState.timerInterval);
   }
-  
-  gameWin () {
+
+  gameWin() {
     this.gameState.isGameWin = true;
     this.audioManager.play('win');
     this.ui.showMessage('🎉 Bạn đã thắng!', '#00FF00');
@@ -861,20 +945,20 @@ class MazeGame {
     }, 2500);
     clearInterval(this.gameState.timerInterval);
   }
-  
-  createScene () {
+
+  createScene() {
     // Scene
     this.gameState.scene = new THREE.Scene();
-    this.gameState.scene.background = new THREE.Color(0x87CEEB);
+    this.gameState.scene.background = new THREE.Color(0x87ceeb);
     // Camera
     this.gameState.camera = new THREE.PerspectiveCamera(
-      75, 
-      window.innerWidth / window.innerHeight, 
-      0.1, 
+      75,
+      window.innerWidth / window.innerHeight,
+      0.1,
       1000,
     );
     // Renderer
-    this.gameState.renderer = new THREE.WebGLRenderer({ 
+    this.gameState.renderer = new THREE.WebGLRenderer({
       antialias: true,
       powerPreference: 'high-performance',
     });
@@ -885,19 +969,29 @@ class MazeGame {
     // Lighting ... (giữ nguyên)
     // ...
     // Controls
-    this.gameState.controls = new PointerLockControls(this.gameState.camera, document.body);
+    this.gameState.controls = new PointerLockControls(
+      this.gameState.camera,
+      document.body,
+    );
     document.addEventListener('click', () => {
-      if (!this.isPaused) {this.gameState.controls.lock();}
+      if (!this.isPaused) {
+        this.gameState.controls.lock();
+      }
     });
     this.gameState.scene.add(this.gameState.controls.getObject());
     // --- Sửa vị trí xuất phát ---
     let start = { x: 1, z: 1 };
     if (this.gameState.mazeMap) {
-      if (typeof MazeUtils !== 'undefined' && typeof MazeUtils.getStartPosition === 'function') {
+      if (
+        typeof MazeUtils !== 'undefined' &&
+        typeof MazeUtils.getStartPosition === 'function'
+      ) {
         start = MazeUtils.getStartPosition(this.gameState.mazeMap);
       }
       // Nếu vị trí này là tường, tìm ô trống đầu tiên
-      if (!MazeUtils.isValidPosition(this.gameState.mazeMap, start.x, start.z)) {
+      if (
+        !MazeUtils.isValidPosition(this.gameState.mazeMap, start.x, start.z)
+      ) {
         outer: for (let z = 0; z < this.gameState.mazeMap.length; z++) {
           for (let x = 0; x < this.gameState.mazeMap[z].length; x++) {
             if (this.gameState.mazeMap[z][x] !== '1') {
@@ -924,14 +1018,21 @@ class MazeGame {
     for (let y = 0; y < tiles; y++) {
       for (let x = 0; x < tiles; x++) {
         ctx.fillStyle = (x + y) % 2 === 0 ? '#bca16b' : '#7c5e3c';
-        ctx.fillRect(x * (512 / tiles), y * (512 / tiles), (512 / tiles), (512 / tiles));
+        ctx.fillRect(
+          x * (512 / tiles),
+          y * (512 / tiles),
+          512 / tiles,
+          512 / tiles,
+        );
       }
     }
     const checkerTexture = new THREE.CanvasTexture(canvas);
     checkerTexture.wrapS = checkerTexture.wrapT = THREE.RepeatWrapping;
     checkerTexture.repeat.set(1, 1);
     const floorGeometry = new THREE.PlaneGeometry(size, size);
-    const floorMaterial = new THREE.MeshLambertMaterial({ map: checkerTexture });
+    const floorMaterial = new THREE.MeshLambertMaterial({
+      map: checkerTexture,
+    });
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
@@ -950,119 +1051,132 @@ class MazeGame {
     const skyTexture = new THREE.CanvasTexture(skyCanvas);
     this.gameState.scene.background = skyTexture;
   }
-  
-  loadLevel (levelIdx) {
+
+  loadLevel(levelIdx) {
     console.log('Loading level:', levelIdx);
     console.log('Available mazeMaps:', mazeMaps);
-    
+
     // Cleanup
     this.gameState.dispose();
     this.gameState.reset();
     this.gameState.currentLevel = levelIdx;
-    
+
     // Create new scene
     this.createScene();
-    
+
     // Load maze
     this.gameState.mazeMap = mazeMaps[levelIdx];
     console.log('Loaded mazeMap:', this.gameState.mazeMap);
-    
+
     if (!this.gameState.mazeMap) {
       console.error('Failed to load mazeMap for level:', levelIdx);
       return;
     }
-    
+
     this.gameState.endPosition = {
       x: (this.gameState.mazeMap[0].length - 2) * this.gameState.tileSize,
       z: (this.gameState.mazeMap.length - 2) * this.gameState.tileSize,
     };
-    
+
     this.buildMaze();
     this.ui.updateScore(this.gameState.score);
     this.startTimer();
     this.animate();
   }
-  
-  buildMaze () {
+
+  buildMaze() {
     // Validate mazeMap
     if (!this.gameState.mazeMap || !Array.isArray(this.gameState.mazeMap)) {
       console.error('Invalid mazeMap:', this.gameState.mazeMap);
       return;
     }
-    
+
     // Create brick texture
     const brickCanvas = document.createElement('canvas');
     brickCanvas.width = 256;
     brickCanvas.height = 128;
     const brickCtx = brickCanvas.getContext('2d');
-    
+
     // Brick pattern
     const brickWidth = 32;
     const brickHeight = 16;
     const mortarColor = '#8B7355';
     const brickColor1 = '#CD853F';
     const brickColor2 = '#D2691E';
-    
+
     brickCtx.fillStyle = mortarColor;
     brickCtx.fillRect(0, 0, 256, 128);
-    
+
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
         const offset = y % 2 === 0 ? 0 : brickWidth / 2;
         const brickX = x * brickWidth + offset;
         const brickY = y * brickHeight;
-        
+
         if (brickX < 256 && brickY < 128) {
           brickCtx.fillStyle = (x + y) % 2 === 0 ? brickColor1 : brickColor2;
-          brickCtx.fillRect(brickX + 1, brickY + 1, brickWidth - 2, brickHeight - 2);
-          
+          brickCtx.fillRect(
+            brickX + 1,
+            brickY + 1,
+            brickWidth - 2,
+            brickHeight - 2,
+          );
+
           // Add brick details
           brickCtx.fillStyle = '#A0522D';
           brickCtx.fillRect(brickX + 2, brickY + 2, brickWidth - 4, 2);
         }
       }
     }
-    
+
     const brickTexture = new THREE.CanvasTexture(brickCanvas);
     brickTexture.wrapS = brickTexture.wrapT = THREE.RepeatWrapping;
     brickTexture.repeat.set(2, 3);
-    
-    const wallMaterial = new THREE.MeshLambertMaterial({ 
+
+    const wallMaterial = new THREE.MeshLambertMaterial({
       map: brickTexture,
-      color: 0xFFFFFF,
+      color: 0xffffff,
     });
-    
-    const rewardMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0xFFD700,
+
+    const rewardMaterial = new THREE.MeshStandardMaterial({
+      color: 0xffd700,
       emissive: 0x444400,
       metalness: 0.1,
       roughness: 0.3,
     });
-    
-    const trapMaterial = new THREE.MeshLambertMaterial({ 
-      color: 0xFF4444,
+
+    const trapMaterial = new THREE.MeshLambertMaterial({
+      color: 0xff4444,
       emissive: 0x440000,
     });
-    
+
     // Use instanced rendering for walls for better performance
-    const wallGeometry = new THREE.BoxGeometry(this.gameState.tileSize, 3, this.gameState.tileSize);
+    const wallGeometry = new THREE.BoxGeometry(
+      this.gameState.tileSize,
+      3,
+      this.gameState.tileSize,
+    );
     const rewardGeometry = new THREE.SphereGeometry(0.4, 12, 8);
-    const trapGeometry = new THREE.BoxGeometry(this.gameState.tileSize * 0.8, 0.2, this.gameState.tileSize * 0.8);
-    
+    const trapGeometry = new THREE.BoxGeometry(
+      this.gameState.tileSize * 0.8,
+      0.2,
+      this.gameState.tileSize * 0.8,
+    );
+
     this.gameState.mazeMap.forEach((row, z) => {
       // Validate row
       if (!Array.isArray(row) && typeof row !== 'string') {
         console.error('Invalid row at index', z, ':', row);
         return;
       }
-      
+
       // Convert string to array if needed
       const rowArray = typeof row === 'string' ? row.split('') : row;
-      
+
       rowArray.forEach((tile, x) => {
         const posX = x * this.gameState.tileSize;
         const posZ = z * this.gameState.tileSize;
-        
+
         if (tile === '1') {
           const wall = new THREE.Mesh(wallGeometry, wallMaterial);
           wall.position.set(posX, 1.5, posZ);
@@ -1071,7 +1185,7 @@ class MazeGame {
           this.gameState.scene.add(wall);
           this.gameState.walls.push(wall);
         }
-        
+
         if (tile === 'R') {
           const reward = new THREE.Mesh(rewardGeometry, rewardMaterial);
           reward.position.set(posX, 0.6, posZ);
@@ -1082,7 +1196,7 @@ class MazeGame {
           this.gameState.scene.add(reward);
           this.gameState.rewards.push(reward);
         }
-        
+
         if (tile === 'T') {
           const trap = new THREE.Mesh(trapGeometry, trapMaterial);
           trap.position.set(posX, 0.1, posZ);
@@ -1094,86 +1208,103 @@ class MazeGame {
         }
       });
     });
-    
+
     // Add finish marker
     const finishGeometry = new THREE.CylinderGeometry(0.8, 0.8, 0.3, 8);
-    const finishMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x00FF00,
+    const finishMaterial = new THREE.MeshStandardMaterial({
+      color: 0x00ff00,
       emissive: 0x004400,
       metalness: 0.2,
       roughness: 0.4,
     });
     const finish = new THREE.Mesh(finishGeometry, finishMaterial);
-    finish.position.set(this.gameState.endPosition.x, 0.15, this.gameState.endPosition.z);
+    finish.position.set(
+      this.gameState.endPosition.x,
+      0.15,
+      this.gameState.endPosition.z,
+    );
     finish.castShadow = true;
     this.gameState.scene.add(finish);
   }
-  
-  animate () {
-    if (this.isPaused || this.gameState.isGameOver || this.gameState.isGameWin) {return;}
-    
+
+  animate() {
+    if (
+      this.isPaused ||
+      this.gameState.isGameOver ||
+      this.gameState.isGameWin
+    ) {
+      return;
+    }
+
     const delta = this.gameState.clock.getDelta();
-    
+
     // Update physics
     this.physics.updateMovement(delta);
-    
+
     // Update flashlight
     if (this.gameState.flashlight && this.gameState.camera) {
       this.gameState.flashlight.position.copy(this.gameState.camera.position);
       const direction = new THREE.Vector3();
       this.gameState.camera.getWorldDirection(direction);
       this.gameState.flashlight.target.position.copy(
-        this.gameState.camera.position.clone().add(direction.multiplyScalar(15)),
+        this.gameState.camera.position
+          .clone()
+          .add(direction.multiplyScalar(15)),
       );
     }
-    
+
     // Animate rewards (floating)
     this.gameState.rewards.forEach(reward => {
       if (reward.userData.originalY !== undefined) {
-        reward.position.y = reward.userData.originalY + 
+        reward.position.y =
+          reward.userData.originalY +
           Math.sin(Date.now() * 0.001 * reward.userData.floatSpeed) * 0.3;
         reward.rotation.y += 0.02;
       }
     });
-    
+
     // Animate traps (pulsing)
     this.gameState.traps.forEach(trap => {
       if (trap.userData.pulseSpeed !== undefined) {
-        const pulse = Math.sin(Date.now() * 0.001 * trap.userData.pulseSpeed) * 0.5 + 0.5;
+        const pulse =
+          Math.sin(Date.now() * 0.001 * trap.userData.pulseSpeed) * 0.5 + 0.5;
         trap.material.emissive.setRGB(0.2 + pulse * 0.3, 0, 0);
       }
     });
-    
+
     // Camera animations
     this.updateCameraEffects(delta);
-    
+
     // Check collisions
     if (this.collision.checkRewards()) {
       this.ui.updateScore(this.gameState.score);
     }
-    
+
     if (this.collision.checkTraps()) {
       this.gameOver('💀 Bạn đã bị bẫy!');
       return;
     }
-    
+
     if (this.collision.checkWin()) {
       this.gameWin();
       return;
     }
-    
+
     // Update minimap
-    this.ui.drawMinimap(this.gameState.mazeMap, this.gameState.controls.getObject().position);
-    
+    this.ui.drawMinimap(
+      this.gameState.mazeMap,
+      this.gameState.controls.getObject().position,
+    );
+
     // Render
     this.gameState.renderer.render(this.gameState.scene, this.gameState.camera);
-    
+
     requestAnimationFrame(() => this.animate());
   }
-  
-  updateCameraEffects (delta) {
+
+  updateCameraEffects(delta) {
     const { move, canJump, mouseDown, camera } = this.gameState;
-    
+
     // Jump animation
     if (!canJump) {
       this.gameState.jumpAnim += delta * 8;
@@ -1182,7 +1313,7 @@ class MazeGame {
     } else {
       this.gameState.jumpAnim = 0;
     }
-    
+
     // Running animation (head bob)
     const isMoving = move.forward || move.backward || move.left || move.right;
     if (mouseDown && isMoving && canJump) {
@@ -1194,7 +1325,7 @@ class MazeGame {
     } else {
       this.gameState.runAnim = 0;
     }
-    
+
     // Walking animation (subtle bob)
     if (isMoving && canJump && !mouseDown) {
       this.gameState.runAnim += delta * 8;
@@ -1206,14 +1337,14 @@ class MazeGame {
 
 // =============== PERFORMANCE OPTIMIZATION ===============
 class PerformanceMonitor {
-  constructor () {
+  constructor() {
     this.frameCount = 0;
     this.lastTime = performance.now();
     this.fps = 60;
     this.createFPSDisplay();
   }
-  
-  createFPSDisplay () {
+
+  createFPSDisplay() {
     this.fpsDisplay = document.createElement('div');
     Object.assign(this.fpsDisplay.style, {
       position: 'fixed',
@@ -1230,16 +1361,17 @@ class PerformanceMonitor {
     });
     document.body.appendChild(this.fpsDisplay);
   }
-  
-  update () {
+
+  update() {
     this.frameCount++;
     const now = performance.now();
     if (now >= this.lastTime + 1000) {
       this.fps = Math.round((this.frameCount * 1000) / (now - this.lastTime));
       this.frameCount = 0;
       this.lastTime = now;
-      
-      const color = this.fps >= 50 ? '#00ff00' : this.fps >= 30 ? '#ffff00' : '#ff0000';
+
+      const color =
+        this.fps >= 50 ? '#00ff00' : this.fps >= 30 ? '#ffff00' : '#ff0000';
       this.fpsDisplay.innerHTML = `📊 FPS: <span style="color: ${color}">${this.fps}</span>`;
     }
   }
@@ -1293,10 +1425,10 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     console.log('mazeMaps is available:', mazeMaps);
   }
-  
+
   // Create performance monitor
   const perfMonitor = new PerformanceMonitor();
-  
+
   // Override requestAnimationFrame to include performance monitoring
   const originalRAF = window.requestAnimationFrame;
   window.requestAnimationFrame = function (callback) {
@@ -1305,10 +1437,10 @@ document.addEventListener('DOMContentLoaded', () => {
       callback(time);
     });
   };
-  
+
   // Initialize game
   game = new MazeGame();
-  
+
   // Load first level
   try {
     console.log('Available mazeMaps:', mazeMaps);
@@ -1317,7 +1449,7 @@ document.addEventListener('DOMContentLoaded', () => {
   } catch (error) {
     console.error('Error loading level:', error);
   }
-  
+
   // Add loading screen
   const loadingScreen = document.createElement('div');
   Object.assign(loadingScreen.style, {
@@ -1354,7 +1486,7 @@ document.addEventListener('DOMContentLoaded', () => {
     </style>
   `;
   document.body.appendChild(loadingScreen);
-  
+
   // Remove loading screen after game loads
   setTimeout(() => {
     document.body.removeChild(loadingScreen);
