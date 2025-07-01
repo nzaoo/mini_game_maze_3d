@@ -239,6 +239,8 @@ const clock = new THREE.Clock();
 let jumpAnim = 0;
 let runAnim = 0;
 
+let mazeMap = null; // Khai báo toàn cục
+
 function animate() {
   if (isGameOver || isGameWin) return;
   const delta = clock.getDelta();
@@ -298,11 +300,25 @@ function animate() {
     }
   }
 
-  renderer.render(scene, camera);
-  // Vẽ minimap
-  if (typeof mazeMap !== 'undefined') {
+  // Vẽ minimap và các logic khác chỉ khi mazeMap đã có
+  if (mazeMap) {
     drawMinimap(mazeMap, controls.getObject().position);
+    // ... các logic khác dùng mazeMap
+    // Hiệu ứng ngõ cụt
+    if (deadEndCooldown > 0) deadEndCooldown--;
+    const playerPos = controls.getObject().position;
+    const px = Math.floor(playerPos.x / tileSize);
+    const pz = Math.floor(playerPos.z / tileSize);
+    if (isDeadEnd(mazeMap, px, pz) && deadEndCooldown === 0) {
+      controls.getObject().position.x = endPosition.x - tileSize;
+      controls.getObject().position.z = endPosition.z - tileSize;
+      deadEndCooldown = 60;
+      showMessage('Bạn được dịch chuyển gần đích!');
+      setTimeout(hideMessage, 1200);
+    }
   }
+
+  renderer.render(scene, camera);
 
   // Cập nhật vị trí đèn pin theo camera
   if (flashlight) {
@@ -325,23 +341,6 @@ function animate() {
     camera.position.x += Math.sin(runAnim) * 0.03;
   } else {
     runAnim = 0;
-  }
-
-  // Hiệu ứng ngõ cụt: nếu người chơi vào ngõ cụt, dịch chuyển gần endPosition
-  if (deadEndCooldown > 0) deadEndCooldown--;
-  const playerPos = controls.getObject().position;
-  const mazeMap = window.mazeMap;
-  if (mazeMap) {
-    const px = Math.floor(playerPos.x / tileSize);
-    const pz = Math.floor(playerPos.z / tileSize);
-    if (isDeadEnd(mazeMap, px, pz) && deadEndCooldown === 0) {
-      // Dịch chuyển gần endPosition
-      controls.getObject().position.x = endPosition.x - tileSize;
-      controls.getObject().position.z = endPosition.z - tileSize;
-      deadEndCooldown = 60; // tránh lặp lại liên tục
-      showMessage('Bạn được dịch chuyển gần đích!');
-      setTimeout(hideMessage, 1200);
-    }
   }
 
   requestAnimationFrame(animate);
@@ -437,7 +436,7 @@ function loadLevel(levelIdx) {
   brickTexture.repeat.set(1, 1);
 
   // Maze rendering
-  const mazeMap = mazeMaps[levelIdx];
+  mazeMap = mazeMaps[levelIdx];
   endPosition = { x: (mazeMap[0].length - 2) * tileSize, z: (mazeMap.length - 2) * tileSize };
   mazeMap.forEach((row, z) => {
     row.forEach((tile, x) => {
