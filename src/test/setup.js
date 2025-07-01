@@ -75,7 +75,13 @@ vi.mock('three/examples/jsm/controls/PointerLockControls.js', () => ({
     unlock: vi.fn(),
     isLocked: false,
     getObject: vi.fn(() => ({
-      position: { x: 0, y: 0, z: 0, set: vi.fn(), clone: vi.fn(() => ({ x: 0, y: 0, z: 0 })) },
+      position: {
+        x: 0,
+        y: 0,
+        z: 0,
+        set: vi.fn(),
+        clone: vi.fn(() => ({ x: 0, y: 0, z: 0 })),
+      },
     })),
     getDirection: vi.fn(() => ({ x: 0, y: 0, z: -1 })),
   })),
@@ -91,7 +97,7 @@ global.Audio = vi.fn(() => ({
 }));
 
 // Mock requestAnimationFrame
-global.requestAnimationFrame = vi.fn((callback) => {
+global.requestAnimationFrame = vi.fn(callback => {
   setTimeout(callback, 16);
   return 1;
 });
@@ -190,4 +196,4 @@ Object.defineProperty(window, 'innerWidth', {
 Object.defineProperty(window, 'innerHeight', {
   value: 1080,
   writable: true,
-}); 
+});
