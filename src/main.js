@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import './style.css';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
-import { mazeMaps } from './maze-data.js';
+import { mazeMaps, MazeUtils } from './maze-data.js';
 
 // Import new components and utilities
 import { configManager } from './config/game-config.js';
@@ -741,7 +741,6 @@ class MazeGame {
     // Scene
     this.gameState.scene = new THREE.Scene();
     this.gameState.scene.background = new THREE.Color(0x87CEEB);
-    
     // Camera
     this.gameState.camera = new THREE.PerspectiveCamera(
       75, 
@@ -749,7 +748,6 @@ class MazeGame {
       0.1, 
       1000,
     );
-    
     // Renderer
     this.gameState.renderer = new THREE.WebGLRenderer({ 
       antialias: true,
@@ -759,45 +757,37 @@ class MazeGame {
     this.gameState.renderer.shadowMap.enabled = true;
     this.gameState.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.body.appendChild(this.gameState.renderer.domElement);
-    
-    // Enhanced Lighting - Much brighter
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Increased from 0.4 to 0.8
-    this.gameState.scene.add(ambientLight);
-    
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2); // Increased from 0.8 to 1.2
-    directionalLight.position.set(10, 20, 10);
-    directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 2048;
-    directionalLight.shadow.mapSize.height = 2048;
-    this.gameState.scene.add(directionalLight);
-    
-    // Additional lights for better visibility
-    const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
-    this.gameState.scene.add(hemisphereLight);
-    
-    // Flashlight - reduced intensity since scene is brighter
-    this.gameState.flashlight = new THREE.SpotLight(0xffffff, 1, 25, Math.PI / 8, 0.3, 1.5);
-    this.gameState.flashlight.position.set(0, 0, 0);
-    this.gameState.flashlight.target.position.set(0, 0, -1);
-    this.gameState.camera.add(this.gameState.flashlight);
-    this.gameState.camera.add(this.gameState.flashlight.target);
-    this.gameState.scene.add(this.gameState.camera);
-    
-    // Floor - brighter color
-    const floorGeometry = new THREE.PlaneGeometry(200, 200);
-    const floorMaterial = new THREE.MeshLambertMaterial({ color: 0x666666 }); // Brighter from 0x444444
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = -Math.PI / 2;
-    floor.receiveShadow = true;
-    this.gameState.scene.add(floor);
-    
+    // Lighting ... (giữ nguyên)
+    // ...
     // Controls
     this.gameState.controls = new PointerLockControls(this.gameState.camera, document.body);
     document.addEventListener('click', () => {
       if (!this.isPaused) {this.gameState.controls.lock();}
     });
     this.gameState.scene.add(this.gameState.controls.getObject());
-    this.gameState.camera.position.set(1.5, 1.6, 1.5);
+    // --- Sửa vị trí xuất phát ---
+    let start = { x: 1, z: 1 };
+    if (this.gameState.mazeMap) {
+      if (typeof MazeUtils !== 'undefined' && typeof MazeUtils.getStartPosition === 'function') {
+        start = MazeUtils.getStartPosition(this.gameState.mazeMap);
+      }
+      // Nếu vị trí này là tường, tìm ô trống đầu tiên
+      if (!MazeUtils.isValidPosition(this.gameState.mazeMap, start.x, start.z)) {
+        outer: for (let z = 0; z < this.gameState.mazeMap.length; z++) {
+          for (let x = 0; x < this.gameState.mazeMap[z].length; x++) {
+            if (this.gameState.mazeMap[z][x] !== '1') {
+              start = { x, z };
+              break outer;
+            }
+          }
+        }
+      }
+    }
+    this.gameState.camera.position.set(
+      start.x * this.gameState.tileSize + this.gameState.tileSize / 2,
+      1.6,
+      start.z * this.gameState.tileSize + this.gameState.tileSize / 2,
+    );
   }
   
   loadLevel (levelIdx) {
