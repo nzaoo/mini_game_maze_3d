@@ -173,7 +173,7 @@ describe('Maze Game Tests', () => {
       it('should return all reward positions', () => {
         const positions = MazeUtils.getRewardPositions(mockMazeMap);
         expect(positions).toHaveLength(3);
-        
+
         // Check if all positions contain 'R'
         positions.forEach(pos => {
           expect(mockMazeMap[pos.z][pos.x]).toBe('R');
@@ -196,7 +196,7 @@ describe('Maze Game Tests', () => {
       it('should return all trap positions', () => {
         const positions = MazeUtils.getTrapPositions(mockMazeMap);
         expect(positions).toHaveLength(2);
-        
+
         // Check if all positions contain 'T'
         positions.forEach(pos => {
           expect(mockMazeMap[pos.z][pos.x]).toBe('T');
@@ -228,7 +228,7 @@ describe('Maze Game Tests', () => {
 
     it('should have level settings for all levels', () => {
       expect(mazeConfig.levelSettings).toHaveLength(5);
-      
+
       mazeConfig.levelSettings.forEach((level, _index) => {
         expect(level).toHaveProperty('timeLimit');
         expect(level).toHaveProperty('rewardValue');
@@ -244,7 +244,7 @@ describe('Maze Game Tests', () => {
       expect(mazeConfig.difficultyMultipliers).toHaveProperty('normal');
       expect(mazeConfig.difficultyMultipliers).toHaveProperty('hard');
       expect(mazeConfig.difficultyMultipliers).toHaveProperty('expert');
-      
+
       expect(mazeConfig.difficultyMultipliers.easy).toBe(1.0);
       expect(mazeConfig.difficultyMultipliers.normal).toBe(1.2);
       expect(mazeConfig.difficultyMultipliers.hard).toBe(1.5);
@@ -255,26 +255,28 @@ describe('Maze Game Tests', () => {
   describe('Maze Maps', () => {
     it('should have valid maze maps', () => {
       const { mazeMaps } = require('../maze-data.js');
-      
+
       expect(mazeMaps).toBeDefined();
       expect(Array.isArray(mazeMaps)).toBe(true);
       expect(mazeMaps.length).toBeGreaterThan(0);
-      
+
       mazeMaps.forEach((maze, _index) => {
         expect(Array.isArray(maze)).toBe(true);
         expect(maze.length).toBeGreaterThan(0);
-        
+
         // Validate maze structure
         const isValid = MazeUtils.validateMaze(maze);
         expect(isValid).toBe(true);
-        
+
         // Check if maze has start and end positions
         const startPos = MazeUtils.getStartPosition();
         const endPos = MazeUtils.getEndPosition(maze);
-        
-        expect(MazeUtils.isValidPosition(maze, startPos.x, startPos.z)).toBe(true);
+
+        expect(MazeUtils.isValidPosition(maze, startPos.x, startPos.z)).toBe(
+          true,
+        );
         expect(MazeUtils.isValidPosition(maze, endPos.x, endPos.z)).toBe(true);
       });
     });
   });
-}); 
+});
