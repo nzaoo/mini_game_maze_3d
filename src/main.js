@@ -9,7 +9,7 @@ import { AudioManager } from './managers/AudioManager.js';
 
 // =============== ENHANCED GAME STATE MANAGEMENT ===============
 class GameState {
-  constructor() {
+  constructor () {
     this.scene = null;
     this.camera = null;
     this.renderer = null;
@@ -70,7 +70,7 @@ class GameState {
     this.levelPerfect = true;
   }
 
-  reset() {
+  reset () {
     this.rewards = [];
     this.traps = [];
     this.walls = [];
@@ -85,7 +85,7 @@ class GameState {
     clearInterval(this.timerInterval);
   }
 
-  dispose() {
+  dispose () {
     if (this.renderer) {
       this.renderer.dispose();
       if (this.renderer.domElement.parentNode) {
@@ -112,7 +112,7 @@ class GameState {
 
 // =============== UI MANAGER ===============
 class UIManager {
-  constructor(gameState, audioManager) {
+  constructor (gameState, audioManager) {
     this.gameState = gameState;
     this.audioManager = audioManager;
     this.createHUD();
@@ -122,7 +122,7 @@ class UIManager {
     this.createSettings();
   }
 
-  createHUD() {
+  createHUD () {
     this.hud =
       document.getElementById('hud') ||
       this.createElement('div', {
@@ -176,7 +176,7 @@ class UIManager {
     this.timerDiv = document.getElementById('timer');
   }
 
-  createMinimap() {
+  createMinimap () {
     this.minimapCanvas = document.createElement('canvas');
     Object.assign(this.minimapCanvas, {
       width: 220,
@@ -229,7 +229,7 @@ class UIManager {
     this.minimapCtx = this.minimapCanvas.getContext('2d');
   }
 
-  createLevelSelector() {
+  createLevelSelector () {
     const selector = this.createElement('div', {
       style: {
         position: 'fixed',
@@ -304,7 +304,7 @@ class UIManager {
     document.body.appendChild(selector);
   }
 
-  createMessage() {
+  createMessage () {
     this.messageDiv = this.createElement('div', {
       style: {
         position: 'fixed',
@@ -332,7 +332,7 @@ class UIManager {
     document.body.appendChild(this.messageDiv);
   }
 
-  createSettings() {
+  createSettings () {
     const settings = this.createElement('div', {
       style: {
         position: 'fixed',
@@ -424,7 +424,7 @@ class UIManager {
     });
   }
 
-  createElement(tag, options = {}) {
+  createElement (tag, options = {}) {
     const element = document.createElement(tag);
     if (options.textContent) {
       element.textContent = options.textContent;
@@ -441,19 +441,19 @@ class UIManager {
     return element;
   }
 
-  updateScore(score) {
+  updateScore (score) {
     if (this.scoreSpan) {
       this.scoreSpan.textContent = score;
     }
   }
 
-  updateTimer(time) {
+  updateTimer (time) {
     if (this.timerDiv) {
       this.timerDiv.textContent = `⏰ ${time}`;
     }
   }
 
-  showMessage(msg, color = '#fff', duration = 2500) {
+  showMessage (msg, color = '#fff', duration = 2500) {
     this.messageDiv.textContent = msg;
     this.messageDiv.style.color = color;
     this.messageDiv.style.display = 'block';
@@ -463,11 +463,11 @@ class UIManager {
     }
   }
 
-  hideMessage() {
+  hideMessage () {
     this.messageDiv.style.display = 'none';
   }
 
-  drawMinimap(mazeMap, playerPos) {
+  drawMinimap (mazeMap, playerPos) {
     const w = this.minimapCanvas.width;
     const h = this.minimapCanvas.height;
     this.minimapCtx.clearRect(0, 0, w, h);
@@ -543,7 +543,7 @@ class UIManager {
 
 // =============== PHYSICS MANAGER ===============
 class PhysicsManager {
-  constructor(gameState) {
+  constructor (gameState) {
     this.gameState = gameState;
     this.normalSpeed = 4;
     this.runMultiplier = 1.7;
@@ -552,7 +552,7 @@ class PhysicsManager {
     this.friction = 8;
   }
 
-  isWall(x, z) {
+  isWall (x, z) {
     if (!this.gameState.mazeMap) {
       return false;
     }
@@ -569,7 +569,7 @@ class PhysicsManager {
     return this.gameState.mazeMap[row][col] === '1';
   }
 
-  checkWallCollision(position, radius = 0.3) {
+  checkWallCollision (position, radius = 0.3) {
     const points = [
       { x: position.x + radius, z: position.z },
       { x: position.x - radius, z: position.z },
@@ -584,7 +584,7 @@ class PhysicsManager {
     return points.some(point => this.isWall(point.x, point.z));
   }
 
-  updateMovement(delta) {
+  updateMovement (delta) {
     const { velocity, direction, move, controls, mouseDown } = this.gameState;
     const speed = this.normalSpeed * (mouseDown ? this.runMultiplier : 1.0);
 
@@ -681,7 +681,7 @@ class PhysicsManager {
     }
   }
 
-  jump() {
+  jump () {
     if (this.gameState.canJump) {
       this.gameState.velocity.y = this.jumpPower;
       this.gameState.canJump = false;
@@ -691,16 +691,16 @@ class PhysicsManager {
 
 // =============== COLLISION MANAGER ===============
 class CollisionManager {
-  constructor(gameState, audioManager) {
+  constructor (gameState, audioManager) {
     this.gameState = gameState;
     this.audioManager = audioManager;
   }
 
-  checkCollision(obj1, obj2, threshold = 1.2) {
+  checkCollision (obj1, obj2, threshold = 1.2) {
     return obj1.position.distanceTo(obj2.position) < threshold;
   }
 
-  checkRewards() {
+  checkRewards () {
     const player = this.gameState.controls.getObject();
     for (let i = this.gameState.rewards.length - 1; i >= 0; i--) {
       if (this.checkCollision(player, this.gameState.rewards[i])) {
@@ -721,7 +721,7 @@ class CollisionManager {
     return false;
   }
 
-  checkTraps() {
+  checkTraps () {
     const player = this.gameState.controls.getObject();
     for (const trap of this.gameState.traps) {
       if (this.checkCollision(player, trap, 1.5)) {
@@ -732,7 +732,7 @@ class CollisionManager {
     return false;
   }
 
-  checkWin() {
+  checkWin () {
     const playerPos = this.gameState.controls.getObject().position;
     const endPos = this.gameState.endPosition;
     return (
@@ -741,7 +741,7 @@ class CollisionManager {
     );
   }
 
-  createParticleEffect(position, color) {
+  createParticleEffect (position, color) {
     const particleCount = 20;
     const particles = new THREE.Group();
 
@@ -788,7 +788,7 @@ class CollisionManager {
 
 // =============== MAIN GAME CLASS ===============
 class MazeGame {
-  constructor() {
+  constructor () {
     this.gameState = new GameState();
     this.audioManager = new AudioManager();
     this.ui = new UIManager(this.gameState, this.audioManager);
@@ -799,11 +799,11 @@ class MazeGame {
     this.init();
   }
 
-  init() {
+  init () {
     this.setupEventListeners();
   }
 
-  setupEventListeners() {
+  setupEventListeners () {
     // Keyboard events
     document.addEventListener('keydown', e => this.onKeyDown(e));
     document.addEventListener('keyup', e => this.onKeyUp(e));
@@ -823,61 +823,61 @@ class MazeGame {
     document.addEventListener('contextmenu', e => e.preventDefault());
   }
 
-  onKeyDown(e) {
+  onKeyDown (e) {
     if (this.gameState.isGameOver || this.gameState.isGameWin) {
       return;
     }
 
     switch (e.code) {
-      case 'KeyW':
-        this.gameState.move.forward = true;
-        console.log('W pressed - forward movement enabled');
-        break;
-      case 'KeyS':
-        this.gameState.move.backward = true;
-        console.log('S pressed - backward movement enabled');
-        break;
-      case 'KeyA':
-        this.gameState.move.left = true;
-        console.log('A pressed - left movement enabled');
-        break;
-      case 'KeyD':
-        this.gameState.move.right = true;
-        console.log('D pressed - right movement enabled');
-        break;
-      case 'Space':
-        e.preventDefault();
-        this.physics.jump();
-        console.log('Space pressed - jump');
-        break;
-      case 'Escape':
-        this.togglePause();
-        break;
+    case 'KeyW':
+      this.gameState.move.forward = true;
+      console.log('W pressed - forward movement enabled');
+      break;
+    case 'KeyS':
+      this.gameState.move.backward = true;
+      console.log('S pressed - backward movement enabled');
+      break;
+    case 'KeyA':
+      this.gameState.move.left = true;
+      console.log('A pressed - left movement enabled');
+      break;
+    case 'KeyD':
+      this.gameState.move.right = true;
+      console.log('D pressed - right movement enabled');
+      break;
+    case 'Space':
+      e.preventDefault();
+      this.physics.jump();
+      console.log('Space pressed - jump');
+      break;
+    case 'Escape':
+      this.togglePause();
+      break;
     }
   }
 
-  onKeyUp(e) {
+  onKeyUp (e) {
     switch (e.code) {
-      case 'KeyW':
-        this.gameState.move.forward = false;
-        console.log('W released - forward movement disabled');
-        break;
-      case 'KeyS':
-        this.gameState.move.backward = false;
-        console.log('S released - backward movement disabled');
-        break;
-      case 'KeyA':
-        this.gameState.move.left = false;
-        console.log('A released - left movement disabled');
-        break;
-      case 'KeyD':
-        this.gameState.move.right = false;
-        console.log('D released - right movement disabled');
-        break;
+    case 'KeyW':
+      this.gameState.move.forward = false;
+      console.log('W released - forward movement disabled');
+      break;
+    case 'KeyS':
+      this.gameState.move.backward = false;
+      console.log('S released - backward movement disabled');
+      break;
+    case 'KeyA':
+      this.gameState.move.left = false;
+      console.log('A released - left movement disabled');
+      break;
+    case 'KeyD':
+      this.gameState.move.right = false;
+      console.log('D released - right movement disabled');
+      break;
     }
   }
 
-  onWindowResize() {
+  onWindowResize () {
     if (!this.gameState.camera || !this.gameState.renderer) {
       return;
     }
@@ -887,7 +887,7 @@ class MazeGame {
     this.gameState.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  togglePause() {
+  togglePause () {
     this.isPaused = !this.isPaused;
     const btn = document.getElementById('pauseBtn');
     if (btn) {
@@ -904,7 +904,7 @@ class MazeGame {
     }
   }
 
-  startTimer() {
+  startTimer () {
     clearInterval(this.gameState.timerInterval);
     this.gameState.timeLeft = 90;
     this.ui.updateTimer(this.gameState.timeLeft);
@@ -927,7 +927,7 @@ class MazeGame {
     }, 1000);
   }
 
-  gameOver(message) {
+  gameOver (message) {
     this.gameState.isGameOver = true;
     this.audioManager.play('lose');
     this.ui.showMessage(message, '#FF4444');
@@ -935,7 +935,7 @@ class MazeGame {
     clearInterval(this.gameState.timerInterval);
   }
 
-  gameWin() {
+  gameWin () {
     this.gameState.isGameWin = true;
     this.audioManager.play('win');
     this.ui.showMessage('🎉 Bạn đã thắng!', '#00FF00');
@@ -946,7 +946,7 @@ class MazeGame {
     clearInterval(this.gameState.timerInterval);
   }
 
-  createScene() {
+  createScene () {
     // Scene
     this.gameState.scene = new THREE.Scene();
     this.gameState.scene.background = new THREE.Color(0x87ceeb);
@@ -1052,7 +1052,7 @@ class MazeGame {
     this.gameState.scene.background = skyTexture;
   }
 
-  loadLevel(levelIdx) {
+  loadLevel (levelIdx) {
     console.log('Loading level:', levelIdx);
     console.log('Available mazeMaps:', mazeMaps);
 
@@ -1084,7 +1084,7 @@ class MazeGame {
     this.animate();
   }
 
-  buildMaze() {
+  buildMaze () {
     // Validate mazeMap
     if (!this.gameState.mazeMap || !Array.isArray(this.gameState.mazeMap)) {
       console.error('Invalid mazeMap:', this.gameState.mazeMap);
@@ -1227,7 +1227,7 @@ class MazeGame {
     this.gameState.scene.add(finish);
   }
 
-  animate() {
+  animate () {
     if (
       this.isPaused ||
       this.gameState.isGameOver ||
@@ -1302,7 +1302,7 @@ class MazeGame {
     requestAnimationFrame(() => this.animate());
   }
 
-  updateCameraEffects(delta) {
+  updateCameraEffects (delta) {
     const { move, canJump, mouseDown, camera } = this.gameState;
 
     // Jump animation
@@ -1337,14 +1337,14 @@ class MazeGame {
 
 // =============== PERFORMANCE OPTIMIZATION ===============
 class PerformanceMonitor {
-  constructor() {
+  constructor () {
     this.frameCount = 0;
     this.lastTime = performance.now();
     this.fps = 60;
     this.createFPSDisplay();
   }
 
-  createFPSDisplay() {
+  createFPSDisplay () {
     this.fpsDisplay = document.createElement('div');
     Object.assign(this.fpsDisplay.style, {
       position: 'fixed',
@@ -1362,7 +1362,7 @@ class PerformanceMonitor {
     document.body.appendChild(this.fpsDisplay);
   }
 
-  update() {
+  update () {
     this.frameCount++;
     const now = performance.now();
     if (now >= this.lastTime + 1000) {
