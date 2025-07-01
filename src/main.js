@@ -4,19 +4,14 @@ import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockCont
 import { mazeMaps } from './maze-data.js';
 
 // Import new components and utilities
-import { configManager, GameConfig } from './config/game-config.js';
-import { MathUtils } from './utils/math-utils.js';
-import { ParticleSystem } from './components/ParticleSystem.js';
-import { PostProcessing } from './components/PostProcessing.js';
-import { InventorySystem } from './components/InventorySystem.js';
-import { AchievementSystem } from './components/AchievementSystem.js';
-import { AudioManager } from './utils/AudioManager.js';
+import { configManager } from './config/game-config.js';
+import { AudioManager } from './managers/AudioManager.js';
 
 
 
 // =============== ENHANCED GAME STATE MANAGEMENT ===============
 class GameState {
-  constructor() {
+  constructor () {
     this.scene = null;
     this.camera = null;
     this.renderer = null;
@@ -69,7 +64,7 @@ class GameState {
       jumps: 0,
       distanceTraveled: 0,
       perfectLevels: 0,
-      speedRuns: 0
+      speedRuns: 0,
     };
     
     // Level tracking
@@ -77,7 +72,7 @@ class GameState {
     this.levelPerfect = true;
   }
   
-  reset() {
+  reset () {
     this.rewards = [];
     this.traps = [];
     this.walls = [];
@@ -92,7 +87,7 @@ class GameState {
     clearInterval(this.timerInterval);
   }
   
-  dispose() {
+  dispose () {
     if (this.renderer) {
       this.renderer.dispose();
       if (this.renderer.domElement.parentNode) {
@@ -117,13 +112,9 @@ class GameState {
 
 // =============== UI MANAGER ===============
 class UIManager {
-  constructor(gameState, audioManager) {
+  constructor (gameState, audioManager) {
     this.gameState = gameState;
     this.audioManager = audioManager;
-    this.init();
-  }
-  
-  init() {
     this.createHUD();
     this.createMinimap();
     this.createLevelSelector();
@@ -131,7 +122,7 @@ class UIManager {
     this.createSettings();
   }
   
-  createHUD() {
+  createHUD () {
     this.hud = document.getElementById('hud') || this.createElement('div', {
       id: 'hud',
       style: {
@@ -144,8 +135,8 @@ class UIManager {
         background: 'rgba(0,0,0,0.7)',
         padding: '15px 25px',
         borderRadius: '10px',
-        fontFamily: 'monospace'
-      }
+        fontFamily: 'monospace',
+      },
     });
     
     this.hud.innerHTML = `
@@ -153,6 +144,9 @@ class UIManager {
       <div id="timer">⏰ 90</div>
       <div style="font-size: 14px; margin-top: 8px;">
         W/A/S/D: Di chuyển | Chuột: Nhìn | Giữ chuột trái: Chạy | Space: Nhảy
+      </div>
+      <div style="font-size: 12px; margin-top: 5px; color: #FFD700;">
+        💡 Click để bắt đầu chơi
       </div>
     `;
     
@@ -164,11 +158,11 @@ class UIManager {
     this.timerDiv = document.getElementById('timer');
   }
   
-  createMinimap() {
+  createMinimap () {
     this.minimapCanvas = document.createElement('canvas');
     Object.assign(this.minimapCanvas, {
       width: 200,
-      height: 200
+      height: 200,
     });
     Object.assign(this.minimapCanvas.style, {
       position: 'fixed',
@@ -177,13 +171,13 @@ class UIManager {
       background: 'rgba(0,0,0,0.8)',
       border: '3px solid #fff',
       borderRadius: '15px',
-      zIndex: '150'
+      zIndex: '150',
     });
     document.body.appendChild(this.minimapCanvas);
     this.minimapCtx = this.minimapCanvas.getContext('2d');
   }
   
-  createLevelSelector() {
+  createLevelSelector () {
     const selector = this.createElement('div', {
       style: {
         position: 'fixed',
@@ -195,14 +189,14 @@ class UIManager {
         padding: '15px 25px',
         borderRadius: '15px',
         fontSize: '16px',
-        fontFamily: 'monospace'
-      }
+        fontFamily: 'monospace',
+      },
     });
     
     selector.innerHTML = '<div style="margin-bottom: 10px;">🎮 Chọn màn:</div>';
     
     const buttonContainer = this.createElement('div', {
-      style: { display: 'flex', gap: '8px', flexWrap: 'wrap' }
+      style: { display: 'flex', gap: '8px', flexWrap: 'wrap' },
     });
     
     mazeMaps.forEach((_, i) => {
@@ -216,8 +210,8 @@ class UIManager {
           borderRadius: '5px',
           cursor: 'pointer',
           fontSize: '14px',
-          transition: 'background-color 0.3s'
-        }
+          transition: 'background-color 0.3s',
+        },
       });
       
       btn.addEventListener('mouseover', () => btn.style.backgroundColor = '#45a049');
@@ -231,7 +225,7 @@ class UIManager {
     document.body.appendChild(selector);
   }
   
-  createMessage() {
+  createMessage () {
     this.messageDiv = this.createElement('div', {
       style: {
         position: 'fixed',
@@ -248,13 +242,13 @@ class UIManager {
         textAlign: 'center',
         fontFamily: 'Arial, sans-serif',
         textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-        border: '3px solid #fff'
-      }
+        border: '3px solid #fff',
+      },
     });
     document.body.appendChild(this.messageDiv);
   }
   
-  createSettings() {
+  createSettings () {
     const settings = this.createElement('div', {
       style: {
         position: 'fixed',
@@ -266,8 +260,8 @@ class UIManager {
         padding: '20px',
         borderRadius: '15px',
         fontSize: '14px',
-        zIndex: '180'
-      }
+        zIndex: '180',
+      },
     });
     
     settings.innerHTML = `
@@ -293,24 +287,24 @@ class UIManager {
     });
   }
   
-  createElement(tag, options = {}) {
+  createElement (tag, options = {}) {
     const element = document.createElement(tag);
-    if (options.textContent) element.textContent = options.textContent;
-    if (options.innerHTML) element.innerHTML = options.innerHTML;
-    if (options.id) element.id = options.id;
-    if (options.style) Object.assign(element.style, options.style);
+    if (options.textContent) {element.textContent = options.textContent;}
+    if (options.innerHTML) {element.innerHTML = options.innerHTML;}
+    if (options.id) {element.id = options.id;}
+    if (options.style) {Object.assign(element.style, options.style);}
     return element;
   }
   
-  updateScore(score) {
-    if (this.scoreSpan) this.scoreSpan.textContent = score;
+  updateScore (score) {
+    if (this.scoreSpan) {this.scoreSpan.textContent = score;}
   }
   
-  updateTimer(time) {
-    if (this.timerDiv) this.timerDiv.textContent = `⏰ ${time}`;
+  updateTimer (time) {
+    if (this.timerDiv) {this.timerDiv.textContent = `⏰ ${time}`;}
   }
   
-  showMessage(msg, color = '#fff', duration = 2500) {
+  showMessage (msg, color = '#fff', duration = 2500) {
     this.messageDiv.textContent = msg;
     this.messageDiv.style.color = color;
     this.messageDiv.style.display = 'block';
@@ -320,16 +314,16 @@ class UIManager {
     }
   }
   
-  hideMessage() {
+  hideMessage () {
     this.messageDiv.style.display = 'none';
   }
   
-  drawMinimap(mazeMap, playerPos) {
+  drawMinimap (mazeMap, playerPos) {
     const w = this.minimapCanvas.width;
     const h = this.minimapCanvas.height;
     this.minimapCtx.clearRect(0, 0, w, h);
     
-    if (!mazeMap) return;
+    if (!mazeMap) {return;}
     
     const rows = mazeMap.length;
     const cols = mazeMap[0].length;
@@ -376,7 +370,7 @@ class UIManager {
 
 // =============== PHYSICS MANAGER ===============
 class PhysicsManager {
-  constructor(gameState) {
+  constructor (gameState) {
     this.gameState = gameState;
     this.normalSpeed = 35;
     this.runMultiplier = 1.8;
@@ -385,16 +379,16 @@ class PhysicsManager {
     this.friction = 12;
   }
   
-  isWall(x, z) {
-    if (!this.gameState.mazeMap) return false;
+  isWall (x, z) {
+    if (!this.gameState.mazeMap) {return false;}
     const col = Math.floor(x / this.gameState.tileSize);
     const row = Math.floor(z / this.gameState.tileSize);
     if (row < 0 || row >= this.gameState.mazeMap.length || 
-        col < 0 || col >= this.gameState.mazeMap[0].length) return true;
+        col < 0 || col >= this.gameState.mazeMap[0].length) {return true;}
     return this.gameState.mazeMap[row][col] === '1';
   }
   
-  checkWallCollision(position, radius = 0.3) {
+  checkWallCollision (position, radius = 0.3) {
     const points = [
       { x: position.x + radius, z: position.z },
       { x: position.x - radius, z: position.z },
@@ -403,14 +397,14 @@ class PhysicsManager {
       { x: position.x + radius * 0.7, z: position.z + radius * 0.7 },
       { x: position.x - radius * 0.7, z: position.z - radius * 0.7 },
       { x: position.x + radius * 0.7, z: position.z - radius * 0.7 },
-      { x: position.x - radius * 0.7, z: position.z + radius * 0.7 }
+      { x: position.x - radius * 0.7, z: position.z + radius * 0.7 },
     ];
     
     return points.some(point => this.isWall(point.x, point.z));
   }
   
-  updateMovement(delta) {
-    const { velocity, direction, move, controls, mouseDown, canJump } = this.gameState;
+  updateMovement (delta) {
+    const { velocity, direction, move, controls, mouseDown } = this.gameState;
     const speed = this.normalSpeed * (mouseDown ? this.runMultiplier : 1.0);
     
     // Apply friction
@@ -423,53 +417,80 @@ class PhysicsManager {
     direction.x = Number(move.right) - Number(move.left);
     direction.normalize();
     
-    if (controls.isLocked) {
-      const obj = controls.getObject();
-      const currentPos = obj.position.clone();
+    // Debug movement state
+    if (move.forward || move.backward || move.left || move.right) {
+      console.log('Movement state:', {
+        forward: move.forward,
+        backward: move.backward,
+        left: move.left,
+        right: move.right,
+        direction: { x: direction.x, z: direction.z },
+        controlsLocked: controls.isLocked,
+      });
+    }
+    
+    // Auto-lock controls if not locked and player is trying to move
+    if (!controls.isLocked && (move.forward || move.backward || move.left || move.right)) {
       
-      // Calculate intended movement
-      const moveVector = new THREE.Vector3();
-      if (move.forward || move.backward) {
-        const forward = new THREE.Vector3();
+      controls.lock();
+    }
+    
+    // Allow movement even if controls are not locked (for testing)
+    const obj = controls.getObject();
+    const currentPos = obj.position.clone();
+    
+    // Calculate intended movement
+    const moveVector = new THREE.Vector3();
+    if (move.forward || move.backward) {
+      const forward = new THREE.Vector3();
+      if (controls.isLocked) {
         controls.getDirection(forward);
-        forward.y = 0;
-        forward.normalize();
-        moveVector.add(forward.multiplyScalar(-direction.z * speed * delta));
+      } else {
+        // Default forward direction when not locked
+        forward.set(0, 0, -1);
       }
-      if (move.left || move.right) {
-        const right = new THREE.Vector3();
+      forward.y = 0;
+      forward.normalize();
+      moveVector.add(forward.multiplyScalar(-direction.z * speed * delta));
+    }
+    if (move.left || move.right) {
+      const right = new THREE.Vector3();
+      if (controls.isLocked) {
         controls.getDirection(right);
-        right.y = 0;
         right.cross(new THREE.Vector3(0, 1, 0));
-        right.normalize();
-        moveVector.add(right.multiplyScalar(-direction.x * speed * delta));
+      } else {
+        // Default right direction when not locked
+        right.set(1, 0, 0);
       }
-      
-      // Check collision for X movement
-      const nextX = currentPos.x + moveVector.x;
-      if (!this.checkWallCollision(new THREE.Vector3(nextX, currentPos.y, currentPos.z))) {
-        obj.position.x = nextX;
-      }
-      
-      // Check collision for Z movement
-      const nextZ = currentPos.z + moveVector.z;
-      if (!this.checkWallCollision(new THREE.Vector3(obj.position.x, currentPos.y, nextZ))) {
-        obj.position.z = nextZ;
-      }
-      
-      // Handle jumping and vertical movement
-      obj.position.y += velocity.y * delta;
-      
-      // Ground collision
-      if (obj.position.y < 1.6) {
-        velocity.y = 0;
-        obj.position.y = 1.6;
-        this.gameState.canJump = true;
-      }
+      right.y = 0;
+      right.normalize();
+      moveVector.add(right.multiplyScalar(-direction.x * speed * delta));
+    }
+    
+    // Check collision for X movement
+    const nextX = currentPos.x + moveVector.x;
+    if (!this.checkWallCollision(new THREE.Vector3(nextX, currentPos.y, currentPos.z))) {
+      obj.position.x = nextX;
+    }
+    
+    // Check collision for Z movement
+    const nextZ = currentPos.z + moveVector.z;
+    if (!this.checkWallCollision(new THREE.Vector3(obj.position.x, currentPos.y, nextZ))) {
+      obj.position.z = nextZ;
+    }
+    
+    // Handle jumping and vertical movement
+    obj.position.y += velocity.y * delta;
+    
+    // Ground collision
+    if (obj.position.y < 1.6) {
+      velocity.y = 0;
+      obj.position.y = 1.6;
+      this.gameState.canJump = true;
     }
   }
   
-  jump() {
+  jump () {
     if (this.gameState.canJump) {
       this.gameState.velocity.y = this.jumpPower;
       this.gameState.canJump = false;
@@ -479,16 +500,16 @@ class PhysicsManager {
 
 // =============== COLLISION MANAGER ===============
 class CollisionManager {
-  constructor(gameState, audioManager) {
+  constructor (gameState, audioManager) {
     this.gameState = gameState;
     this.audioManager = audioManager;
   }
   
-  checkCollision(obj1, obj2, threshold = 1.2) {
+  checkCollision (obj1, obj2, threshold = 1.2) {
     return obj1.position.distanceTo(obj2.position) < threshold;
   }
   
-  checkRewards() {
+  checkRewards () {
     const player = this.gameState.controls.getObject();
     for (let i = this.gameState.rewards.length - 1; i >= 0; i--) {
       if (this.checkCollision(player, this.gameState.rewards[i])) {
@@ -509,7 +530,7 @@ class CollisionManager {
     return false;
   }
   
-  checkTraps() {
+  checkTraps () {
     const player = this.gameState.controls.getObject();
     for (const trap of this.gameState.traps) {
       if (this.checkCollision(player, trap, 1.5)) {
@@ -520,28 +541,28 @@ class CollisionManager {
     return false;
   }
   
-  checkWin() {
+  checkWin () {
     const playerPos = this.gameState.controls.getObject().position;
     const endPos = this.gameState.endPosition;
     return Math.abs(playerPos.x - endPos.x) < 1.5 && 
            Math.abs(playerPos.z - endPos.z) < 1.5;
   }
   
-  createParticleEffect(position, color) {
+  createParticleEffect (position, color) {
     const particleCount = 20;
     const particles = new THREE.Group();
     
     for (let i = 0; i < particleCount; i++) {
       const particle = new THREE.Mesh(
         new THREE.SphereGeometry(0.1, 4, 4),
-        new THREE.MeshBasicMaterial({ color })
+        new THREE.MeshBasicMaterial({ color }),
       );
       
       particle.position.copy(position);
       particle.userData.velocity = new THREE.Vector3(
         (Math.random() - 0.5) * 10,
         Math.random() * 10 + 5,
-        (Math.random() - 0.5) * 10
+        (Math.random() - 0.5) * 10,
       );
       
       particles.add(particle);
@@ -572,7 +593,7 @@ class CollisionManager {
 
 // =============== MAIN GAME CLASS ===============
 class MazeGame {
-  constructor() {
+  constructor () {
     this.gameState = new GameState();
     this.audioManager = new AudioManager();
     this.ui = new UIManager(this.gameState, this.audioManager);
@@ -583,12 +604,11 @@ class MazeGame {
     this.init();
   }
   
-  init() {
+  init () {
     this.setupEventListeners();
-    this.loadLevel(0);
   }
   
-  setupEventListeners() {
+  setupEventListeners () {
     // Keyboard events
     document.addEventListener('keydown', (e) => this.onKeyDown(e));
     document.addEventListener('keyup', (e) => this.onKeyUp(e));
@@ -604,42 +624,67 @@ class MazeGame {
     document.addEventListener('contextmenu', e => e.preventDefault());
   }
   
-  onKeyDown(e) {
-    if (this.gameState.isGameOver || this.gameState.isGameWin) return;
+  onKeyDown (e) {
+    if (this.gameState.isGameOver || this.gameState.isGameWin) {return;}
     
     switch (e.code) {
-      case 'KeyW': this.gameState.move.forward = true; break;
-      case 'KeyS': this.gameState.move.backward = true; break;
-      case 'KeyA': this.gameState.move.left = true; break;
-      case 'KeyD': this.gameState.move.right = true; break;
-      case 'Space':
-        e.preventDefault();
-        this.physics.jump();
-        break;
-      case 'Escape':
-        this.togglePause();
-        break;
+    case 'KeyW': 
+      this.gameState.move.forward = true; 
+      console.log('W pressed - forward movement enabled');
+      break;
+    case 'KeyS': 
+      this.gameState.move.backward = true; 
+      console.log('S pressed - backward movement enabled');
+      break;
+    case 'KeyA': 
+      this.gameState.move.left = true; 
+      console.log('A pressed - left movement enabled');
+      break;
+    case 'KeyD': 
+      this.gameState.move.right = true; 
+      console.log('D pressed - right movement enabled');
+      break;
+    case 'Space':
+      e.preventDefault();
+      this.physics.jump();
+      console.log('Space pressed - jump');
+      break;
+    case 'Escape':
+      this.togglePause();
+      break;
     }
   }
   
-  onKeyUp(e) {
+  onKeyUp (e) {
     switch (e.code) {
-      case 'KeyW': this.gameState.move.forward = false; break;
-      case 'KeyS': this.gameState.move.backward = false; break;
-      case 'KeyA': this.gameState.move.left = false; break;
-      case 'KeyD': this.gameState.move.right = false; break;
+    case 'KeyW': 
+      this.gameState.move.forward = false; 
+      console.log('W released - forward movement disabled');
+      break;
+    case 'KeyS': 
+      this.gameState.move.backward = false; 
+      console.log('S released - backward movement disabled');
+      break;
+    case 'KeyA': 
+      this.gameState.move.left = false; 
+      console.log('A released - left movement disabled');
+      break;
+    case 'KeyD': 
+      this.gameState.move.right = false; 
+      console.log('D released - right movement disabled');
+      break;
     }
   }
   
-  onWindowResize() {
-    if (!this.gameState.camera || !this.gameState.renderer) return;
+  onWindowResize () {
+    if (!this.gameState.camera || !this.gameState.renderer) {return;}
     
     this.gameState.camera.aspect = window.innerWidth / window.innerHeight;
     this.gameState.camera.updateProjectionMatrix();
     this.gameState.renderer.setSize(window.innerWidth, window.innerHeight);
   }
   
-  togglePause() {
+  togglePause () {
     this.isPaused = !this.isPaused;
     const btn = document.getElementById('pauseBtn');
     if (btn) {
@@ -656,13 +701,13 @@ class MazeGame {
     }
   }
   
-  startTimer() {
+  startTimer () {
     clearInterval(this.gameState.timerInterval);
     this.gameState.timeLeft = 90;
     this.ui.updateTimer(this.gameState.timeLeft);
     
     this.gameState.timerInterval = setInterval(() => {
-      if (this.gameState.isGameOver || this.gameState.isGameWin || this.isPaused) return;
+      if (this.gameState.isGameOver || this.gameState.isGameWin || this.isPaused) {return;}
       
       this.gameState.timeLeft--;
       this.ui.updateTimer(this.gameState.timeLeft);
@@ -673,7 +718,7 @@ class MazeGame {
     }, 1000);
   }
   
-  gameOver(message) {
+  gameOver (message) {
     this.gameState.isGameOver = true;
     this.audioManager.play('lose');
     this.ui.showMessage(message, '#FF4444');
@@ -681,7 +726,7 @@ class MazeGame {
     clearInterval(this.gameState.timerInterval);
   }
   
-  gameWin() {
+  gameWin () {
     this.gameState.isGameWin = true;
     this.audioManager.play('win');
     this.ui.showMessage('🎉 Bạn đã thắng!', '#00FF00');
@@ -692,7 +737,7 @@ class MazeGame {
     clearInterval(this.gameState.timerInterval);
   }
   
-  createScene() {
+  createScene () {
     // Scene
     this.gameState.scene = new THREE.Scene();
     this.gameState.scene.background = new THREE.Color(0x87CEEB);
@@ -702,41 +747,45 @@ class MazeGame {
       75, 
       window.innerWidth / window.innerHeight, 
       0.1, 
-      1000
+      1000,
     );
     
     // Renderer
     this.gameState.renderer = new THREE.WebGLRenderer({ 
       antialias: true,
-      powerPreference: "high-performance"
+      powerPreference: 'high-performance',
     });
     this.gameState.renderer.setSize(window.innerWidth, window.innerHeight);
     this.gameState.renderer.shadowMap.enabled = true;
     this.gameState.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.body.appendChild(this.gameState.renderer.domElement);
     
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+    // Enhanced Lighting - Much brighter
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Increased from 0.4 to 0.8
     this.gameState.scene.add(ambientLight);
     
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2); // Increased from 0.8 to 1.2
     directionalLight.position.set(10, 20, 10);
     directionalLight.castShadow = true;
     directionalLight.shadow.mapSize.width = 2048;
     directionalLight.shadow.mapSize.height = 2048;
     this.gameState.scene.add(directionalLight);
     
-    // Flashlight
-    this.gameState.flashlight = new THREE.SpotLight(0xffffff, 2, 25, Math.PI / 8, 0.3, 1.5);
+    // Additional lights for better visibility
+    const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
+    this.gameState.scene.add(hemisphereLight);
+    
+    // Flashlight - reduced intensity since scene is brighter
+    this.gameState.flashlight = new THREE.SpotLight(0xffffff, 1, 25, Math.PI / 8, 0.3, 1.5);
     this.gameState.flashlight.position.set(0, 0, 0);
     this.gameState.flashlight.target.position.set(0, 0, -1);
     this.gameState.camera.add(this.gameState.flashlight);
     this.gameState.camera.add(this.gameState.flashlight.target);
     this.gameState.scene.add(this.gameState.camera);
     
-    // Floor
+    // Floor - brighter color
     const floorGeometry = new THREE.PlaneGeometry(200, 200);
-    const floorMaterial = new THREE.MeshLambertMaterial({ color: 0x444444 });
+    const floorMaterial = new THREE.MeshLambertMaterial({ color: 0x666666 }); // Brighter from 0x444444
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
@@ -745,13 +794,16 @@ class MazeGame {
     // Controls
     this.gameState.controls = new PointerLockControls(this.gameState.camera, document.body);
     document.addEventListener('click', () => {
-      if (!this.isPaused) this.gameState.controls.lock();
+      if (!this.isPaused) {this.gameState.controls.lock();}
     });
     this.gameState.scene.add(this.gameState.controls.getObject());
     this.gameState.camera.position.set(1.5, 1.6, 1.5);
   }
   
-  loadLevel(levelIdx) {
+  loadLevel (levelIdx) {
+    console.log('Loading level:', levelIdx);
+    console.log('Available mazeMaps:', mazeMaps);
+    
     // Cleanup
     this.gameState.dispose();
     this.gameState.reset();
@@ -762,9 +814,16 @@ class MazeGame {
     
     // Load maze
     this.gameState.mazeMap = mazeMaps[levelIdx];
+    console.log('Loaded mazeMap:', this.gameState.mazeMap);
+    
+    if (!this.gameState.mazeMap) {
+      console.error('Failed to load mazeMap for level:', levelIdx);
+      return;
+    }
+    
     this.gameState.endPosition = {
       x: (this.gameState.mazeMap[0].length - 2) * this.gameState.tileSize,
-      z: (this.gameState.mazeMap.length - 2) * this.gameState.tileSize
+      z: (this.gameState.mazeMap.length - 2) * this.gameState.tileSize,
     };
     
     this.buildMaze();
@@ -773,22 +832,27 @@ class MazeGame {
     this.animate();
   }
   
-  buildMaze() {
+  buildMaze () {
+    // Validate mazeMap
+    if (!this.gameState.mazeMap || !Array.isArray(this.gameState.mazeMap)) {
+      console.error('Invalid mazeMap:', this.gameState.mazeMap);
+      return;
+    }
+    
     const wallMaterial = new THREE.MeshLambertMaterial({ 
-      color: 0xCD853F,
-      roughness: 0.8
+      color: 0xD2B48C, // Lighter brown color
     });
     
     const rewardMaterial = new THREE.MeshStandardMaterial({ 
       color: 0xFFD700,
       emissive: 0x444400,
       metalness: 0.1,
-      roughness: 0.3
+      roughness: 0.3,
     });
     
     const trapMaterial = new THREE.MeshLambertMaterial({ 
       color: 0xFF4444,
-      emissive: 0x440000
+      emissive: 0x440000,
     });
     
     // Use instanced rendering for walls for better performance
@@ -797,7 +861,16 @@ class MazeGame {
     const trapGeometry = new THREE.BoxGeometry(this.gameState.tileSize * 0.8, 0.2, this.gameState.tileSize * 0.8);
     
     this.gameState.mazeMap.forEach((row, z) => {
-      row.forEach((tile, x) => {
+      // Validate row
+      if (!Array.isArray(row) && typeof row !== 'string') {
+        console.error('Invalid row at index', z, ':', row);
+        return;
+      }
+      
+      // Convert string to array if needed
+      const rowArray = typeof row === 'string' ? row.split('') : row;
+      
+      rowArray.forEach((tile, x) => {
         const posX = x * this.gameState.tileSize;
         const posZ = z * this.gameState.tileSize;
         
@@ -839,7 +912,7 @@ class MazeGame {
       color: 0x00FF00,
       emissive: 0x004400,
       metalness: 0.2,
-      roughness: 0.4
+      roughness: 0.4,
     });
     const finish = new THREE.Mesh(finishGeometry, finishMaterial);
     finish.position.set(this.gameState.endPosition.x, 0.15, this.gameState.endPosition.z);
@@ -847,8 +920,8 @@ class MazeGame {
     this.gameState.scene.add(finish);
   }
   
-  animate() {
-    if (this.isPaused || this.gameState.isGameOver || this.gameState.isGameWin) return;
+  animate () {
+    if (this.isPaused || this.gameState.isGameOver || this.gameState.isGameWin) {return;}
     
     const delta = this.gameState.clock.getDelta();
     
@@ -861,7 +934,7 @@ class MazeGame {
       const direction = new THREE.Vector3();
       this.gameState.camera.getWorldDirection(direction);
       this.gameState.flashlight.target.position.copy(
-        this.gameState.camera.position.clone().add(direction.multiplyScalar(15))
+        this.gameState.camera.position.clone().add(direction.multiplyScalar(15)),
       );
     }
     
@@ -909,7 +982,7 @@ class MazeGame {
     requestAnimationFrame(() => this.animate());
   }
   
-  updateCameraEffects(delta) {
+  updateCameraEffects (delta) {
     const { move, canJump, mouseDown, camera } = this.gameState;
     
     // Jump animation
@@ -944,14 +1017,14 @@ class MazeGame {
 
 // =============== PERFORMANCE OPTIMIZATION ===============
 class PerformanceMonitor {
-  constructor() {
+  constructor () {
     this.frameCount = 0;
     this.lastTime = performance.now();
     this.fps = 60;
     this.createFPSDisplay();
   }
   
-  createFPSDisplay() {
+  createFPSDisplay () {
     this.fpsDisplay = document.createElement('div');
     Object.assign(this.fpsDisplay.style, {
       position: 'fixed',
@@ -964,12 +1037,12 @@ class PerformanceMonitor {
       borderRadius: '8px',
       fontSize: '14px',
       fontFamily: 'monospace',
-      zIndex: '100'
+      zIndex: '100',
     });
     document.body.appendChild(this.fpsDisplay);
   }
   
-  update() {
+  update () {
     this.frameCount++;
     const now = performance.now();
     if (now >= this.lastTime + 1000) {
@@ -987,45 +1060,49 @@ class PerformanceMonitor {
 // Fallback maze data in case maze-data.js is not available
 const fallbackMazeMaps = [
   [
-    "111111111111111111111111111111",
-    "100000000000000000000000000001",
-    "101110111011101110111011101101",
-    "100R00100010001000100010001001",
-    "111011101110111011101110111011",
-    "100000000000000000000000000001",
-    "101110111011101110111011101101",
-    "100010001000R00100010001000101",
-    "111011101110111011101110111011",
-    "100000000000000000000000000001",
-    "101110111011101110111011101101",
-    "100010001000100T00010001000101",
-    "111011101110111011101110111011",
-    "100000000000000000000000000001",
-    "101110111011101110111011101101",
-    "100010001000100010001R001000101",
-    "111011101110111011101110111011",
-    "100000000000000000000000000001",
-    "101110111011101110111011101101",
-    "100010001000100010001000100T01",
-    "111011101110111011101110111011",
-    "100000000000000000000000000001",
-    "101110111011101110111011101101",
-    "100010001000100010001000100001",
-    "111011101110111011101110111011",
-    "100000000000000000000000000001",
-    "101110111011101110111011101101",
-    "100010001000100010001000100001",
-    "111111111111111111111111111101",
-    "111111111111111111111111111111"
-  ]
+    '111111111111111111111111111111',
+    '100000000000000000000000000001',
+    '101110111011101110111011101101',
+    '100R00100010001000100010001001',
+    '111011101110111011101110111011',
+    '100000000000000000000000000001',
+    '101110111011101110111011101101',
+    '100010001000R00100010001000101',
+    '111011101110111011101110111011',
+    '100000000000000000000000000001',
+    '101110111011101110111011101101',
+    '100010001000100T00010001000101',
+    '111011101110111011101110111011',
+    '100000000000000000000000000001',
+    '101110111011101110111011101101',
+    '100010001000100010001R001000101',
+    '111011101110111011101110111011',
+    '100000000000000000000000000001',
+    '101110111011101110111011101101',
+    '100010001000100010001000100T01',
+    '111011101110111011101110111011',
+    '100000000000000000000000000001',
+    '101110111011101110111011101101',
+    '100010001000100010001000100001',
+    '111011101110111011101110111011',
+    '100000000000000000000000000001',
+    '101110111011101110111011101101',
+    '100010001000100010001000100001',
+    '111111111111111111111111111101',
+    '111111111111111111111111111111',
+  ],
 ];
 
 // Initialize game
 let game;
 document.addEventListener('DOMContentLoaded', () => {
   // Check if mazeMaps exists, otherwise use fallback
+  console.log('Checking mazeMaps availability...');
   if (typeof mazeMaps === 'undefined') {
+    console.log('mazeMaps is undefined, using fallback');
     window.mazeMaps = fallbackMazeMaps;
+  } else {
+    console.log('mazeMaps is available:', mazeMaps);
   }
   
   // Create performance monitor
@@ -1033,8 +1110,8 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Override requestAnimationFrame to include performance monitoring
   const originalRAF = window.requestAnimationFrame;
-  window.requestAnimationFrame = function(callback) {
-    return originalRAF.call(window, function(time) {
+  window.requestAnimationFrame = function (callback) {
+    return originalRAF.call(window, function (time) {
       perfMonitor.update();
       callback(time);
     });
@@ -1042,6 +1119,15 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Initialize game
   game = new MazeGame();
+  
+  // Load first level
+  try {
+    console.log('Available mazeMaps:', mazeMaps);
+    console.log('Loading level 0...');
+    game.loadLevel(0);
+  } catch (error) {
+    console.error('Error loading level:', error);
+  }
   
   // Add loading screen
   const loadingScreen = document.createElement('div');
@@ -1058,7 +1144,7 @@ document.addEventListener('DOMContentLoaded', () => {
     color: '#fff',
     fontSize: '24px',
     fontFamily: 'Arial, sans-serif',
-    zIndex: '9999'
+    zIndex: '9999',
   });
   loadingScreen.innerHTML = `
     <div style="text-align: center;">
