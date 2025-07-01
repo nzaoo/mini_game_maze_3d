@@ -61,27 +61,7 @@ const light = new THREE.DirectionalLight(0xffffff, 1.2);
 light.position.set(5, 10, 7.5);
 scene.add(light);
 
-// Bầu trời đẹp bằng skybox Poly Haven
-function setSkybox(scene) {
-  const loader = new THREE.CubeTextureLoader();
-  const urls = [
-    'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/venice_sunset_1k_px.hdr',
-    'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/venice_sunset_1k_nx.hdr',
-    'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/venice_sunset_1k_py.hdr',
-    'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/venice_sunset_1k_ny.hdr',
-    'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/venice_sunset_1k_pz.hdr',
-    'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/venice_sunset_1k_nz.hdr',
-  ];
-  try {
-    const skyTexture = loader.load(urls, () => {}, undefined, () => {
-      // fallback nếu lỗi
-      scene.background = new THREE.Color(0x87ceeb);
-    });
-    scene.background = skyTexture;
-  } catch {
-    scene.background = new THREE.Color(0x87ceeb);
-  }
-}
+// Bỏ hoàn toàn code skybox, chỉ dùng màu nền trời đơn giản
 
 // Floor
 const floor = new THREE.Mesh(
@@ -419,7 +399,7 @@ function loadLevel(levelIdx) {
   scene.add(camera);
 
   // KHÔNG dùng skybox, chỉ dùng màu nền
-  scene.background = new THREE.Color(0x222233);
+  scene.background = new THREE.Color(0x87ceeb);
 
   // Floor
   const floor = new THREE.Mesh(
@@ -481,7 +461,7 @@ function loadLevel(levelIdx) {
   startTimer();
 
   // Trong loadLevel, sau khi tạo scene:
-  setSkybox(scene);
+  scene.background = new THREE.Color(0x87ceeb);
 }
 
 // Gọi loadLevel(0) khi khởi động
