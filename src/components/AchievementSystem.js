@@ -2,7 +2,7 @@
 // Advanced achievement system for player progression
 
 export class AchievementSystem {
-  constructor() {
+  constructor () {
     this.achievements = new Map();
     this.unlockedAchievements = new Set();
     this.statistics = {
@@ -15,27 +15,27 @@ export class AchievementSystem {
       jumps: 0,
       distanceTraveled: 0,
       perfectLevels: 0,
-      speedRuns: 0
+      speedRuns: 0,
     };
     
     this.init();
   }
   
   // Initialize achievement system
-  init() {
+  init () {
     this.createAchievements();
     this.loadProgress();
   }
   
   // Create all achievements
-  createAchievements() {
+  createAchievements () {
     // Speed achievements
     this.addAchievement({
       id: 'speed_demon',
       name: 'Speed Demon',
       description: 'Complete a level in under 30 seconds',
       icon: '⚡',
-      requirements: { speedRun: 30 }
+      requirements: { speedRun: 30 },
     });
     
     this.addAchievement({
@@ -43,7 +43,7 @@ export class AchievementSystem {
       name: 'Lightning Fast',
       description: 'Complete a level in under 20 seconds',
       icon: '⚡⚡',
-      requirements: { speedRun: 20 }
+      requirements: { speedRun: 20 },
     });
     
     this.addAchievement({
@@ -51,7 +51,7 @@ export class AchievementSystem {
       name: 'Time Master',
       description: 'Complete a level in under 15 seconds',
       icon: '⚡⚡⚡',
-      requirements: { speedRun: 15 }
+      requirements: { speedRun: 15 },
     });
     
     // Score achievements
@@ -60,7 +60,7 @@ export class AchievementSystem {
       name: 'Score Collector',
       description: 'Collect 100 total rewards',
       icon: '🏆',
-      requirements: { rewardsCollected: 100 }
+      requirements: { rewardsCollected: 100 },
     });
     
     this.addAchievement({
@@ -68,7 +68,7 @@ export class AchievementSystem {
       name: 'Score Master',
       description: 'Collect 500 total rewards',
       icon: '🏆🏆',
-      requirements: { rewardsCollected: 500 }
+      requirements: { rewardsCollected: 500 },
     });
     
     this.addAchievement({
@@ -76,7 +76,7 @@ export class AchievementSystem {
       name: 'Score Legend',
       description: 'Collect 1000 total rewards',
       icon: '🏆🏆🏆',
-      requirements: { rewardsCollected: 1000 }
+      requirements: { rewardsCollected: 1000 },
     });
     
     // Level completion achievements
@@ -85,7 +85,7 @@ export class AchievementSystem {
       name: 'Level Explorer',
       description: 'Complete 5 levels',
       icon: '🗺️',
-      requirements: { levelsCompleted: 5 }
+      requirements: { levelsCompleted: 5 },
     });
     
     this.addAchievement({
@@ -93,7 +93,7 @@ export class AchievementSystem {
       name: 'Level Master',
       description: 'Complete 10 levels',
       icon: '🗺️🗺️',
-      requirements: { levelsCompleted: 10 }
+      requirements: { levelsCompleted: 10 },
     });
     
     this.addAchievement({
@@ -101,7 +101,7 @@ export class AchievementSystem {
       name: 'Level Legend',
       description: 'Complete 25 levels',
       icon: '🗺️🗺️🗺️',
-      requirements: { levelsCompleted: 25 }
+      requirements: { levelsCompleted: 25 },
     });
     
     // Perfect run achievements
@@ -110,7 +110,7 @@ export class AchievementSystem {
       name: 'Perfect Run',
       description: 'Complete a level without hitting any traps',
       icon: '✨',
-      requirements: { perfectLevel: true }
+      requirements: { perfectLevel: true },
     });
     
     this.addAchievement({
@@ -118,7 +118,7 @@ export class AchievementSystem {
       name: 'Perfect Master',
       description: 'Complete 5 levels perfectly',
       icon: '✨✨',
-      requirements: { perfectLevels: 5 }
+      requirements: { perfectLevels: 5 },
     });
     
     this.addAchievement({
@@ -126,7 +126,7 @@ export class AchievementSystem {
       name: 'Perfect Legend',
       description: 'Complete 10 levels perfectly',
       icon: '✨✨✨',
-      requirements: { perfectLevels: 10 }
+      requirements: { perfectLevels: 10 },
     });
     
     // Distance achievements
@@ -135,7 +135,7 @@ export class AchievementSystem {
       name: 'Distance Walker',
       description: 'Travel 1000 units total',
       icon: '🚶',
-      requirements: { distanceTraveled: 1000 }
+      requirements: { distanceTraveled: 1000 },
     });
     
     this.addAchievement({
@@ -143,7 +143,7 @@ export class AchievementSystem {
       name: 'Distance Runner',
       description: 'Travel 5000 units total',
       icon: '🏃',
-      requirements: { distanceTraveled: 5000 }
+      requirements: { distanceTraveled: 5000 },
     });
     
     this.addAchievement({
@@ -151,7 +151,7 @@ export class AchievementSystem {
       name: 'Distance Marathon',
       description: 'Travel 10000 units total',
       icon: '🏃‍♂️',
-      requirements: { distanceTraveled: 10000 }
+      requirements: { distanceTraveled: 10000 },
     });
     
     // Jump achievements
@@ -160,7 +160,7 @@ export class AchievementSystem {
       name: 'Jump Beginner',
       description: 'Jump 50 times total',
       icon: '🦘',
-      requirements: { jumps: 50 }
+      requirements: { jumps: 50 },
     });
     
     this.addAchievement({
@@ -168,7 +168,7 @@ export class AchievementSystem {
       name: 'Jump Expert',
       description: 'Jump 200 times total',
       icon: '🦘🦘',
-      requirements: { jumps: 200 }
+      requirements: { jumps: 200 },
     });
     
     this.addAchievement({
@@ -176,7 +176,7 @@ export class AchievementSystem {
       name: 'Jump Master',
       description: 'Jump 500 times total',
       icon: '🦘🦘🦘',
-      requirements: { jumps: 500 }
+      requirements: { jumps: 500 },
     });
     
     // Survival achievements
@@ -185,7 +185,7 @@ export class AchievementSystem {
       name: 'Survivor',
       description: 'Complete 3 levels without dying',
       icon: '🛡️',
-      requirements: { noDeaths: 3 }
+      requirements: { noDeaths: 3 },
     });
     
     this.addAchievement({
@@ -193,7 +193,7 @@ export class AchievementSystem {
       name: 'Immortal',
       description: 'Complete 10 levels without dying',
       icon: '🛡️🛡️',
-      requirements: { noDeaths: 10 }
+      requirements: { noDeaths: 10 },
     });
     
     // Special achievements
@@ -202,7 +202,7 @@ export class AchievementSystem {
       name: 'First Blood',
       description: 'Hit your first trap',
       icon: '💀',
-      requirements: { firstTrap: true }
+      requirements: { firstTrap: true },
     });
     
     this.addAchievement({
@@ -210,7 +210,7 @@ export class AchievementSystem {
       name: 'Persistent',
       description: 'Die 10 times and keep playing',
       icon: '💪',
-      requirements: { deaths: 10 }
+      requirements: { deaths: 10 },
     });
     
     this.addAchievement({
@@ -218,7 +218,7 @@ export class AchievementSystem {
       name: 'Dedicated',
       description: 'Play for 1 hour total',
       icon: '⏰',
-      requirements: { totalPlayTime: 3600000 }
+      requirements: { totalPlayTime: 3600000 },
     });
     
     this.addAchievement({
@@ -226,28 +226,28 @@ export class AchievementSystem {
       name: 'Addicted',
       description: 'Play for 5 hours total',
       icon: '⏰⏰',
-      requirements: { totalPlayTime: 18000000 }
+      requirements: { totalPlayTime: 18000000 },
     });
   }
   
   // Add achievement
-  addAchievement(achievement) {
+  addAchievement (achievement) {
     this.achievements.set(achievement.id, {
       ...achievement,
       unlocked: false,
       unlockDate: null,
-      progress: 0
+      progress: 0,
     });
   }
   
   // Update statistics
-  updateStatistics(stats) {
+  updateStatistics (stats) {
     Object.assign(this.statistics, stats);
     this.checkAchievements();
   }
   
   // Check for unlocked achievements
-  checkAchievements() {
+  checkAchievements () {
     this.achievements.forEach((achievement, id) => {
       if (!achievement.unlocked && this.checkRequirements(achievement.requirements)) {
         this.unlockAchievement(id);
@@ -256,49 +256,49 @@ export class AchievementSystem {
   }
   
   // Check if requirements are met
-  checkRequirements(requirements) {
+  checkRequirements (requirements) {
     for (const [key, value] of Object.entries(requirements)) {
       switch (key) {
-        case 'speedRun':
-          if (this.statistics.speedRuns < value) return false;
-          break;
-        case 'rewardsCollected':
-          if (this.statistics.rewardsCollected < value) return false;
-          break;
-        case 'levelsCompleted':
-          if (this.statistics.levelsCompleted < value) return false;
-          break;
-        case 'perfectLevel':
-          if (!this.statistics.perfectLevels) return false;
-          break;
-        case 'perfectLevels':
-          if (this.statistics.perfectLevels < value) return false;
-          break;
-        case 'distanceTraveled':
-          if (this.statistics.distanceTraveled < value) return false;
-          break;
-        case 'jumps':
-          if (this.statistics.jumps < value) return false;
-          break;
-        case 'noDeaths':
-          if (this.statistics.deaths > 0) return false;
-          break;
-        case 'deaths':
-          if (this.statistics.deaths < value) return false;
-          break;
-        case 'totalPlayTime':
-          if (this.statistics.totalPlayTime < value) return false;
-          break;
-        case 'firstTrap':
-          if (this.statistics.trapsHit === 0) return false;
-          break;
+      case 'speedRun':
+        if (this.statistics.speedRuns < value) {return false;}
+        break;
+      case 'rewardsCollected':
+        if (this.statistics.rewardsCollected < value) {return false;}
+        break;
+      case 'levelsCompleted':
+        if (this.statistics.levelsCompleted < value) {return false;}
+        break;
+      case 'perfectLevel':
+        if (!this.statistics.perfectLevels) {return false;}
+        break;
+      case 'perfectLevels':
+        if (this.statistics.perfectLevels < value) {return false;}
+        break;
+      case 'distanceTraveled':
+        if (this.statistics.distanceTraveled < value) {return false;}
+        break;
+      case 'jumps':
+        if (this.statistics.jumps < value) {return false;}
+        break;
+      case 'noDeaths':
+        if (this.statistics.deaths > 0) {return false;}
+        break;
+      case 'deaths':
+        if (this.statistics.deaths < value) {return false;}
+        break;
+      case 'totalPlayTime':
+        if (this.statistics.totalPlayTime < value) {return false;}
+        break;
+      case 'firstTrap':
+        if (this.statistics.trapsHit === 0) {return false;}
+        break;
       }
     }
     return true;
   }
   
   // Unlock achievement
-  unlockAchievement(achievementId) {
+  unlockAchievement (achievementId) {
     const achievement = this.achievements.get(achievementId);
     if (achievement && !achievement.unlocked) {
       achievement.unlocked = true;
@@ -317,7 +317,7 @@ export class AchievementSystem {
   }
   
   // Show achievement notification
-  showAchievementNotification(achievement) {
+  showAchievementNotification (achievement) {
     // Create notification element
     const notification = document.createElement('div');
     notification.className = 'achievement-notification';
@@ -366,34 +366,34 @@ export class AchievementSystem {
   }
   
   // Get achievement by ID
-  getAchievement(achievementId) {
+  getAchievement (achievementId) {
     return this.achievements.get(achievementId);
   }
   
   // Get all achievements
-  getAllAchievements() {
+  getAllAchievements () {
     return Array.from(this.achievements.values());
   }
   
   // Get unlocked achievements
-  getUnlockedAchievements() {
+  getUnlockedAchievements () {
     return this.getAllAchievements().filter(a => a.unlocked);
   }
   
   // Get locked achievements
-  getLockedAchievements() {
+  getLockedAchievements () {
     return this.getAllAchievements().filter(a => !a.unlocked);
   }
   
   // Get achievements by category
-  getAchievementsByCategory(category) {
+  getAchievementsByCategory (category) {
     return this.getAllAchievements().filter(a => a.category === category);
   }
   
   // Get achievement progress
-  getAchievementProgress(achievementId) {
+  getAchievementProgress (achievementId) {
     const achievement = this.achievements.get(achievementId);
-    if (!achievement) return 0;
+    if (!achievement) {return 0;}
     
     const requirements = achievement.requirements;
     let progress = 0;
@@ -416,26 +416,26 @@ export class AchievementSystem {
   }
   
   // Get statistics
-  getStatistics() {
+  getStatistics () {
     return { ...this.statistics };
   }
   
   // Get achievement count
-  getAchievementCount() {
+  getAchievementCount () {
     return {
       total: this.achievements.size,
       unlocked: this.unlockedAchievements.size,
-      locked: this.achievements.size - this.unlockedAchievements.size
+      locked: this.achievements.size - this.unlockedAchievements.size,
     };
   }
   
   // Get completion percentage
-  getCompletionPercentage() {
+  getCompletionPercentage () {
     return (this.unlockedAchievements.size / this.achievements.size) * 100;
   }
   
   // Reset all achievements
-  reset() {
+  reset () {
     this.achievements.forEach(achievement => {
       achievement.unlocked = false;
       achievement.unlockDate = null;
@@ -446,11 +446,11 @@ export class AchievementSystem {
   }
   
   // Save progress to localStorage
-  saveProgress() {
+  saveProgress () {
     const data = {
       achievements: Array.from(this.achievements.entries()),
       statistics: this.statistics,
-      unlockedAchievements: Array.from(this.unlockedAchievements)
+      unlockedAchievements: Array.from(this.unlockedAchievements),
     };
     
     try {
@@ -463,7 +463,7 @@ export class AchievementSystem {
   }
   
   // Load progress from localStorage
-  loadProgress() {
+  loadProgress () {
     try {
       const data = localStorage.getItem('maze_game_achievements');
       if (data) {
@@ -483,12 +483,12 @@ export class AchievementSystem {
   }
   
   // Export achievement data
-  export() {
+  export () {
     return {
       achievements: this.getAllAchievements(),
       statistics: this.statistics,
       count: this.getAchievementCount(),
-      completion: this.getCompletionPercentage()
+      completion: this.getCompletionPercentage(),
     };
   }
 } 

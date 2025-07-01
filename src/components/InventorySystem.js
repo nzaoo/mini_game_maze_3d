@@ -2,7 +2,7 @@
 // Advanced inventory system for items and power-ups
 
 export class InventorySystem {
-  constructor() {
+  constructor () {
     this.items = new Map();
     this.maxSlots = 10;
     this.selectedSlot = 0;
@@ -15,7 +15,7 @@ export class InventorySystem {
   }
   
   // Initialize inventory
-  init() {
+  init () {
     // Initialize empty slots
     for (let i = 0; i < this.maxSlots; i++) {
       this.items.set(i, null);
@@ -30,7 +30,7 @@ export class InventorySystem {
   }
   
   // Add item to inventory
-  addItem(item) {
+  addItem (item) {
     const emptySlot = this.findEmptySlot();
     if (emptySlot !== -1) {
       this.items.set(emptySlot, {
@@ -42,7 +42,7 @@ export class InventorySystem {
         quantity: item.quantity || 1,
         maxQuantity: item.maxQuantity || 1,
         effect: item.effect,
-        rarity: item.rarity || 'common'
+        rarity: item.rarity || 'common',
       });
       return true;
     }
@@ -50,7 +50,7 @@ export class InventorySystem {
   }
   
   // Remove item from inventory
-  removeItem(slotIndex) {
+  removeItem (slotIndex) {
     if (this.items.has(slotIndex) && this.items.get(slotIndex)) {
       this.items.set(slotIndex, null);
       return true;
@@ -59,26 +59,26 @@ export class InventorySystem {
   }
   
   // Use item from inventory
-  useItem(slotIndex) {
+  useItem (slotIndex) {
     const item = this.items.get(slotIndex);
-    if (!item) return false;
+    if (!item) {return false;}
     
     switch (item.type) {
-      case 'consumable':
-        return this.useConsumable(item, slotIndex);
-      case 'powerUp':
-        return this.activatePowerUp(item);
-      case 'key':
-        return this.useKey(item, slotIndex);
-      case 'gem':
-        return this.useGem(item, slotIndex);
-      default:
-        return false;
+    case 'consumable':
+      return this.useConsumable(item, slotIndex);
+    case 'powerUp':
+      return this.activatePowerUp(item);
+    case 'key':
+      return this.useKey(item, slotIndex);
+    case 'gem':
+      return this.useGem(item, slotIndex);
+    default:
+      return false;
     }
   }
   
   // Use consumable item
-  useConsumable(item, slotIndex) {
+  useConsumable (item, slotIndex) {
     if (item.quantity > 1) {
       item.quantity--;
     } else {
@@ -94,7 +94,7 @@ export class InventorySystem {
   }
   
   // Activate power-up
-  activatePowerUp(item) {
+  activatePowerUp (item) {
     const powerUp = this.powerUps.get(item.id);
     if (powerUp) {
       powerUp.active = true;
@@ -105,7 +105,7 @@ export class InventorySystem {
   }
   
   // Use key
-  useKey(item, slotIndex) {
+  useKey (item, slotIndex) {
     if (this.keys > 0) {
       this.keys--;
       this.removeItem(slotIndex);
@@ -115,39 +115,39 @@ export class InventorySystem {
   }
   
   // Use gem
-  useGem(item, slotIndex) {
+  useGem (item, slotIndex) {
     this.gems += item.quantity;
     this.removeItem(slotIndex);
     return true;
   }
   
   // Apply item effect
-  applyEffect(effect) {
+  applyEffect (effect) {
     switch (effect.type) {
-      case 'heal':
-        // Heal player
-        break;
-      case 'speed':
-        this.activatePowerUp({ id: 'speedBoost' });
-        break;
-      case 'jump':
-        this.activatePowerUp({ id: 'jumpBoost' });
-        break;
-      case 'invincibility':
-        this.activatePowerUp({ id: 'invincibility' });
-        break;
-      case 'magnet':
-        this.activatePowerUp({ id: 'magnet' });
-        break;
-      case 'doublePoints':
-        this.activatePowerUp({ id: 'doublePoints' });
-        break;
+    case 'heal':
+      // Heal player
+      break;
+    case 'speed':
+      this.activatePowerUp({ id: 'speedBoost' });
+      break;
+    case 'jump':
+      this.activatePowerUp({ id: 'jumpBoost' });
+      break;
+    case 'invincibility':
+      this.activatePowerUp({ id: 'invincibility' });
+      break;
+    case 'magnet':
+      this.activatePowerUp({ id: 'magnet' });
+      break;
+    case 'doublePoints':
+      this.activatePowerUp({ id: 'doublePoints' });
+      break;
     }
   }
   
   // Update power-ups
-  update(deltaTime) {
-    this.powerUps.forEach((powerUp, key) => {
+  update (deltaTime) {
+    this.powerUps.forEach((powerUp, _key) => {
       if (powerUp.active) {
         powerUp.duration -= deltaTime * 1000;
         if (powerUp.duration <= 0) {
@@ -159,19 +159,19 @@ export class InventorySystem {
   }
   
   // Check if power-up is active
-  isPowerUpActive(powerUpId) {
+  isPowerUpActive (powerUpId) {
     const powerUp = this.powerUps.get(powerUpId);
     return powerUp ? powerUp.active : false;
   }
   
   // Get power-up remaining time
-  getPowerUpTime(powerUpId) {
+  getPowerUpTime (powerUpId) {
     const powerUp = this.powerUps.get(powerUpId);
     return powerUp ? powerUp.duration : 0;
   }
   
   // Find empty slot
-  findEmptySlot() {
+  findEmptySlot () {
     for (let i = 0; i < this.maxSlots; i++) {
       if (!this.items.get(i)) {
         return i;
@@ -181,12 +181,12 @@ export class InventorySystem {
   }
   
   // Get item at slot
-  getItem(slotIndex) {
+  getItem (slotIndex) {
     return this.items.get(slotIndex);
   }
   
   // Get all items
-  getAllItems() {
+  getAllItems () {
     const items = [];
     for (let i = 0; i < this.maxSlots; i++) {
       const item = this.items.get(i);
@@ -198,22 +198,22 @@ export class InventorySystem {
   }
   
   // Get items by type
-  getItemsByType(type) {
+  getItemsByType (type) {
     return this.getAllItems().filter(item => item.type === type);
   }
   
   // Get items by rarity
-  getItemsByRarity(rarity) {
+  getItemsByRarity (rarity) {
     return this.getAllItems().filter(item => item.rarity === rarity);
   }
   
   // Check if inventory is full
-  isFull() {
+  isFull () {
     return this.findEmptySlot() === -1;
   }
   
   // Get inventory space used
-  getUsedSlots() {
+  getUsedSlots () {
     let count = 0;
     for (let i = 0; i < this.maxSlots; i++) {
       if (this.items.get(i)) {
@@ -224,17 +224,17 @@ export class InventorySystem {
   }
   
   // Get inventory space available
-  getAvailableSlots() {
+  getAvailableSlots () {
     return this.maxSlots - this.getUsedSlots();
   }
   
   // Add coins
-  addCoins(amount) {
+  addCoins (amount) {
     this.coins += amount;
   }
   
   // Remove coins
-  removeCoins(amount) {
+  removeCoins (amount) {
     if (this.coins >= amount) {
       this.coins -= amount;
       return true;
@@ -243,17 +243,17 @@ export class InventorySystem {
   }
   
   // Get coins
-  getCoins() {
+  getCoins () {
     return this.coins;
   }
   
   // Add keys
-  addKeys(amount) {
+  addKeys (amount) {
     this.keys += amount;
   }
   
   // Remove keys
-  removeKeys(amount) {
+  removeKeys (amount) {
     if (this.keys >= amount) {
       this.keys -= amount;
       return true;
@@ -262,17 +262,17 @@ export class InventorySystem {
   }
   
   // Get keys
-  getKeys() {
+  getKeys () {
     return this.keys;
   }
   
   // Add gems
-  addGems(amount) {
+  addGems (amount) {
     this.gems += amount;
   }
   
   // Remove gems
-  removeGems(amount) {
+  removeGems (amount) {
     if (this.gems >= amount) {
       this.gems -= amount;
       return true;
@@ -281,12 +281,12 @@ export class InventorySystem {
   }
   
   // Get gems
-  getGems() {
+  getGems () {
     return this.gems;
   }
   
   // Select slot
-  selectSlot(slotIndex) {
+  selectSlot (slotIndex) {
     if (slotIndex >= 0 && slotIndex < this.maxSlots) {
       this.selectedSlot = slotIndex;
       return true;
@@ -295,23 +295,23 @@ export class InventorySystem {
   }
   
   // Get selected slot
-  getSelectedSlot() {
+  getSelectedSlot () {
     return this.selectedSlot;
   }
   
   // Get selected item
-  getSelectedItem() {
+  getSelectedItem () {
     return this.getItem(this.selectedSlot);
   }
   
   // Move item between slots
-  moveItem(fromSlot, toSlot) {
-    if (fromSlot === toSlot) return false;
+  moveItem (fromSlot, toSlot) {
+    if (fromSlot === toSlot) {return false;}
     
     const fromItem = this.items.get(fromSlot);
     const toItem = this.items.get(toSlot);
     
-    if (!fromItem) return false;
+    if (!fromItem) {return false;}
     
     // If destination is empty, just move
     if (!toItem) {
@@ -343,7 +343,7 @@ export class InventorySystem {
   }
   
   // Sort inventory
-  sortInventory() {
+  sortInventory () {
     const items = this.getAllItems();
     
     // Sort by type, then by rarity, then by name
@@ -376,7 +376,7 @@ export class InventorySystem {
   }
   
   // Clear inventory
-  clear() {
+  clear () {
     this.items.clear();
     for (let i = 0; i < this.maxSlots; i++) {
       this.items.set(i, null);
@@ -387,14 +387,14 @@ export class InventorySystem {
   }
   
   // Save inventory to localStorage
-  save() {
+  save () {
     const data = {
       items: Array.from(this.items.entries()),
       coins: this.coins,
       keys: this.keys,
       gems: this.gems,
       selectedSlot: this.selectedSlot,
-      powerUps: Array.from(this.powerUps.entries())
+      powerUps: Array.from(this.powerUps.entries()),
     };
     
     try {
@@ -407,7 +407,7 @@ export class InventorySystem {
   }
   
   // Load inventory from localStorage
-  load() {
+  load () {
     try {
       const data = localStorage.getItem('maze_game_inventory');
       if (data) {
@@ -430,7 +430,7 @@ export class InventorySystem {
   }
   
   // Export inventory data
-  export() {
+  export () {
     return {
       items: this.getAllItems(),
       coins: this.coins,
@@ -438,7 +438,7 @@ export class InventorySystem {
       gems: this.gems,
       powerUps: Array.from(this.powerUps.entries()),
       usedSlots: this.getUsedSlots(),
-      availableSlots: this.getAvailableSlots()
+      availableSlots: this.getAvailableSlots(),
     };
   }
 } 

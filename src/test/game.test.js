@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { MazeUtils, mazeConfig } from '../maze-data.js';
 
 describe('Maze Game Tests', () => {
@@ -36,7 +36,7 @@ describe('Maze Game Tests', () => {
       '101110111011101110111011101101',
       '100010001000100010001000100001',
       '111111111111111111111111111101',
-      '111111111111111111111111111111'
+      '111111111111111111111111111111',
     ];
   });
 
@@ -72,7 +72,7 @@ describe('Maze Game Tests', () => {
           '111111111111111111111111111111',
           '100000000000000000000000000001',
           '100000000000000000000000000001',
-          '111111111111111111111111111111'
+          '111111111111111111111111111111',
         ];
         const count = MazeUtils.countRewards(mazeWithoutRewards);
         expect(count).toBe(0);
@@ -90,7 +90,7 @@ describe('Maze Game Tests', () => {
           '111111111111111111111111111111',
           '100000000000000000000000000001',
           '100000000000000000000000000001',
-          '111111111111111111111111111111'
+          '111111111111111111111111111111',
         ];
         const count = MazeUtils.countTraps(mazeWithoutTraps);
         expect(count).toBe(0);
@@ -108,7 +108,7 @@ describe('Maze Game Tests', () => {
           '111111111111111111111111111111',
           '100000000000000000000000000001',
           '1000000000000000000000000000001', // Longer row
-          '111111111111111111111111111111'
+          '111111111111111111111111111111',
         ];
         const isValid = MazeUtils.validateMaze(invalidMaze);
         expect(isValid).toBe(false);
@@ -185,7 +185,7 @@ describe('Maze Game Tests', () => {
           '111111111111111111111111111111',
           '100000000000000000000000000001',
           '100000000000000000000000000001',
-          '111111111111111111111111111111'
+          '111111111111111111111111111111',
         ];
         const positions = MazeUtils.getRewardPositions(mazeWithoutRewards);
         expect(positions).toHaveLength(0);
@@ -208,7 +208,7 @@ describe('Maze Game Tests', () => {
           '111111111111111111111111111111',
           '100000000000000000000000000001',
           '100000000000000000000000000001',
-          '111111111111111111111111111111'
+          '111111111111111111111111111111',
         ];
         const positions = MazeUtils.getTrapPositions(mazeWithoutTraps);
         expect(positions).toHaveLength(0);
@@ -229,7 +229,7 @@ describe('Maze Game Tests', () => {
     it('should have level settings for all levels', () => {
       expect(mazeConfig.levelSettings).toHaveLength(5);
       
-      mazeConfig.levelSettings.forEach((level, index) => {
+      mazeConfig.levelSettings.forEach((level, _index) => {
         expect(level).toHaveProperty('timeLimit');
         expect(level).toHaveProperty('rewardValue');
         expect(level).toHaveProperty('trapDamage');
@@ -260,7 +260,7 @@ describe('Maze Game Tests', () => {
       expect(Array.isArray(mazeMaps)).toBe(true);
       expect(mazeMaps.length).toBeGreaterThan(0);
       
-      mazeMaps.forEach((maze, index) => {
+      mazeMaps.forEach((maze, _index) => {
         expect(Array.isArray(maze)).toBe(true);
         expect(maze.length).toBeGreaterThan(0);
         

@@ -357,5 +357,5 @@ export const GameTypes = {
   PlayerData: 'PlayerData',
   GameEvent: 'GameEvent',
   Achievement: 'Achievement',
-  Statistics: 'Statistics'
+  Statistics: 'Statistics',
 }; 

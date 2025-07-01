@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { MathUtils } from '../utils/math-utils.js';
 
 export class ParticleSystem {
-  constructor(scene, config = {}) {
+  constructor (scene, config = {}) {
     this.scene = scene;
     this.particles = [];
     this.config = {
@@ -14,7 +14,7 @@ export class ParticleSystem {
       emissionRate: 10,
       gravity: { x: 0, y: -9.8, z: 0 },
       wind: { x: 0, y: 0, z: 0 },
-      ...config
+      ...config,
     };
     
     this.emissionTimer = 0;
@@ -22,7 +22,7 @@ export class ParticleSystem {
   }
   
   // Create particle geometry and material
-  createParticleGeometry() {
+  createParticleGeometry () {
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(this.config.maxParticles * 3);
     const colors = new Float32Array(this.config.maxParticles * 3);
@@ -38,11 +38,11 @@ export class ParticleSystem {
   }
   
   // Create particle material
-  createParticleMaterial() {
+  createParticleMaterial () {
     return new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
-        texture: { value: this.createParticleTexture() }
+        texture: { value: this.createParticleTexture() },
       },
       vertexShader: `
         attribute float size;
@@ -70,12 +70,12 @@ export class ParticleSystem {
       `,
       transparent: true,
       blending: THREE.AdditiveBlending,
-      depthWrite: false
+      depthWrite: false,
     });
   }
   
   // Create particle texture
-  createParticleTexture() {
+  createParticleTexture () {
     const canvas = document.createElement('canvas');
     canvas.width = 32;
     canvas.height = 32;
@@ -95,7 +95,7 @@ export class ParticleSystem {
   }
   
   // Initialize particle system
-  init() {
+  init () {
     this.geometry = this.createParticleGeometry();
     this.material = this.createParticleMaterial();
     this.mesh = new THREE.Points(this.geometry, this.material);
@@ -117,13 +117,13 @@ export class ParticleSystem {
         size: 0,
         alpha: 0,
         life: 0,
-        maxLife: 0
+        maxLife: 0,
       });
     }
   }
   
   // Start particle emission
-  start(position, options = {}) {
+  start (position, options = {}) {
     this.isActive = true;
     this.emissionPosition = position.clone();
     this.emissionOptions = {
@@ -131,20 +131,20 @@ export class ParticleSystem {
       size: { min: 0.1, max: 0.5 },
       speed: { min: 1, max: 5 },
       life: { min: 1000, max: 3000 },
-      ...options
+      ...options,
     };
   }
   
   // Stop particle emission
-  stop() {
+  stop () {
     this.isActive = false;
   }
   
   // Emit a single particle
-  emitParticle() {
+  emitParticle () {
     // Find inactive particle
     const particle = this.particles.find(p => !p.active);
-    if (!particle) return;
+    if (!particle) {return;}
     
     // Initialize particle
     particle.active = true;
@@ -154,7 +154,7 @@ export class ParticleSystem {
     // Set velocity
     const speed = MathUtils.randomFloat(
       this.emissionOptions.speed.min,
-      this.emissionOptions.speed.max
+      this.emissionOptions.speed.max,
     );
     particle.velocity.copy(MathUtils.randomPointInSphere().multiplyScalar(speed));
     
@@ -164,21 +164,21 @@ export class ParticleSystem {
     // Set size
     particle.size = MathUtils.randomFloat(
       this.emissionOptions.size.min,
-      this.emissionOptions.size.max
+      this.emissionOptions.size.max,
     );
     
     // Set life
     particle.maxLife = MathUtils.randomFloat(
       this.emissionOptions.life.min,
-      this.emissionOptions.life.max
+      this.emissionOptions.life.max,
     );
     particle.life = particle.maxLife;
     particle.alpha = 1.0;
   }
   
   // Update particle system
-  update(deltaTime) {
-    if (!this.mesh) return;
+  update (deltaTime) {
+    if (!this.mesh) {return;}
     
     const time = Date.now();
     this.material.uniforms.time.value = time * 0.001;
@@ -256,13 +256,13 @@ export class ParticleSystem {
   }
   
   // Create explosion effect
-  createExplosion(position, options = {}) {
+  createExplosion (position, options = {}) {
     const explosionConfig = {
       maxParticles: 50,
       particleLifetime: 1500,
       emissionRate: 50,
       gravity: { x: 0, y: -5, z: 0 },
-      ...options
+      ...options,
     };
     
     const explosion = new ParticleSystem(this.scene, explosionConfig);
@@ -280,13 +280,13 @@ export class ParticleSystem {
   }
   
   // Create fire effect
-  createFire(position, options = {}) {
+  createFire (position, options = {}) {
     const fireConfig = {
       maxParticles: 30,
       particleLifetime: 2000,
       emissionRate: 15,
       gravity: { x: 0, y: 2, z: 0 },
-      ...options
+      ...options,
     };
     
     const fire = new ParticleSystem(this.scene, fireConfig);
@@ -295,20 +295,20 @@ export class ParticleSystem {
       color: new THREE.Color(0xff6600),
       size: { min: 0.2, max: 0.8 },
       speed: { min: 0.5, max: 2 },
-      life: { min: 1500, max: 2500 }
+      life: { min: 1500, max: 2500 },
     });
     
     return fire;
   }
   
   // Create sparkle effect
-  createSparkle(position, options = {}) {
+  createSparkle (position, options = {}) {
     const sparkleConfig = {
       maxParticles: 20,
       particleLifetime: 1000,
       emissionRate: 10,
       gravity: { x: 0, y: -1, z: 0 },
-      ...options
+      ...options,
     };
     
     const sparkle = new ParticleSystem(this.scene, sparkleConfig);
@@ -317,20 +317,20 @@ export class ParticleSystem {
       color: new THREE.Color(0xffff00),
       size: { min: 0.05, max: 0.2 },
       speed: { min: 0.5, max: 1.5 },
-      life: { min: 800, max: 1200 }
+      life: { min: 800, max: 1200 },
     });
     
     return sparkle;
   }
   
   // Create smoke effect
-  createSmoke(position, options = {}) {
+  createSmoke (position, options = {}) {
     const smokeConfig = {
       maxParticles: 25,
       particleLifetime: 3000,
       emissionRate: 8,
       gravity: { x: 0, y: 1, z: 0 },
-      ...options
+      ...options,
     };
     
     const smoke = new ParticleSystem(this.scene, smokeConfig);
@@ -339,14 +339,14 @@ export class ParticleSystem {
       color: new THREE.Color(0x666666),
       size: { min: 0.5, max: 2.0 },
       speed: { min: 0.2, max: 0.8 },
-      life: { min: 2500, max: 3500 }
+      life: { min: 2500, max: 3500 },
     });
     
     return smoke;
   }
   
   // Dispose of particle system
-  dispose() {
+  dispose () {
     if (this.mesh) {
       this.scene.remove(this.mesh);
       this.geometry.dispose();
