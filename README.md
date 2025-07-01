@@ -9,14 +9,20 @@ A modern, immersive 3D maze game built with Three.js featuring dynamic lighting,
 ## 🎮 Features
 
 - **Immersive 3D Graphics**: Built with Three.js for stunning visual effects
-- **Multiple Levels**: 5 progressively challenging maze levels
+- **Multiple Levels**: 5+ progressively challenging maze levels
 - **Dynamic Lighting**: Realistic flashlight and ambient lighting
 - **Particle Effects**: Beautiful visual feedback for rewards and interactions
+- **Post-processing Effects**: Bloom, vignette, color correction, and more
+- **Inventory & Power-ups**: Collect, use, and manage items and power-ups
+- **Achievement System**: Unlock achievements and receive notifications
+- **Statistics & Analytics**: Track your progress and performance
 - **Minimap Navigation**: Real-time position tracking and maze overview
 - **Audio System**: Immersive sound effects and background music
 - **Responsive Design**: Optimized for desktop and mobile devices
 - **Performance Optimized**: Smooth 60fps gameplay with efficient rendering
 - **Modern UI**: Clean, intuitive interface with smooth animations
+- **Modular Configuration**: Easily customize game settings and behaviors
+- **Type Safety**: Type definitions for better code quality
 
 ## 🚀 Quick Start
 
@@ -29,8 +35,8 @@ A modern, immersive 3D maze game built with Three.js featuring dynamic lighting,
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/maze-game-3d.git
-   cd maze-game-3d
+   git clone https://github.com/nzaoo/mini_game_maze_3d.git
+   cd mini_game_maze_3d
    ```
 
 2. **Install dependencies**
@@ -63,7 +69,7 @@ A modern, immersive 3D maze game built with Three.js featuring dynamic lighting,
 - 🗺️ **Use the minimap** to navigate efficiently
 
 ### Scoring System
-- **Golden Sphere**: +10 points (Level 1) to +30 points (Level 5)
+- **Golden Sphere**: +10 points (Level 1) to +30 points (Level 5+)
 - **Time Bonus**: Remaining time converted to points
 - **Level Completion**: Bonus points for finishing quickly
 
@@ -95,21 +101,34 @@ npm run deploy       # Deploy to GitHub Pages
 npm run clean        # Clean build artifacts
 ```
 
+### Running Tests
+
+```bash
+npm run test
+```
+
 ### Project Structure
 
 ```
-maze-game-3d/
+mini_game_maze_3d/
 ├── src/
-│   ├── main.js          # Main game logic
-│   ├── maze-data.js     # Maze level definitions
-│   └── style.css        # Game styles
+│   ├── main.js            # Main game logic
+│   ├── maze-data.js       # Maze level definitions
+│   ├── style.css          # Game styles
+│   ├── components/        # Game components (ParticleSystem, InventorySystem, etc.)
+│   ├── utils/             # Utility functions (math-utils, AudioManager, etc.)
+│   ├── config/            # Game configuration
+│   ├── types/             # Type definitions
+│   └── test/              # Unit tests
 ├── public/
-│   └── audio/           # Audio assets
-├── dist/                # Production build
-├── index.html           # Entry point
-├── package.json         # Dependencies and scripts
-├── vite.config.js       # Vite configuration
-└── README.md           # This file
+│   └── audio/             # Audio assets
+├── dist/                  # Production build
+├── index.html             # Entry point
+├── package.json           # Dependencies and scripts
+├── vite.config.js         # Vite configuration
+├── tsconfig.json          # TypeScript configuration
+├── vitest.config.js       # Vitest test configuration
+└── README.md              # This file
 ```
 
 ### Key Components
@@ -120,6 +139,28 @@ maze-game-3d/
 - **PhysicsManager**: Movement and collision detection
 - **CollisionManager**: Game object interactions
 - **PerformanceMonitor**: FPS tracking and optimization
+- **ParticleSystem**: Advanced particle effects
+- **PostProcessing**: Visual post-processing pipeline
+- **InventorySystem**: Item and power-up management
+- **AchievementSystem**: Achievements and notifications
+- **ConfigManager**: Centralized game configuration
+
+## ⚙️ Game Configuration
+
+All game settings are centralized in `src/config/game-config.js`. You can customize:
+- Display, graphics, and post-processing
+- Physics and gameplay
+- Audio and UI
+- Performance and storage
+- Quality and difficulty presets
+
+**Example:**
+```js
+import { configManager } from './src/config/game-config.js';
+configManager.set('graphics.quality', 'ultra');
+configManager.set('audio.masterVolume', 0.8);
+```
+Or edit the default values directly in `game-config.js`.
 
 ## 🎨 Customization
 
@@ -129,26 +170,12 @@ maze-game-3d/
 2. Add new maze layout to `mazeMaps` array
 3. Configure level settings in `levelSettings`
 
-```javascript
-// Example maze layout
-[
-  "111111111111111111111111111111",
-  "100000000000000000000000000001",
-  "101110111011101110111011101101",
-  "100R00100010001000100010001001",
-  // ... more rows
-  "111111111111111111111111111111"
-]
-```
-
 ### Customizing Graphics
-
 - Modify materials in `buildMaze()` method
 - Adjust lighting in `createScene()` method
-- Update particle effects in `createParticleEffect()` method
+- Update particle effects in `ParticleSystem` component
 
 ### Audio Customization
-
 - Add audio files to `public/audio/` directory
 - Update `AudioManager` class to include new sounds
 - Configure volume and playback settings
@@ -201,6 +228,12 @@ This will show:
 - Debug information
 - Console logging
 
+## 🏆 Achievements & Statistics
+
+- Unlock achievements for speed, score, exploration, and more
+- Track your playtime, levels completed, rewards, and other stats
+- Achievement notifications appear in-game
+
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -229,8 +262,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/maze-game-3d/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/nzaoo)
+- **Issues**: [GitHub Issues](https://github.com/nzaoo/mini_game_maze_3d/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/nzaoo/mini_game_maze_3d)
 - **Email**: nzao1327@gmail.com
 
 ---
@@ -238,14 +271,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 <div align="center">
   <p>Made with ❤️ by Maze Game Developer</p>
   <p>
-    <a href="https://github.com/yourusername/maze-game-3d/stargazers">
-      <img src="https://img.shields.io/github/stars/yourusername/maze-game-3d" alt="Stars">
+    <a href="https://github.com/nzaoo/mini_game_maze_3d/stargazers">
+      <img src="https://img.shields.io/github/stars/nzaoo/mini_game_maze_3d" alt="Stars">
     </a>
-    <a href="https://github.com/yourusername/maze-game-3d/network">
-      <img src="https://img.shields.io/github/forks/yourusername/maze-game-3d" alt="Forks">
+    <a href="https://github.com/nzaoo/mini_game_maze_3d/network">
+      <img src="https://img.shields.io/github/forks/nzaoo/mini_game_maze_3d" alt="Forks">
     </a>
-    <a href="https://github.com/yourusername/maze-game-3d/issues">
-      <img src="https://img.shields.io/github/issues/yourusername/maze-game-3d" alt="Issues">
+    <a href="https://github.com/nzaoo/mini_game_maze_3d/issues">
+      <img src="https://img.shields.io/github/issues/nzaoo/mini_game_maze_3d" alt="Issues">
     </a>
   </p>
 </div>
