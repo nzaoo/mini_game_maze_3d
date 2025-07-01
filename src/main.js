@@ -593,9 +593,9 @@ class PhysicsManager {
     velocity.z *= Math.max(0, 1 - this.friction * delta);
     velocity.y -= this.gravity * delta; // gravity
 
-    // Calculate movement direction
-    direction.z = Number(move.forward) - Number(move.backward);
-    direction.x = Number(move.right) - Number(move.left);
+    // Sửa lại hướng WASD cho đúng
+    direction.x = Number(move.right) - Number(move.left); // D(+) A(-)
+    direction.z = Number(move.forward) - Number(move.backward); // W(+) S(-)
     direction.normalize();
 
     // Auto-lock controls if not locked and player is trying to move
@@ -617,12 +617,11 @@ class PhysicsManager {
       if (controls.isLocked) {
         controls.getDirection(forward);
       } else {
-        // Default forward direction when not locked
         forward.set(0, 0, -1);
       }
       forward.y = 0;
       forward.normalize();
-      moveVector.add(forward.multiplyScalar(-direction.z * speed * delta));
+      moveVector.add(forward.multiplyScalar(direction.z * speed * delta));
     }
     if (move.left || move.right) {
       const right = new THREE.Vector3();
@@ -630,31 +629,22 @@ class PhysicsManager {
         controls.getDirection(right);
         right.cross(new THREE.Vector3(0, 1, 0));
       } else {
-        // Default right direction when not locked
         right.set(1, 0, 0);
       }
       right.y = 0;
       right.normalize();
-      moveVector.add(right.multiplyScalar(-direction.x * speed * delta));
+      moveVector.add(right.multiplyScalar(direction.x * speed * delta));
     }
 
     // Check collision for X movement
     const nextX = currentPos.x + moveVector.x;
-    if (
-      !this.checkWallCollision(
-        new THREE.Vector3(nextX, currentPos.y, currentPos.z),
-      )
-    ) {
+    if (!this.checkWallCollision(new THREE.Vector3(nextX, currentPos.y, currentPos.z))) {
       obj.position.x = nextX;
     }
 
     // Check collision for Z movement
     const nextZ = currentPos.z + moveVector.z;
-    if (
-      !this.checkWallCollision(
-        new THREE.Vector3(obj.position.x, currentPos.y, nextZ),
-      )
-    ) {
+    if (!this.checkWallCollision(new THREE.Vector3(obj.position.x, currentPos.y, nextZ))) {
       obj.position.z = nextZ;
     }
 
@@ -1108,7 +1098,9 @@ class MazeGame {
 
     const wallMaterial = new THREE.MeshLambertMaterial({
       map: brickTexture,
-      color: 0xffffff,
+      color: 0xC1440E, // màu gạch đỏ cam nâu thực tế
+      emissive: 0x442200,
+      emissiveIntensity: 0.15,
     });
 
     const rewardMaterial = new THREE.MeshStandardMaterial({
