@@ -1028,6 +1028,41 @@ class MazeGame {
     skyCtx.fillRect(0, 0, 1024, 512);
     const skyTexture = new THREE.CanvasTexture(skyCanvas);
     this.gameState.scene.background = skyTexture;
+
+    // Tường hedge (cây xanh)
+    const hedgeCanvas = document.createElement('canvas');
+    hedgeCanvas.width = hedgeCanvas.height = 128;
+    const hedgeCtx = hedgeCanvas.getContext('2d');
+    hedgeCtx.fillStyle = '#4e8c3b';
+    hedgeCtx.fillRect(0, 0, 128, 128);
+    for (let i = 0; i < 400; i++) {
+      const x = Math.random() * 128;
+      const y = Math.random() * 128;
+      const r = Math.random() * 8 + 2;
+      hedgeCtx.fillStyle = ['#6bbf59', '#8fd14f', '#3e6b2b', '#a4d96c'][Math.floor(Math.random() * 4)];
+      hedgeCtx.beginPath();
+      hedgeCtx.arc(x, y, r, 0, 2 * Math.PI);
+      hedgeCtx.fill();
+    }
+    const hedgeTexture = new THREE.CanvasTexture(hedgeCanvas);
+    hedgeTexture.wrapS = hedgeTexture.wrapT = THREE.RepeatWrapping;
+    hedgeTexture.repeat.set(1, 1);
+    const wallGeometry = new THREE.CylinderGeometry(this.gameState.tileSize/2, this.gameState.tileSize/2, 2.2, 16);
+    const wallMaterial = new THREE.MeshLambertMaterial({
+      map: hedgeTexture,
+      color: 0x6bbf59,
+      emissive: 0x2e4d1a,
+      emissiveIntensity: 0.18,
+    });
+
+    // Ambient light
+    const ambient = new THREE.AmbientLight(0xffffff, 1.1);
+    this.gameState.scene.add(ambient);
+    // Directional light (giả lập mặt trời)
+    const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+    sun.position.set(30, 60, 20);
+    sun.castShadow = true;
+    this.gameState.scene.add(sun);
   }
 
   loadLevel (levelIdx) {
@@ -1152,7 +1187,7 @@ class MazeGame {
 
         if (tile === '1') {
           const wall = new THREE.Mesh(wallGeometry, wallMaterial);
-          wall.position.set(posX, 1.5, posZ);
+          wall.position.set(posX, 1.1, posZ);
           wall.castShadow = true;
           wall.receiveShadow = true;
           this.gameState.scene.add(wall);
