@@ -252,6 +252,15 @@ let runAnim = 0;
 
 let mazeMap = null; // Khai báo toàn cục
 
+// Hàm kiểm tra vị trí có phải tường không
+function isWall(x, z) {
+  if (!mazeMap) return false;
+  const col = Math.floor(x / tileSize);
+  const row = Math.floor(z / tileSize);
+  if (row < 0 || row >= mazeMap.length || col < 0 || col >= mazeMap[0].length) return true;
+  return mazeMap[row][col] === '1';
+}
+
 function animate() {
   if (isGameOver || isGameWin) return;
   const delta = clock.getDelta();
@@ -266,18 +275,21 @@ function animate() {
   direction.normalize();
 
   if (controls.isLocked) {
-    if (move.forward || move.backward) velocity.z -= direction.z * speed * delta;
-    if (move.left || move.right) velocity.x -= direction.x * speed * delta;
-
-    controls.moveRight(-velocity.x * delta);
-    controls.moveForward(-velocity.z * delta);
-
-    controls.getObject().position.y += velocity.y * delta;
-
+    // Tính toán vị trí mới
+    let moveX = 0, moveZ = 0;
+    if (move.forward || move.backward) moveZ -= direction.z * speed * delta;
+    if (move.left || move.right) moveX -= direction.x * speed * delta;
+    // Kiểm tra va chạm tường
+    const obj = controls.getObject();
+    const nextX = obj.position.x + moveX;
+    const nextZ = obj.position.z + moveZ;
+    if (!isWall(nextX, obj.position.z)) obj.position.x += moveX;
+    if (!isWall(obj.position.x, nextZ)) obj.position.z += moveZ;
+    obj.position.y += velocity.y * delta;
     // Prevent falling below floor
-    if (controls.getObject().position.y < 1.6) {
+    if (obj.position.y < 1.6) {
       velocity.y = 0;
-      controls.getObject().position.y = 1.6;
+      obj.position.y = 1.6;
       canJump = true;
     }
 
