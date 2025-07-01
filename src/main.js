@@ -98,12 +98,7 @@ scene.add(controls.getObject());
 camera.position.set(1.5, 1.6, 1.5);
 
 // Brick texture for walls
-const textureLoader = new THREE.TextureLoader();
-// Dùng texture gạch sáng hơn từ Unsplash
-const brickTexture = textureLoader.load('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=256&q=80');
-brickTexture.wrapS = THREE.RepeatWrapping;
-brickTexture.wrapT = THREE.RepeatWrapping;
-brickTexture.repeat.set(1, 1);
+// Không dùng texture ngoài, chỉ dùng màu gạch sáng
 
 // Maze rendering
 tileSize = 3;
@@ -252,30 +247,15 @@ let runAnim = 0;
 
 let mazeMap = null; // Khai báo toàn cục
 
-const playerRadius = 0.5; // bán kính người chơi
+const playerRadius = 0.3; // bán kính người chơi
 
-// Hàm kiểm tra vị trí có phải tường không
-function isWallWithRadius(x, z) {
+// Đơn giản hóa kiểm tra va chạm
+function isWallSimple(x, z) {
   if (!mazeMap) return false;
-  // Kiểm tra 8 điểm quanh vị trí (x, z) trong bán kính playerRadius
-  const checks = [
-    [0, 0],
-    [playerRadius, 0],
-    [-playerRadius, 0],
-    [0, playerRadius],
-    [0, -playerRadius],
-    [playerRadius * 0.7, playerRadius * 0.7],
-    [-playerRadius * 0.7, playerRadius * 0.7],
-    [playerRadius * 0.7, -playerRadius * 0.7],
-    [-playerRadius * 0.7, -playerRadius * 0.7],
-  ];
-  for (const [dx, dz] of checks) {
-    const col = Math.floor((x + dx) / tileSize);
-    const row = Math.floor((z + dz) / tileSize);
-    if (row < 0 || row >= mazeMap.length || col < 0 || col >= mazeMap[0].length) return true;
-    if (mazeMap[row][col] === '1') return true;
-  }
-  return false;
+  const col = Math.floor(x / tileSize);
+  const row = Math.floor(z / tileSize);
+  if (row < 0 || row >= mazeMap.length || col < 0 || col >= mazeMap[0].length) return true;
+  return mazeMap[row][col] === '1';
 }
 
 function animate() {
@@ -296,12 +276,12 @@ function animate() {
     let moveX = 0, moveZ = 0;
     if (move.forward || move.backward) moveZ -= direction.z * speed * delta;
     if (move.left || move.right) moveX -= direction.x * speed * delta;
-    // Kiểm tra va chạm tường với bán kính
+    // Kiểm tra va chạm tường đơn giản
     const obj = controls.getObject();
     const nextX = obj.position.x + moveX;
     const nextZ = obj.position.z + moveZ;
-    if (!isWallWithRadius(nextX, obj.position.z)) obj.position.x += moveX;
-    if (!isWallWithRadius(obj.position.x, nextZ)) obj.position.z += moveZ;
+    if (!isWallSimple(nextX, obj.position.z)) obj.position.x += moveX;
+    if (!isWallSimple(obj.position.x, nextZ)) obj.position.z += moveZ;
     obj.position.y += velocity.y * delta;
     // Prevent falling below floor
     if (obj.position.y < 1.6) {
@@ -465,7 +445,7 @@ function loadLevel(levelIdx) {
       if (tile === '1') {
         const wall = new THREE.Mesh(
           new THREE.BoxGeometry(tileSize, 3, tileSize),
-          new THREE.MeshStandardMaterial({ map: brickTexture, color: 0xf5e1b0, roughness: 0.4, metalness: 0.1 })
+          new THREE.MeshStandardMaterial({ color: 0xf5e1b0, roughness: 0.4, metalness: 0.1 })
         );
         wall.position.set(posX, 1.5, posZ);
         scene.add(wall);
