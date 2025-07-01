@@ -977,31 +977,40 @@ class MazeGame {
       start.z * this.gameState.tileSize + this.gameState.tileSize / 2,
     );
 
-    // Floor - procedural checkerboard
+    // Floor - procedural grass texture
     const size = 200;
-    const tile = 2; // mỗi ô gạch 2x2 đơn vị
-    const tiles = size / tile;
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = 512;
     const ctx = canvas.getContext('2d');
-    for (let y = 0; y < tiles; y++) {
-      for (let x = 0; x < tiles; x++) {
-        ctx.fillStyle = (x + y) % 2 === 0 ? '#bca16b' : '#7c5e3c';
-        ctx.fillRect(
-          x * (512 / tiles),
-          y * (512 / tiles),
-          512 / tiles,
-          512 / tiles,
-        );
-      }
+    // Vẽ nền xanh lá nhạt
+    ctx.fillStyle = '#b6e388';
+    ctx.fillRect(0, 0, 512, 512);
+    // Vẽ các đốm cỏ đậm hơn
+    for (let i = 0; i < 4000; i++) {
+      const x = Math.random() * 512;
+      const y = Math.random() * 512;
+      const r = Math.random() * 7 + 2;
+      ctx.fillStyle = ['#7ec850', '#a4d96c', '#6bbf59', '#8fd14f'][Math.floor(Math.random() * 4)];
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, 2 * Math.PI);
+      ctx.fill();
     }
-    const checkerTexture = new THREE.CanvasTexture(canvas);
-    checkerTexture.wrapS = checkerTexture.wrapT = THREE.RepeatWrapping;
-    checkerTexture.repeat.set(1, 1);
+    // Vẽ các vệt cỏ dài
+    for (let i = 0; i < 300; i++) {
+      const x = Math.random() * 512;
+      const y = Math.random() * 512;
+      ctx.strokeStyle = ['#5fa147', '#7ec850', '#a4d96c'][Math.floor(Math.random() * 3)];
+      ctx.lineWidth = Math.random() * 2 + 1;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + Math.random() * 10 - 5, y + Math.random() * 30 + 10);
+      ctx.stroke();
+    }
+    const grassTexture = new THREE.CanvasTexture(canvas);
+    grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
+    grassTexture.repeat.set(1, 1);
     const floorGeometry = new THREE.PlaneGeometry(size, size);
-    const floorMaterial = new THREE.MeshLambertMaterial({
-      map: checkerTexture,
-    });
+    const floorMaterial = new THREE.MeshLambertMaterial({ map: grassTexture });
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
