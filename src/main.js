@@ -130,22 +130,37 @@ class UIManager {
         top: '20px',
         left: '20px',
         color: '#fff',
-        fontSize: '20px',
+        fontSize: '18px',
         zIndex: '100',
-        background: 'rgba(0,0,0,0.7)',
-        padding: '15px 25px',
-        borderRadius: '10px',
-        fontFamily: 'monospace',
+        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%)',
+        padding: '20px 30px',
+        borderRadius: '15px',
+        fontFamily: '"Orbitron", "Arial", sans-serif',
+        border: '2px solid #4CAF50',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 20px rgba(76,175,80,0.3)',
+        backdropFilter: 'blur(10px)',
+        minWidth: '300px',
       },
     });
     
     this.hud.innerHTML = `
-      <div>🏆 Điểm: <span id="score">0</span></div>
-      <div id="timer">⏰ 90</div>
-      <div style="font-size: 14px; margin-top: 8px;">
-        W/A/S/D: Di chuyển | Chuột: Nhìn | Giữ chuột trái: Chạy | Space: Nhảy
+      <div style="text-align: center; margin-bottom: 15px; font-size: 22px; font-weight: bold; color: #4CAF50; text-shadow: 0 0 10px rgba(76,175,80,0.5);">
+        🏰 MAZE RUNNER
       </div>
-      <div style="font-size: 12px; margin-top: 5px; color: #FFD700;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+        <div style="background: rgba(76,175,80,0.2); padding: 8px 15px; border-radius: 8px; border: 1px solid #4CAF50;">
+          🏆 <span id="score">0</span> pts
+        </div>
+        <div style="background: rgba(255,193,7,0.2); padding: 8px 15px; border-radius: 8px; border: 1px solid #FFC107;">
+          ⏰ <span id="timer">90</span>s
+        </div>
+      </div>
+      <div style="font-size: 12px; color: #ccc; line-height: 1.4; margin-bottom: 10px;">
+        <div>🎮 <strong>Điều khiển:</strong></div>
+        <div>W/A/S/D: Di chuyển | Chuột: Nhìn</div>
+        <div>Giữ chuột trái: Chạy | Space: Nhảy</div>
+      </div>
+      <div style="font-size: 11px; color: #FFD700; text-align: center; padding: 8px; background: rgba(255,215,0,0.1); border-radius: 5px; border: 1px solid rgba(255,215,0,0.3);">
         💡 Click để bắt đầu chơi
       </div>
     `;
@@ -161,19 +176,51 @@ class UIManager {
   createMinimap () {
     this.minimapCanvas = document.createElement('canvas');
     Object.assign(this.minimapCanvas, {
-      width: 200,
-      height: 200,
+      width: 220,
+      height: 220,
     });
     Object.assign(this.minimapCanvas.style, {
       position: 'fixed',
       bottom: '20px',
       left: '20px',
-      background: 'rgba(0,0,0,0.8)',
-      border: '3px solid #fff',
-      borderRadius: '15px',
+      background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%)',
+      border: '3px solid #4CAF50',
+      borderRadius: '20px',
       zIndex: '150',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 20px rgba(76,175,80,0.3)',
+      backdropFilter: 'blur(10px)',
     });
-    document.body.appendChild(this.minimapCanvas);
+    
+    // Add minimap title
+    const minimapContainer = this.createElement('div', {
+      style: {
+        position: 'fixed',
+        bottom: '20px',
+        left: '20px',
+        zIndex: '150',
+      },
+    });
+    
+    const minimapTitle = this.createElement('div', {
+      textContent: '🗺️ BẢN ĐỒ',
+      style: {
+        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%)',
+        color: '#4CAF50',
+        padding: '8px 15px',
+        borderRadius: '10px 10px 0 0',
+        fontSize: '14px',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        border: '3px solid #4CAF50',
+        borderBottom: 'none',
+        fontFamily: '"Orbitron", "Arial", sans-serif',
+        textShadow: '0 0 10px rgba(76,175,80,0.5)',
+      },
+    });
+    
+    minimapContainer.appendChild(minimapTitle);
+    minimapContainer.appendChild(this.minimapCanvas);
+    document.body.appendChild(minimapContainer);
     this.minimapCtx = this.minimapCanvas.getContext('2d');
   }
   
@@ -184,38 +231,62 @@ class UIManager {
         top: '20px',
         right: '20px',
         zIndex: '200',
-        background: 'rgba(0,0,0,0.8)',
+        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%)',
         color: '#fff',
-        padding: '15px 25px',
+        padding: '20px 25px',
         borderRadius: '15px',
         fontSize: '16px',
-        fontFamily: 'monospace',
+        fontFamily: '"Orbitron", "Arial", sans-serif',
+        border: '2px solid #4CAF50',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 20px rgba(76,175,80,0.3)',
+        backdropFilter: 'blur(10px)',
+        minWidth: '200px',
       },
     });
     
-    selector.innerHTML = '<div style="margin-bottom: 10px;">🎮 Chọn màn:</div>';
+    selector.innerHTML = `
+      <div style="text-align: center; margin-bottom: 15px; font-size: 18px; font-weight: bold; color: #4CAF50; text-shadow: 0 0 10px rgba(76,175,80,0.5);">
+        🎮 CHỌN MÀN
+      </div>
+    `;
     
     const buttonContainer = this.createElement('div', {
-      style: { display: 'flex', gap: '8px', flexWrap: 'wrap' },
+      style: { 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(3, 1fr)', 
+        gap: '8px',
+        maxWidth: '180px',
+      },
     });
     
     mazeMaps.forEach((_, i) => {
       const btn = this.createElement('button', {
         textContent: (i + 1).toString(),
         style: {
-          padding: '8px 12px',
-          backgroundColor: '#4CAF50',
+          padding: '12px 8px',
+          background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)',
           color: 'white',
           border: 'none',
-          borderRadius: '5px',
+          borderRadius: '8px',
           cursor: 'pointer',
-          fontSize: '14px',
-          transition: 'background-color 0.3s',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          transition: 'all 0.3s ease',
+          boxShadow: '0 4px 15px rgba(76,175,80,0.3)',
+          textShadow: '0 1px 2px rgba(0,0,0,0.5)',
         },
       });
       
-      btn.addEventListener('mouseover', () => btn.style.backgroundColor = '#45a049');
-      btn.addEventListener('mouseout', () => btn.style.backgroundColor = '#4CAF50');
+      btn.addEventListener('mouseover', () => {
+        btn.style.background = 'linear-gradient(135deg, #45a049 0%, #4CAF50 100%)';
+        btn.style.transform = 'translateY(-2px)';
+        btn.style.boxShadow = '0 6px 20px rgba(76,175,80,0.5)';
+      });
+      btn.addEventListener('mouseout', () => {
+        btn.style.background = 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)';
+        btn.style.transform = 'translateY(0)';
+        btn.style.boxShadow = '0 4px 15px rgba(76,175,80,0.3)';
+      });
       btn.addEventListener('click', () => game.loadLevel(i));
       
       buttonContainer.appendChild(btn);
@@ -234,15 +305,19 @@ class UIManager {
         transform: 'translate(-50%, -50%)',
         fontSize: '48px',
         color: '#fff',
-        background: 'rgba(0,0,0,0.9)',
-        padding: '40px 80px',
-        borderRadius: '25px',
+        background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(20,20,40,0.98) 100%)',
+        padding: '50px 100px',
+        borderRadius: '30px',
         display: 'none',
         zIndex: '999',
         textAlign: 'center',
-        fontFamily: 'Arial, sans-serif',
-        textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-        border: '3px solid #fff',
+        fontFamily: '"Orbitron", "Arial", sans-serif',
+        textShadow: '0 0 20px rgba(255,255,255,0.8)',
+        border: '4px solid #4CAF50',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(76,175,80,0.5)',
+        backdropFilter: 'blur(15px)',
+        minWidth: '400px',
+        fontWeight: 'bold',
       },
     });
     document.body.appendChild(this.messageDiv);
@@ -255,23 +330,62 @@ class UIManager {
         top: '50%',
         right: '20px',
         transform: 'translateY(-50%)',
-        background: 'rgba(0,0,0,0.8)',
+        background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%)',
         color: '#fff',
-        padding: '20px',
+        padding: '25px',
         borderRadius: '15px',
         fontSize: '14px',
         zIndex: '180',
+        border: '2px solid #4CAF50',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 20px rgba(76,175,80,0.3)',
+        backdropFilter: 'blur(10px)',
+        minWidth: '180px',
+        fontFamily: '"Orbitron", "Arial", sans-serif',
       },
     });
     
     settings.innerHTML = `
-      <div style="margin-bottom: 15px; font-weight: bold;">⚙️ Cài đặt</div>
-      <div style="margin-bottom: 10px;">
-        <label>🔊 Âm lượng:</label>
-        <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.5">
+      <div style="text-align: center; margin-bottom: 20px; font-size: 16px; font-weight: bold; color: #4CAF50; text-shadow: 0 0 10px rgba(76,175,80,0.5);">
+        ⚙️ CÀI ĐẶT
       </div>
-      <div>
-        <button id="pauseBtn" style="padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">⏸️ Tạm dừng</button>
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 8px; color: #FFC107;">🔊 Âm lượng:</label>
+        <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.5" style="width: 100%; height: 6px; border-radius: 3px; background: #333; outline: none; -webkit-appearance: none;">
+        <style>
+          #volumeSlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(76,175,80,0.3);
+          }
+          #volumeSlider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(76,175,80,0.3);
+          }
+        </style>
+      </div>
+      <div style="text-align: center;">
+        <button id="pauseBtn" style="
+          padding: 12px 20px; 
+          background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); 
+          color: white; 
+          border: none; 
+          border-radius: 8px; 
+          cursor: pointer;
+          font-weight: bold;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(33,150,243,0.3);
+          text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        ">⏸️ TẠM DỪNG</button>
       </div>
     `;
     
@@ -282,7 +396,18 @@ class UIManager {
       this.audioManager.setVolume(parseFloat(e.target.value));
     });
     
-    document.getElementById('pauseBtn').addEventListener('click', () => {
+    const pauseBtn = document.getElementById('pauseBtn');
+    pauseBtn.addEventListener('mouseover', () => {
+      pauseBtn.style.background = 'linear-gradient(135deg, #1976D2 0%, #2196F3 100%)';
+      pauseBtn.style.transform = 'translateY(-2px)';
+      pauseBtn.style.boxShadow = '0 6px 20px rgba(33,150,243,0.5)';
+    });
+    pauseBtn.addEventListener('mouseout', () => {
+      pauseBtn.style.background = 'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)';
+      pauseBtn.style.transform = 'translateY(0)';
+      pauseBtn.style.boxShadow = '0 4px 15px rgba(33,150,243,0.3)';
+    });
+    pauseBtn.addEventListener('click', () => {
       game.togglePause();
     });
   }
@@ -865,8 +990,46 @@ class MazeGame {
       return;
     }
     
+    // Create brick texture
+    const brickCanvas = document.createElement('canvas');
+    brickCanvas.width = 256;
+    brickCanvas.height = 128;
+    const brickCtx = brickCanvas.getContext('2d');
+    
+    // Brick pattern
+    const brickWidth = 32;
+    const brickHeight = 16;
+    const mortarColor = '#8B7355';
+    const brickColor1 = '#CD853F';
+    const brickColor2 = '#D2691E';
+    
+    brickCtx.fillStyle = mortarColor;
+    brickCtx.fillRect(0, 0, 256, 128);
+    
+    for (let y = 0; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
+        const offset = y % 2 === 0 ? 0 : brickWidth / 2;
+        const brickX = x * brickWidth + offset;
+        const brickY = y * brickHeight;
+        
+        if (brickX < 256 && brickY < 128) {
+          brickCtx.fillStyle = (x + y) % 2 === 0 ? brickColor1 : brickColor2;
+          brickCtx.fillRect(brickX + 1, brickY + 1, brickWidth - 2, brickHeight - 2);
+          
+          // Add brick details
+          brickCtx.fillStyle = '#A0522D';
+          brickCtx.fillRect(brickX + 2, brickY + 2, brickWidth - 4, 2);
+        }
+      }
+    }
+    
+    const brickTexture = new THREE.CanvasTexture(brickCanvas);
+    brickTexture.wrapS = brickTexture.wrapT = THREE.RepeatWrapping;
+    brickTexture.repeat.set(2, 3);
+    
     const wallMaterial = new THREE.MeshLambertMaterial({ 
-      color: 0xD2B48C, // Lighter brown color
+      map: brickTexture,
+      color: 0xFFFFFF,
     });
     
     const rewardMaterial = new THREE.MeshStandardMaterial({ 
