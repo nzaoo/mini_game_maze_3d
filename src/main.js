@@ -240,7 +240,6 @@ let jumpAnim = 0;
 let runAnim = 0;
 
 let mazeMap = null; // Khai báo toàn cục
-let deadEndCooldown = 0; // Khai báo toàn cục, tránh lỗi ReferenceError
 
 function animate() {
   if (isGameOver || isGameWin) return;
@@ -304,19 +303,6 @@ function animate() {
   // Vẽ minimap và các logic khác chỉ khi mazeMap đã có
   if (mazeMap) {
     drawMinimap(mazeMap, controls.getObject().position);
-    // ... các logic khác dùng mazeMap
-    // Hiệu ứng ngõ cụt
-    if (deadEndCooldown > 0) deadEndCooldown--;
-    const playerPos = controls.getObject().position;
-    const px = Math.floor(playerPos.x / tileSize);
-    const pz = Math.floor(playerPos.z / tileSize);
-    if (isDeadEnd(mazeMap, px, pz) && deadEndCooldown === 0) {
-      controls.getObject().position.x = endPosition.x - tileSize;
-      controls.getObject().position.z = endPosition.z - tileSize;
-      deadEndCooldown = 60;
-      showMessage('Bạn được dịch chuyển gần đích!');
-      setTimeout(hideMessage, 1200);
-    }
   }
 
   renderer.render(scene, camera);
@@ -484,16 +470,3 @@ function loadLevel(levelIdx) {
 
 // Gọi loadLevel(0) khi khởi động
 loadLevel(0);
-
-// Hiệu ứng ngõ cụt: nếu người chơi vào ngõ cụt, dịch chuyển gần endPosition
-function isDeadEnd(mazeMap, px, pz) {
-  // px, pz là chỉ số lưới (int)
-  let count = 0;
-  const dirs = [[0,1],[1,0],[0,-1],[-1,0]];
-  for (const [dx, dz] of dirs) {
-    const nx = px + dx;
-    const nz = pz + dz;
-    if (mazeMap[nz] && mazeMap[nz][nx] && mazeMap[nz][nx] !== '1') count++;
-  }
-  return count === 1;
-}
