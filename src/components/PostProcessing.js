@@ -9,62 +9,62 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 
 export class PostProcessing {
-  constructor (renderer, scene, camera) {
+  constructor(renderer, scene, camera) {
     this.renderer = renderer;
     this.scene = scene;
     this.camera = camera;
     this.composer = null;
     this.passes = {};
     this.enabled = true;
-    
+
     this.init();
   }
-  
+
   // Initialize post-processing pipeline
-  init () {
+  init() {
     // Create effect composer
     this.composer = new EffectComposer(this.renderer);
-    
+
     // Add render pass
     const renderPass = new RenderPass(this.scene, this.camera);
     this.composer.addPass(renderPass);
     this.passes.render = renderPass;
-    
+
     // Add bloom pass
     this.addBloomPass();
-    
+
     // Add vignette pass
     this.addVignettePass();
-    
+
     // Add color correction pass
     this.addColorCorrectionPass();
-    
+
     // Add output pass
     const outputPass = new OutputPass();
     this.composer.addPass(outputPass);
     this.passes.output = outputPass;
   }
-  
+
   // Add bloom effect
-  addBloomPass () {
+  addBloomPass() {
     const bloomPass = new UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
-      0.5,  // strength
-      0.4,  // radius
-      0.85,  // threshold
+      0.5, // strength
+      0.4, // radius
+      0.85, // threshold
     );
-    
+
     this.composer.addPass(bloomPass);
     this.passes.bloom = bloomPass;
   }
-  
+
   // Add vignette effect
-  addVignettePass () {
+  addVignettePass() {
     const vignetteShader = {
       uniforms: {
-        'tDiffuse': { value: null },
-        'offset': { value: 0.5 },
-        'darkness': { value: 0.3 },
+        tDiffuse: { value: null },
+        offset: { value: 0.5 },
+        darkness: { value: 0.3 },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -86,21 +86,21 @@ export class PostProcessing {
         }
       `,
     };
-    
+
     const vignettePass = new ShaderPass(vignetteShader);
     this.composer.addPass(vignettePass);
     this.passes.vignette = vignettePass;
   }
-  
+
   // Add color correction
-  addColorCorrectionPass () {
+  addColorCorrectionPass() {
     const colorCorrectionShader = {
       uniforms: {
-        'tDiffuse': { value: null },
-        'brightness': { value: 0.0 },
-        'contrast': { value: 1.0 },
-        'saturation': { value: 1.0 },
-        'gamma': { value: 1.0 },
+        tDiffuse: { value: null },
+        brightness: { value: 0.0 },
+        contrast: { value: 1.0 },
+        saturation: { value: 1.0 },
+        gamma: { value: 1.0 },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -147,18 +147,18 @@ export class PostProcessing {
         }
       `,
     };
-    
+
     const colorCorrectionPass = new ShaderPass(colorCorrectionShader);
     this.composer.addPass(colorCorrectionPass);
     this.passes.colorCorrection = colorCorrectionPass;
   }
-  
+
   // Add chromatic aberration
-  addChromaticAberrationPass () {
+  addChromaticAberrationPass() {
     const chromaticShader = {
       uniforms: {
-        'tDiffuse': { value: null },
-        'offset': { value: 0.005 },
+        tDiffuse: { value: null },
+        offset: { value: 0.005 },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -185,26 +185,26 @@ export class PostProcessing {
         }
       `,
     };
-    
+
     const chromaticPass = new ShaderPass(chromaticShader);
     this.composer.addPass(chromaticPass);
     this.passes.chromatic = chromaticPass;
   }
-  
+
   // Add motion blur
-  addMotionBlurPass () {
+  addMotionBlurPass() {
     const motionBlurShader = {
       uniforms: {
-        'tDiffuse': { value: null },
-        'tDepth': { value: null },
-        'tPrevDepth': { value: null },
-        'projectionMatrix': { value: null },
-        'projectionMatrixInverse': { value: null },
-        'viewMatrix': { value: null },
-        'viewMatrixInverse': { value: null },
-        'prevViewMatrix': { value: null },
-        'prevProjectionMatrix': { value: null },
-        'intensity': { value: 1.0 },
+        tDiffuse: { value: null },
+        tDepth: { value: null },
+        tPrevDepth: { value: null },
+        projectionMatrix: { value: null },
+        projectionMatrixInverse: { value: null },
+        viewMatrix: { value: null },
+        viewMatrixInverse: { value: null },
+        prevViewMatrix: { value: null },
+        prevProjectionMatrix: { value: null },
+        intensity: { value: 1.0 },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -246,24 +246,24 @@ export class PostProcessing {
         }
       `,
     };
-    
+
     const motionBlurPass = new ShaderPass(motionBlurShader);
     this.composer.addPass(motionBlurPass);
     this.passes.motionBlur = motionBlurPass;
   }
-  
+
   // Add depth of field
-  addDepthOfFieldPass () {
+  addDepthOfFieldPass() {
     const dofShader = {
       uniforms: {
-        'tDiffuse': { value: null },
-        'tDepth': { value: null },
-        'cameraNear': { value: 1 },
-        'cameraFar': { value: 1000 },
-        'focalDepth': { value: 20 },
-        'focalLength': { value: 35 },
-        'fstop': { value: 2.8 },
-        'maxblur': { value: 1.0 },
+        tDiffuse: { value: null },
+        tDepth: { value: null },
+        cameraNear: { value: 1 },
+        cameraFar: { value: 1000 },
+        focalDepth: { value: 20 },
+        focalLength: { value: 35 },
+        fstop: { value: 2.8 },
+        maxblur: { value: 1.0 },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -309,55 +309,57 @@ export class PostProcessing {
         }
       `,
     };
-    
+
     const dofPass = new ShaderPass(dofShader);
     this.composer.addPass(dofPass);
     this.passes.depthOfField = dofPass;
   }
-  
+
   // Update post-processing effects
-  update (_deltaTime) {
-    if (!this.enabled || !this.composer) {return;}
-    
+  update(_deltaTime) {
+    if (!this.enabled || !this.composer) {
+      return;
+    }
+
     // Update bloom intensity based on time
     if (this.passes.bloom) {
       const time = Date.now() * 0.001;
       this.passes.bloom.strength = 0.5 + Math.sin(time * 0.5) * 0.1;
     }
-    
+
     // Update vignette based on player health or other factors
     if (this.passes.vignette) {
       // Example: increase vignette when player is low on health
       // this.passes.vignette.uniforms.darkness.value = 0.3 + (1.0 - health) * 0.4;
     }
   }
-  
+
   // Render with post-processing
-  render () {
+  render() {
     if (this.enabled && this.composer) {
       this.composer.render();
     } else {
       this.renderer.render(this.scene, this.camera);
     }
   }
-  
+
   // Set effect parameters
-  setBloomParameters (strength, radius, threshold) {
+  setBloomParameters(strength, radius, threshold) {
     if (this.passes.bloom) {
       this.passes.bloom.strength = strength;
       this.passes.bloom.radius = radius;
       this.passes.bloom.threshold = threshold;
     }
   }
-  
-  setVignetteParameters (offset, darkness) {
+
+  setVignetteParameters(offset, darkness) {
     if (this.passes.vignette) {
       this.passes.vignette.uniforms.offset.value = offset;
       this.passes.vignette.uniforms.darkness.value = darkness;
     }
   }
-  
-  setColorCorrectionParameters (brightness, contrast, saturation, gamma) {
+
+  setColorCorrectionParameters(brightness, contrast, saturation, gamma) {
     if (this.passes.colorCorrection) {
       this.passes.colorCorrection.uniforms.brightness.value = brightness;
       this.passes.colorCorrection.uniforms.contrast.value = contrast;
@@ -365,39 +367,39 @@ export class PostProcessing {
       this.passes.colorCorrection.uniforms.gamma.value = gamma;
     }
   }
-  
+
   // Enable/disable effects
-  setEffectEnabled (effectName, enabled) {
+  setEffectEnabled(effectName, enabled) {
     if (this.passes[effectName]) {
       this.passes[effectName].enabled = enabled;
     }
   }
-  
+
   // Enable/disable all post-processing
-  setEnabled (enabled) {
+  setEnabled(enabled) {
     this.enabled = enabled;
   }
-  
+
   // Handle window resize
-  onWindowResize (width, height) {
+  onWindowResize(width, height) {
     if (this.composer) {
       this.composer.setSize(width, height);
     }
   }
-  
+
   // Dispose of resources
-  dispose () {
+  dispose() {
     if (this.composer) {
       this.composer.dispose();
       this.composer = null;
     }
-    
+
     Object.values(this.passes).forEach(pass => {
       if (pass.dispose) {
         pass.dispose();
       }
     });
-    
+
     this.passes = {};
   }
-} 
+}
