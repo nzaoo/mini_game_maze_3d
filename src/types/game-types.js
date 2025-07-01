@@ -358,4 +358,4 @@ export const GameTypes = {
   GameEvent: 'GameEvent',
   Achievement: 'Achievement',
   Statistics: 'Statistics',
-}; 
+};

@@ -198,4 +198,4 @@ export const DEBUG_FLAGS = {
   SHOW_PARTICLE_COUNT: false,
   SHOW_PERFORMANCE_METRICS: false,
   ENABLE_CONSOLE_LOGGING: false,
-}; 
+};
