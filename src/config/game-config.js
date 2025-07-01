@@ -90,24 +90,24 @@ export const GameConfig = {
     },
     materials: {
       wall: {
-        color: 0xCD853F,
+        color: 0xcd853f,
         roughness: 0.8,
         metalness: 0.1,
       },
       reward: {
-        color: 0xFFD700,
+        color: 0xffd700,
         emissive: 0x444400,
         metalness: 0.1,
         roughness: 0.3,
       },
       trap: {
-        color: 0xFF4444,
+        color: 0xff4444,
         emissive: 0x440000,
         metalness: 0.2,
         roughness: 0.5,
       },
       finish: {
-        color: 0x00FF00,
+        color: 0x00ff00,
         emissive: 0x004400,
         metalness: 0.2,
         roughness: 0.4,
@@ -313,13 +313,13 @@ export const DifficultyPresets = {
 
 // =============== CONFIGURATION UTILITIES ===============
 export class ConfigManager {
-  constructor () {
+  constructor() {
     this.config = { ...GameConfig };
     this.loadFromStorage();
   }
 
   // Load configuration from localStorage
-  loadFromStorage () {
+  loadFromStorage() {
     try {
       const stored = localStorage.getItem('maze_game_config');
       if (stored) {
@@ -332,7 +332,7 @@ export class ConfigManager {
   }
 
   // Save configuration to localStorage
-  saveToStorage () {
+  saveToStorage() {
     try {
       localStorage.setItem('maze_game_config', JSON.stringify(this.config));
     } catch (error) {
@@ -341,21 +341,24 @@ export class ConfigManager {
   }
 
   // Get configuration value
-  get (path) {
+  get(path) {
     return path.split('.').reduce((obj, key) => obj?.[key], this.config);
   }
 
   // Set configuration value
-  set (path, value) {
+  set(path, value) {
     const keys = path.split('.');
     const lastKey = keys.pop();
-    const obj = keys.reduce((obj, key) => obj[key] = obj[key] || {}, this.config);
+    const obj = keys.reduce(
+      (obj, key) => (obj[key] = obj[key] || {}),
+      this.config,
+    );
     obj[lastKey] = value;
     this.saveToStorage();
   }
 
   // Apply quality preset
-  applyQualityPreset (preset) {
+  applyQualityPreset(preset) {
     const presetConfig = QualityPresets[preset];
     if (presetConfig) {
       this.config = { ...this.config, ...presetConfig };
@@ -364,7 +367,7 @@ export class ConfigManager {
   }
 
   // Apply difficulty preset
-  applyDifficultyPreset (preset) {
+  applyDifficultyPreset(preset) {
     const presetConfig = DifficultyPresets[preset];
     if (presetConfig) {
       this.config = { ...this.config, ...presetConfig };
@@ -373,16 +376,16 @@ export class ConfigManager {
   }
 
   // Reset to defaults
-  reset () {
+  reset() {
     this.config = { ...GameConfig };
     this.saveToStorage();
   }
 
   // Get all configuration
-  getAll () {
+  getAll() {
     return { ...this.config };
   }
 }
 
 // Export default instance
-export const configManager = new ConfigManager(); 
+export const configManager = new ConfigManager();
