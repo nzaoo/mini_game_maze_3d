@@ -252,13 +252,30 @@ let runAnim = 0;
 
 let mazeMap = null; // Khai báo toàn cục
 
+const playerRadius = 0.5; // bán kính người chơi
+
 // Hàm kiểm tra vị trí có phải tường không
-function isWall(x, z) {
+function isWallWithRadius(x, z) {
   if (!mazeMap) return false;
-  const col = Math.floor(x / tileSize);
-  const row = Math.floor(z / tileSize);
-  if (row < 0 || row >= mazeMap.length || col < 0 || col >= mazeMap[0].length) return true;
-  return mazeMap[row][col] === '1';
+  // Kiểm tra 8 điểm quanh vị trí (x, z) trong bán kính playerRadius
+  const checks = [
+    [0, 0],
+    [playerRadius, 0],
+    [-playerRadius, 0],
+    [0, playerRadius],
+    [0, -playerRadius],
+    [playerRadius * 0.7, playerRadius * 0.7],
+    [-playerRadius * 0.7, playerRadius * 0.7],
+    [playerRadius * 0.7, -playerRadius * 0.7],
+    [-playerRadius * 0.7, -playerRadius * 0.7],
+  ];
+  for (const [dx, dz] of checks) {
+    const col = Math.floor((x + dx) / tileSize);
+    const row = Math.floor((z + dz) / tileSize);
+    if (row < 0 || row >= mazeMap.length || col < 0 || col >= mazeMap[0].length) return true;
+    if (mazeMap[row][col] === '1') return true;
+  }
+  return false;
 }
 
 function animate() {
@@ -279,12 +296,12 @@ function animate() {
     let moveX = 0, moveZ = 0;
     if (move.forward || move.backward) moveZ -= direction.z * speed * delta;
     if (move.left || move.right) moveX -= direction.x * speed * delta;
-    // Kiểm tra va chạm tường
+    // Kiểm tra va chạm tường với bán kính
     const obj = controls.getObject();
     const nextX = obj.position.x + moveX;
     const nextZ = obj.position.z + moveZ;
-    if (!isWall(nextX, obj.position.z)) obj.position.x += moveX;
-    if (!isWall(obj.position.x, nextZ)) obj.position.z += moveZ;
+    if (!isWallWithRadius(nextX, obj.position.z)) obj.position.x += moveX;
+    if (!isWallWithRadius(obj.position.x, nextZ)) obj.position.z += moveZ;
     obj.position.y += velocity.y * delta;
     // Prevent falling below floor
     if (obj.position.y < 1.6) {
