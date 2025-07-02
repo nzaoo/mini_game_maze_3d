@@ -332,12 +332,22 @@ class ProfessionalMazeGame {
     document.addEventListener('keyup', (e) => this.onKeyUp(e));
     window.addEventListener('keydown', (e) => this.onKeyDown(e));
     window.addEventListener('keyup', (e) => this.onKeyUp(e));
+    if (document.body) {
+      document.body.addEventListener('keydown', (e) => this.onKeyDown(e));
+      document.body.addEventListener('keyup', (e) => this.onKeyUp(e));
+    }
 
     // Mouse events
     document.addEventListener('click', () => {
       if (!this.isPaused && this.cameraMode === 'firstPerson' && !this.controls.isLocked) {
         this.controls.lock();
       }
+    });
+    this.controls.addEventListener('lock', () => {
+      this.controls.enabled = true;
+    });
+    this.controls.addEventListener('unlock', () => {
+      this.controls.enabled = false;
     });
 
     // Window resize
@@ -346,7 +356,6 @@ class ProfessionalMazeGame {
 
   onKeyDown (e) {
     if (this.isGameOver || this.isGameWon || this.isPaused) {return;}
-
     switch (e.code) {
     case 'KeyW': this.moveState.forward = true; break;
     case 'KeyS': this.moveState.backward = true; break;
@@ -356,6 +365,8 @@ class ProfessionalMazeGame {
     case 'KeyC': this.toggleCameraMode(); break;
     case 'Escape': this.togglePause(); break;
     }
+    // Debug moveState
+    console.log('onKeyDown', e.code, this.moveState);
   }
 
   onKeyUp (e) {
@@ -365,6 +376,8 @@ class ProfessionalMazeGame {
     case 'KeyA': this.moveState.left = false; break;
     case 'KeyD': this.moveState.right = false; break;
     }
+    // Debug moveState
+    console.log('onKeyUp', e.code, this.moveState);
   }
 
   onWindowResize () {
