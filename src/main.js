@@ -330,6 +330,8 @@ class ProfessionalMazeGame {
     // Keyboard events
     document.addEventListener('keydown', (e) => this.onKeyDown(e));
     document.addEventListener('keyup', (e) => this.onKeyUp(e));
+    window.addEventListener('keydown', (e) => this.onKeyDown(e));
+    window.addEventListener('keyup', (e) => this.onKeyUp(e));
 
     // Mouse events
     document.addEventListener('click', () => {
