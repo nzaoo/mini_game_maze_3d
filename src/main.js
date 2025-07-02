@@ -419,7 +419,7 @@ class ProfessionalMazeGame {
           const px = (x - this.mazeSize / 2) * this.tileSize;
           const pz = (y - this.mazeSize / 2) * this.tileSize;
           this.controls.getObject().position.set(px, this.playerHeight / 2, pz);
-          console.log('Spawn at maze[x][y]:', x, y, 'cell:', this.maze[y][x], 'world:', px, pz);
+          
           found = true;
         }
       }
