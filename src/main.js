@@ -144,6 +144,10 @@ class ProfessionalMazeGame {
   }
 
   init () {
+    // Đảm bảo body có thể focus
+    if (document && document.body) {
+      document.body.setAttribute('tabindex', '0');
+    }
     this.createScene();
     this.createLights();
     this.createMaterials();
@@ -344,6 +348,9 @@ class ProfessionalMazeGame {
       }
     });
     this.controls.addEventListener('lock', () => {
+      if (document && document.body) {
+        document.body.focus();
+      }
       this.controls.enabled = true;
     });
     this.controls.addEventListener('unlock', () => {
@@ -529,6 +536,7 @@ class ProfessionalMazeGame {
   }
 
   updatePlayerMovement (delta) {
+    if (!this.controls.isLocked) { return; }
     if (this.isGameOver || this.isGameWon || this.isPaused) {return;}
     const speed = this.isRunning ? this.runSpeed : this.moveSpeed;
     // Apply gravity
