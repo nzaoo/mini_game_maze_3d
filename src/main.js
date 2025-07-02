@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 // =============== MAZE GENERATOR ===============
 class MazeGenerator {
-  constructor(width, height) {
+  constructor (width, height) {
     // Ensure odd dimensions for proper maze generation
     this.width = width % 2 === 0 ? width + 1 : width;
     this.height = height % 2 === 0 ? height + 1 : height;
@@ -13,7 +13,7 @@ class MazeGenerator {
     this.visited = [];
   }
 
-  generate() {
+  generate () {
     // Initialize maze with walls
     for (let y = 0; y < this.height; y++) {
       this.maze[y] = [];
@@ -26,18 +26,18 @@ class MazeGenerator {
 
     // Start from (1,1) and use recursive backtracking
     this.carvePath(1, 1);
-    
+
     // Set start and end points
     this.maze[1][1] = 'S'; // Start
     this.maze[this.height - 2][this.width - 2] = 'E'; // End
-    
+
     // Add some rewards and traps randomly
     this.addRewardsAndTraps();
-    
+
     return this.maze;
   }
 
-  carvePath(x, y) {
+  carvePath (x, y) {
     this.visited[y][x] = true;
     this.maze[y][x] = 0; // Path
 
@@ -45,7 +45,7 @@ class MazeGenerator {
       [0, -2], // North
       [2, 0],  // East
       [0, 2],  // South
-      [-2, 0]  // West
+      [-2, 0],  // West
     ];
 
     // Shuffle directions
@@ -59,13 +59,13 @@ class MazeGenerator {
       const newY = y + dy;
 
       if (newX > 0 && newX < this.width - 1 && newY > 0 && newY < this.height - 1 && !this.visited[newY][newX]) {
-        this.maze[y + dy/2][x + dx/2] = 0; // Carve wall between cells
+        this.maze[y + dy / 2][x + dx / 2] = 0; // Carve wall between cells
         this.carvePath(newX, newY);
       }
     }
   }
 
-  addRewardsAndTraps() {
+  addRewardsAndTraps () {
     const pathCells = [];
     for (let y = 1; y < this.height - 1; y++) {
       for (let x = 1; x < this.width - 1; x++) {
@@ -95,7 +95,7 @@ class MazeGenerator {
 
 // =============== PROFESSIONAL 3D MAZE GAME ===============
 class ProfessionalMazeGame {
-  constructor() {
+  constructor () {
     this.scene = null;
     this.camera = null;
     this.renderer = null;
@@ -139,11 +139,11 @@ class ProfessionalMazeGame {
     this.minimap = null;
     this.isPaused = false;
     this.cameraMode = 'firstPerson'; // 'firstPerson' or 'orbit'
-    
+
     this.init();
   }
 
-  init() {
+  init () {
     this.createScene();
     this.createLights();
     this.createMaterials();
@@ -154,11 +154,11 @@ class ProfessionalMazeGame {
     this.animate();
   }
 
-  createScene() {
+  createScene () {
     // Scene
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color('#e0eafc');
-    
+
     // Fog for atmosphere (sáng)
     this.fog = new THREE.Fog('#e0eafc', 50, 200);
     this.scene.fog = this.fog;
@@ -168,14 +168,14 @@ class ProfessionalMazeGame {
       75,
       window.innerWidth / window.innerHeight,
       0.1,
-      1000
+      1000,
     );
     this.camera.position.set(0, this.playerHeight, 0);
 
     // Renderer
-    this.renderer = new THREE.WebGLRenderer({ 
+    this.renderer = new THREE.WebGLRenderer({
       antialias: true,
-      powerPreference: 'high-performance'
+      powerPreference: 'high-performance',
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
@@ -195,7 +195,7 @@ class ProfessionalMazeGame {
     this.orbitControls.minDistance = 10;
   }
 
-  createLights() {
+  createLights () {
     // Ambient light (sáng hơn)
     this.ambientLight = new THREE.AmbientLight(0xffffff, 1.1);
     this.scene.add(this.ambientLight);
@@ -222,30 +222,30 @@ class ProfessionalMazeGame {
     this.scene.add(this.spotLight.target);
   }
 
-  createMaterials() {
+  createMaterials () {
     // Wall material with normal mapping
     const wallTexture = this.textureLoader.load('public/tuong.jpg');
     wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping;
     wallTexture.repeat.set(2, 2);
-    
+
     this.materials.wall = new THREE.MeshStandardMaterial({
       map: wallTexture,
       color: 0x8B4513,
       roughness: 0.8,
       metalness: 0.1,
-      normalScale: new THREE.Vector2(0.5, 0.5)
+      normalScale: new THREE.Vector2(0.5, 0.5),
     });
 
     // Floor material
     const floorTexture = this.textureLoader.load('public/cỏ.jpg');
     floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
     floorTexture.repeat.set(10, 10);
-    
+
     this.materials.floor = new THREE.MeshStandardMaterial({
       map: floorTexture,
       color: 0x4a5d23,
       roughness: 0.9,
-      metalness: 0.0
+      metalness: 0.0,
     });
 
     // Reward material
@@ -253,7 +253,7 @@ class ProfessionalMazeGame {
       color: 0xFFD700,
       emissive: 0x444400,
       metalness: 0.8,
-      roughness: 0.2
+      roughness: 0.2,
     });
 
     // Trap material
@@ -261,7 +261,7 @@ class ProfessionalMazeGame {
       color: 0xFF4444,
       emissive: 0x440000,
       metalness: 0.3,
-      roughness: 0.7
+      roughness: 0.7,
     });
 
     // Finish material
@@ -269,18 +269,18 @@ class ProfessionalMazeGame {
       color: 0x00FF00,
       emissive: 0x004400,
       metalness: 0.5,
-      roughness: 0.3
+      roughness: 0.3,
     });
 
     // Player material
     this.materials.player = new THREE.MeshStandardMaterial({
       color: 0x4A90E2,
       metalness: 0.2,
-      roughness: 0.8
+      roughness: 0.8,
     });
   }
 
-  createUI() {
+  createUI () {
     this.ui = document.createElement('div');
     this.ui.style.cssText = `
       position: fixed;
@@ -308,7 +308,7 @@ class ProfessionalMazeGame {
     document.body.appendChild(this.ui);
   }
 
-  createMinimap() {
+  createMinimap () {
     this.minimap = document.createElement('canvas');
     this.minimap.width = 200;
     this.minimap.height = 200;
@@ -326,11 +326,11 @@ class ProfessionalMazeGame {
     this.minimapCtx = this.minimap.getContext('2d');
   }
 
-  setupEventListeners() {
+  setupEventListeners () {
     // Keyboard events
     document.addEventListener('keydown', (e) => this.onKeyDown(e));
     document.addEventListener('keyup', (e) => this.onKeyUp(e));
-    
+
     // Mouse events
     document.addEventListener('click', () => {
       if (!this.isPaused && this.cameraMode === 'firstPerson' && !this.controls.isLocked) {
@@ -342,38 +342,38 @@ class ProfessionalMazeGame {
     window.addEventListener('resize', () => this.onWindowResize());
   }
 
-  onKeyDown(e) {
-    if (this.isGameOver || this.isGameWon || this.isPaused) return;
+  onKeyDown (e) {
+    if (this.isGameOver || this.isGameWon || this.isPaused) {return;}
 
-    switch(e.code) {
-      case 'KeyW': this.moveState.forward = true; break;
-      case 'KeyS': this.moveState.backward = true; break;
-      case 'KeyA': this.moveState.left = true; break;
-      case 'KeyD': this.moveState.right = true; break;
-      case 'Space': this.jump(); break;
-      case 'KeyC': this.toggleCameraMode(); break;
-      case 'Escape': this.togglePause(); break;
+    switch (e.code) {
+    case 'KeyW': this.moveState.forward = true; break;
+    case 'KeyS': this.moveState.backward = true; break;
+    case 'KeyA': this.moveState.left = true; break;
+    case 'KeyD': this.moveState.right = true; break;
+    case 'Space': this.jump(); break;
+    case 'KeyC': this.toggleCameraMode(); break;
+    case 'Escape': this.togglePause(); break;
     }
   }
 
-  onKeyUp(e) {
-    switch(e.code) {
-      case 'KeyW': this.moveState.forward = false; break;
-      case 'KeyS': this.moveState.backward = false; break;
-      case 'KeyA': this.moveState.left = false; break;
-      case 'KeyD': this.moveState.right = false; break;
+  onKeyUp (e) {
+    switch (e.code) {
+    case 'KeyW': this.moveState.forward = false; break;
+    case 'KeyS': this.moveState.backward = false; break;
+    case 'KeyA': this.moveState.left = false; break;
+    case 'KeyD': this.moveState.right = false; break;
     }
   }
 
-  onWindowResize() {
+  onWindowResize () {
     this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  toggleCameraMode() {
+  toggleCameraMode () {
     this.cameraMode = this.cameraMode === 'firstPerson' ? 'orbit' : 'firstPerson';
-    
+
     if (this.cameraMode === 'firstPerson') {
       this.controls.enabled = true;
       this.orbitControls.enabled = false;
@@ -387,28 +387,28 @@ class ProfessionalMazeGame {
     }
   }
 
-  togglePause() {
+  togglePause () {
     this.isPaused = !this.isPaused;
     if (this.isPaused) {
       this.controls.unlock();
     }
   }
 
-  jump() {
+  jump () {
     if (this.canJump) {
       this.velocity.y = this.jumpPower;
       this.canJump = false;
     }
   }
 
-  loadLevel(level) {
+  loadLevel (level) {
     this.currentLevel = level;
     this.clearLevel();
-    
+
     // Generate maze
     const generator = new MazeGenerator(this.mazeSize, this.mazeSize);
     this.maze = generator.generate();
-    
+
     this.buildMaze();
     this.createPlayer();
     // Đảm bảo controls.getObject() luôn ở ô trống đầu tiên
@@ -428,13 +428,13 @@ class ProfessionalMazeGame {
     this.updateMinimap();
   }
 
-  clearLevel() {
+  clearLevel () {
     // Remove all objects
     this.walls.forEach(wall => this.scene.remove(wall));
     this.rewards.forEach(reward => this.scene.remove(reward));
     this.traps.forEach(trap => this.scene.remove(trap));
-    if (this.player) this.scene.remove(this.player);
-    
+    if (this.player) {this.scene.remove(this.player);}
+
     this.walls = [];
     this.rewards = [];
     this.traps = [];
@@ -444,11 +444,11 @@ class ProfessionalMazeGame {
     this.isGameWon = false;
   }
 
-  buildMaze() {
+  buildMaze () {
     // Create floor
     const floorGeometry = new THREE.PlaneGeometry(
       this.mazeSize * this.tileSize,
-      this.mazeSize * this.tileSize
+      this.mazeSize * this.tileSize,
     );
     const floor = new THREE.Mesh(floorGeometry, this.materials.floor);
     floor.rotation.x = -Math.PI / 2;
@@ -506,15 +506,15 @@ class ProfessionalMazeGame {
     }
   }
 
-  createPlayer() {
+  createPlayer () {
     const playerGeometry = new THREE.CapsuleGeometry(this.playerRadius, this.playerHeight - this.playerRadius * 2, 8, 16);
     this.player = new THREE.Mesh(playerGeometry, this.materials.player);
     this.player.castShadow = true;
     this.scene.add(this.player);
   }
 
-  updatePlayerMovement(delta) {
-    if (this.isGameOver || this.isGameWon || this.isPaused) return;
+  updatePlayerMovement (delta) {
+    if (this.isGameOver || this.isGameWon || this.isPaused) {return;}
     const speed = this.isRunning ? this.runSpeed : this.moveSpeed;
     // Apply gravity
     this.velocity.y -= this.gravity * delta;
@@ -526,7 +526,7 @@ class ProfessionalMazeGame {
       forward.y = 0;
       forward.normalize();
       moveVector.add(forward.multiplyScalar(
-        (this.moveState.forward ? 1 : -1) * speed * delta
+        (this.moveState.forward ? 1 : -1) * speed * delta,
       ));
     }
     if (this.moveState.left || this.moveState.right) {
@@ -536,16 +536,13 @@ class ProfessionalMazeGame {
       right.y = 0;
       right.normalize();
       moveVector.add(right.multiplyScalar(
-        (this.moveState.right ? 1 : -1) * speed * delta
+        (this.moveState.right ? 1 : -1) * speed * delta,
       ));
     }
-    // Log debug
-    console.log('moveState:', this.moveState, 'moveVector:', moveVector);
     // Di chuyển controls.getObject() thay vì player mesh
     const obj = this.controls.getObject();
     const nextPosition = obj.position.clone().add(moveVector);
     const collision = this.checkCollision(nextPosition);
-    console.log('nextPosition:', nextPosition, 'collision:', collision);
     if (!collision) {
       obj.position.copy(nextPosition);
     }
@@ -568,7 +565,7 @@ class ProfessionalMazeGame {
     this.spotLight.target.position.copy(this.camera.position).add(target.multiplyScalar(10));
   }
 
-  checkCollision(position) {
+  checkCollision (position) {
     const playerRadius = this.playerRadius;
     const checks = [
       [position.x + playerRadius, position.z],
@@ -578,13 +575,12 @@ class ProfessionalMazeGame {
       [position.x + playerRadius * 0.7, position.z + playerRadius * 0.7],
       [position.x - playerRadius * 0.7, position.z - playerRadius * 0.7],
       [position.x + playerRadius * 0.7, position.z - playerRadius * 0.7],
-      [position.x - playerRadius * 0.7, position.z + playerRadius * 0.7]
+      [position.x - playerRadius * 0.7, position.z + playerRadius * 0.7],
     ];
     for (const [x, z] of checks) {
       const mazeX = Math.floor((x + this.mazeSize * this.tileSize / 2) / this.tileSize);
       const mazeZ = Math.floor((z + this.mazeSize * this.tileSize / 2) / this.tileSize);
-      let cell = (mazeZ >= 0 && mazeZ < this.maze.length && mazeX >= 0 && mazeX < this.maze[mazeZ].length) ? this.maze[mazeZ][mazeX] : 'OUT';
-      console.log('checkCollision:', {x, z, mazeX, mazeZ, cell});
+      const cell = (mazeZ >= 0 && mazeZ < this.maze.length && mazeX >= 0 && mazeX < this.maze[mazeZ].length) ? this.maze[mazeZ][mazeX] : 'OUT';
       if (mazeX < 0 || mazeX >= this.mazeSize || mazeZ < 0 || mazeZ >= this.mazeSize) {
         return true; // Out of bounds
       }
@@ -595,7 +591,7 @@ class ProfessionalMazeGame {
     return false;
   }
 
-  checkInteractions() {
+  checkInteractions () {
     // Dùng vị trí controls.getObject() để kiểm tra va chạm
     const obj = this.controls.getObject();
     // Check rewards
@@ -620,34 +616,34 @@ class ProfessionalMazeGame {
     const finishPosition = new THREE.Vector3(
       (this.mazeSize - 2 - this.mazeSize / 2) * this.tileSize,
       0.25,
-      (this.mazeSize - 2 - this.mazeSize / 2) * this.tileSize
+      (this.mazeSize - 2 - this.mazeSize / 2) * this.tileSize,
     );
     if (obj.position.distanceTo(finishPosition) < 2) {
       this.gameWon();
     }
   }
 
-  createParticleEffect(position, color) {
+  createParticleEffect (position, color) {
     const particleCount = 20;
     const particles = new THREE.Group();
 
     for (let i = 0; i < particleCount; i++) {
       const particleGeometry = new THREE.SphereGeometry(0.1, 4, 4);
-      const particleMaterial = new THREE.MeshBasicMaterial({ 
+      const particleMaterial = new THREE.MeshBasicMaterial({
         color: color,
         transparent: true,
-        opacity: 1
+        opacity: 1,
       });
       const particle = new THREE.Mesh(particleGeometry, particleMaterial);
-      
+
       particle.position.copy(position);
       particle.userData.velocity = new THREE.Vector3(
         (Math.random() - 0.5) * 10,
         Math.random() * 10 + 5,
-        (Math.random() - 0.5) * 10
+        (Math.random() - 0.5) * 10,
       );
       particle.userData.life = 1.0;
-      
+
       particles.add(particle);
     }
 
@@ -655,10 +651,10 @@ class ProfessionalMazeGame {
     this.particles.push(particles);
   }
 
-  updateParticles(delta) {
+  updateParticles (delta) {
     for (let i = this.particles.length - 1; i >= 0; i--) {
       const particleGroup = this.particles[i];
-      
+
       particleGroup.children.forEach(particle => {
         particle.position.add(particle.userData.velocity.clone().multiplyScalar(delta));
         particle.userData.velocity.y -= 20 * delta; // Gravity
@@ -673,29 +669,29 @@ class ProfessionalMazeGame {
     }
   }
 
-  gameOver() {
+  gameOver () {
     this.isGameOver = true;
     this.controls.unlock();
     alert('Game Over! You hit a trap!');
     this.loadLevel(this.currentLevel);
   }
 
-  gameWon() {
+  gameWon () {
     this.isGameWon = true;
     this.controls.unlock();
     alert(`Congratulations! You completed level ${this.currentLevel + 1}!`);
     this.loadLevel(this.currentLevel + 1);
   }
 
-  updateUI() {
+  updateUI () {
     const scoreElement = document.getElementById('score');
     const levelElement = document.getElementById('level');
-    if (scoreElement) scoreElement.textContent = this.score;
-    if (levelElement) levelElement.textContent = this.currentLevel + 1;
+    if (scoreElement) {scoreElement.textContent = this.score;}
+    if (levelElement) {levelElement.textContent = this.currentLevel + 1;}
   }
 
-  updateMinimap() {
-    if (!this.minimapCtx || !this.maze) return;
+  updateMinimap () {
+    if (!this.minimapCtx || !this.maze) {return;}
 
     const ctx = this.minimapCtx;
     const size = this.minimap.width;
@@ -718,15 +714,15 @@ class ProfessionalMazeGame {
         } else if (cell === 'R') {
           ctx.fillStyle = '#FFD700';
           ctx.beginPath();
-          ctx.arc(px + cellSize/2, py + cellSize/2, cellSize/3, 0, Math.PI * 2);
+          ctx.arc(px + cellSize / 2, py + cellSize / 2, cellSize / 3, 0, Math.PI * 2);
           ctx.fill();
         } else if (cell === 'T') {
           ctx.fillStyle = '#FF4444';
-          ctx.fillRect(px + cellSize/4, py + cellSize/4, cellSize/2, cellSize/2);
+          ctx.fillRect(px + cellSize / 4, py + cellSize / 4, cellSize / 2, cellSize / 2);
         } else if (cell === 'E') {
           ctx.fillStyle = '#00FF00';
           ctx.beginPath();
-          ctx.arc(px + cellSize/2, py + cellSize/2, cellSize/3, 0, Math.PI * 2);
+          ctx.arc(px + cellSize / 2, py + cellSize / 2, cellSize / 3, 0, Math.PI * 2);
           ctx.fill();
         }
       }
@@ -736,7 +732,7 @@ class ProfessionalMazeGame {
     if (this.player) {
       const playerX = (this.player.position.x + this.mazeSize * this.tileSize / 2) / this.tileSize;
       const playerZ = (this.player.position.z + this.mazeSize * this.tileSize / 2) / this.tileSize;
-      
+
       ctx.fillStyle = '#4A90E2';
       ctx.beginPath();
       ctx.arc(
@@ -744,7 +740,7 @@ class ProfessionalMazeGame {
         playerZ * cellSize,
         cellSize / 3,
         0,
-        Math.PI * 2
+        Math.PI * 2,
       );
       ctx.fill();
     }
@@ -755,7 +751,7 @@ class ProfessionalMazeGame {
     ctx.strokeRect(0, 0, size, size);
   }
 
-  animate() {
+  animate () {
     requestAnimationFrame(() => this.animate());
 
     const delta = this.clock.getDelta();
@@ -765,7 +761,7 @@ class ProfessionalMazeGame {
       this.checkInteractions();
       this.updateParticles(delta);
       this.updateMinimap();
-      
+
       if (this.orbitControls.enabled) {
         this.orbitControls.update();
       }
