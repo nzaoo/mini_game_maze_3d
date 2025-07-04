@@ -236,26 +236,36 @@ class ProfessionalMazeGame {
 
   createMaterials () {
     // Wall material with normal mapping
-    const wallTexture = this.textureLoader.load('/tuong.jpg');
-    wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping;
-    wallTexture.repeat.set(2, 2);
-
+    let wallTexture;
+    try {
+      wallTexture = this.textureLoader.load('/tuong.jpg');
+      wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping;
+      wallTexture.repeat.set(2, 2);
+    } catch (e) {
+      console.warn('Không load được texture tường, dùng màu mặc định', e);
+      wallTexture = null;
+    }
     this.materials.wall = new THREE.MeshStandardMaterial({
-      map: wallTexture,
-      color: 0x8B4513,
+      map: wallTexture || undefined,
+      color: wallTexture ? 0x8B4513 : 0x888888,
       roughness: 0.8,
       metalness: 0.1,
       normalScale: new THREE.Vector2(0.5, 0.5),
     });
 
     // Floor material
-    const floorTexture = this.textureLoader.load('/cỏ.jpg');
-    floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
-    floorTexture.repeat.set(10, 10);
-
+    let floorTexture;
+    try {
+      floorTexture = this.textureLoader.load('/cỏ.jpg');
+      floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
+      floorTexture.repeat.set(10, 10);
+    } catch (e) {
+      console.warn('Không load được texture sàn, dùng màu mặc định', e);
+      floorTexture = null;
+    }
     this.materials.floor = new THREE.MeshStandardMaterial({
-      map: floorTexture,
-      color: 0x4a5d23,
+      map: floorTexture || undefined,
+      color: floorTexture ? 0x4a5d23 : 0x444444,
       roughness: 0.9,
       metalness: 0.0,
     });
