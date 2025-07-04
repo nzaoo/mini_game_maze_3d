@@ -349,13 +349,11 @@ class ProfessionalMazeGame {
       }
     });
     this.controls.addEventListener('lock', () => {
-      if (document && document.body) {
-        document.body.focus(); // Đảm bảo body nhận focus khi lock chuột
-      }
-      this.controls.enabled = true;
+      // Không cần set enabled, PointerLockControls tự xử lý
+      // Không cần focus body ở đây
     });
     this.controls.addEventListener('unlock', () => {
-      this.controls.enabled = false;
+      // Không cần set enabled, PointerLockControls tự xử lý
     });
     // Window resize
     window.addEventListener('resize', () => this.onWindowResize());
