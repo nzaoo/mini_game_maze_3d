@@ -331,16 +331,9 @@ class ProfessionalMazeGame {
   }
 
   setupEventListeners () {
-    // Keyboard events
+    // Keyboard events - chỉ lắng nghe trên document để tránh xung đột
     document.addEventListener('keydown', (e) => this.onKeyDown(e));
     document.addEventListener('keyup', (e) => this.onKeyUp(e));
-    window.addEventListener('keydown', (e) => this.onKeyDown(e));
-    window.addEventListener('keyup', (e) => this.onKeyUp(e));
-    if (document.body) {
-      document.body.addEventListener('keydown', (e) => this.onKeyDown(e));
-      document.body.addEventListener('keyup', (e) => this.onKeyUp(e));
-    }
-
     // Mouse events
     document.addEventListener('click', () => {
       if (!this.isPaused && this.cameraMode === 'firstPerson' && !this.controls.isLocked) {
@@ -349,14 +342,13 @@ class ProfessionalMazeGame {
     });
     this.controls.addEventListener('lock', () => {
       if (document && document.body) {
-        document.body.focus();
+        document.body.focus(); // Đảm bảo body nhận focus khi lock chuột
       }
       this.controls.enabled = true;
     });
     this.controls.addEventListener('unlock', () => {
       this.controls.enabled = false;
     });
-
     // Window resize
     window.addEventListener('resize', () => this.onWindowResize());
   }
