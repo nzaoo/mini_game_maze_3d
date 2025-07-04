@@ -96,18 +96,27 @@ class MazeGenerator {
 // =============== PROFESSIONAL 3D MAZE GAME ===============
 class ProfessionalMazeGame {
   constructor () {
+    // THREE.js core
     this.scene = null;
     this.camera = null;
     this.renderer = null;
+    // Controls
     this.controls = null;
     this.orbitControls = null;
+    // Maze & player
     this.maze = null;
     this.player = null;
     this.walls = [];
     this.rewards = [];
     this.traps = [];
+    // Hiệu ứng, ánh sáng, particles
     this.lights = [];
+    this.ambientLight = null;
+    this.directionalLight = null;
+    this.spotLight = null;
+    this.fog = null;
     this.particles = [];
+    // Thông số game
     this.score = 0;
     this.isGameOver = false;
     this.isGameWon = false;
@@ -124,22 +133,21 @@ class ProfessionalMazeGame {
     this.moveState = { forward: false, backward: false, left: false, right: false };
     this.canJump = false;
     this.isRunning = false;
+    // Thời gian, raycaster, texture
     this.clock = new THREE.Clock();
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
-    this.ambientLight = null;
-    this.directionalLight = null;
-    this.spotLight = null;
-    this.fog = null;
     this.textureLoader = new THREE.TextureLoader();
     this.materials = {};
     this.geometries = {};
+    // UI, minimap, sound
     this.soundManager = null;
     this.ui = null;
     this.minimap = null;
+    this.minimapCtx = null;
     this.isPaused = false;
     this.cameraMode = 'firstPerson'; // 'firstPerson' or 'orbit'
-
+    // Khởi tạo game
     this.init();
   }
 
