@@ -441,15 +441,16 @@ class ProfessionalMazeGame {
 
     this.buildMaze();
     this.createPlayer();
-    // Đảm bảo controls.getObject() luôn ở ô trống đầu tiên
+    // Đảm bảo controls.getObject() và player luôn ở ô 'S' (Start)
     let found = false;
     for (let y = 1; y < this.maze.length - 1 && !found; y++) {
       for (let x = 1; x < this.maze[y].length - 1 && !found; x++) {
-        if (this.maze[y][x] === 0 || this.maze[y][x] === 'S') {
+        if (this.maze[y][x] === 'S') {
           const px = (x - this.mazeSize / 2) * this.tileSize;
           const pz = (y - this.mazeSize / 2) * this.tileSize;
           this.controls.getObject().position.set(px, this.playerHeight / 2, pz);
-          
+          if (this.player) { this.player.position.set(px, this.playerHeight / 2, pz); }
+          console.log('Spawn player at:', x, y, '->', px, pz);
           found = true;
         }
       }
