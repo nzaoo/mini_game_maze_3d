@@ -238,7 +238,7 @@ class ProfessionalMazeGame {
     // Wall material with normal mapping
     let wallTexture;
     try {
-      wallTexture = this.textureLoader.load('/tuong.jpg');
+      wallTexture = this.textureLoader.load('tuong.jpg');
       wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping;
       wallTexture.repeat.set(2, 2);
     } catch (e) {
@@ -256,7 +256,7 @@ class ProfessionalMazeGame {
     // Floor material
     let floorTexture;
     try {
-      floorTexture = this.textureLoader.load('/cỏ.jpg');
+      floorTexture = this.textureLoader.load('co.jpg');
       floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
       floorTexture.repeat.set(10, 10);
     } catch (e) {
