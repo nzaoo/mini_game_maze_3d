@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import './style.css';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 // =============== MAZE GENERATOR ===============
 class MazeGenerator {
@@ -538,10 +539,34 @@ class ProfessionalMazeGame {
   }
 
   createPlayer () {
-    const playerGeometry = new THREE.CapsuleGeometry(this.playerRadius, this.playerHeight - this.playerRadius * 2, 8, 16);
-    this.player = new THREE.Mesh(playerGeometry, this.materials.player);
-    this.player.castShadow = true;
-    this.scene.add(this.player);
+    // Remove old player mesh if exists
+    if (this.player) {
+      this.scene.remove(this.player);
+      this.player = null;
+    }
+    // Load GLB model
+    const loader = new GLTFLoader();
+    loader.load('walk.glb', (gltf) => {
+      const model = gltf.scene;
+      model.traverse((child) => {
+        if (child.isMesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      });
+      // Scale and position model
+      model.scale.set(2, 2, 2); // Adjust scale as needed
+      model.position.copy(this.controls.getObject().position);
+      this.scene.add(model);
+      this.player = model;
+    }, undefined, (error) => {
+      console.error('Error loading walk.glb:', error);
+      // Fallback: Capsule
+      const playerGeometry = new THREE.CapsuleGeometry(this.playerRadius, this.playerHeight - this.playerRadius * 2, 8, 16);
+      this.player = new THREE.Mesh(playerGeometry, this.materials.player);
+      this.player.castShadow = true;
+      this.scene.add(this.player);
+    });
   }
 
   updatePlayerMovement (delta) {
