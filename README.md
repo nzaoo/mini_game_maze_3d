@@ -26,7 +26,7 @@ A modern, immersive 3D maze game built with Three.js featuring dynamic lighting,
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### Prerequisite
 
 - Node.js 18.0.0 or higher
 - npm 9.0.0 or higher
