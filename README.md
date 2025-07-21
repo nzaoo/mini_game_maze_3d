@@ -62,7 +62,7 @@ A modern, immersive 3D maze game built with Three.js featuring dynamic lighting,
 - **ESC**: Pause/Resume game
 
 ### Objectives
-- 🟡 **Collect golden spheres** to earn points
+- 🟡 **Collect golden spheres** to earn point
 - 🔴 **Avoid red traps** that can end your game
 - 🟢 **Reach the green exit** to complete the level
 - ⏰ **Beat the timer** before time runs out
